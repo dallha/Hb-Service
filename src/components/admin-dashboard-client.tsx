@@ -2093,3 +2093,107 @@ function PromoCodesTab({ promos, searchQuery, setSearchQuery, onRefresh, showToa
     </motion.div>
   );
 }
+
+// ─── Users Tab ──────────────────────────────────────────────────
+
+function UsersTab({ users, searchQuery, setSearchQuery, onRefresh, showToast }: {
+  users: AdminUser[];
+  searchQuery: string;
+  setSearchQuery: (q: string) => void;
+  onRefresh: () => void;
+  showToast: (msg: string, variant?: 'default' | 'destructive') => void;
+}) {
+  const [processing, setProcessing] = useState<string | null>(null);
+
+  const handleToggleRole = async (userId: string, currentRole: string) => {
+    setProcessing(userId);
+    try {
+      const res = await fetch(`/api/users/role`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, role: currentRole === 'ADMIN' ? 'USER' : 'ADMIN' }),
+      });
+      if (!res.ok) throw new Error();
+      showToast('Rôle mis à jour');
+      onRefresh();
+    } catch {
+      showToast('Erreur lors de la mise à jour', 'destructive');
+    } finally {
+      setProcessing(null);
+    }
+  };
+
+  return (
+    <motion.div
+      key="users"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8C8C8C]" />
+          <Input
+            placeholder="Rechercher un utilisateur..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 bg-white border-[#E8E0D5] rounded-none font-sans text-sm h-10"
+          />
+        </div>
+      </div>
+
+      <div className="bg-white rounded-sm border border-[#E8E0D5] overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left font-sans text-sm">
+            <thead className="bg-[#F8F7F5] border-b border-[#E8E0D5]">
+              <tr>
+                <th className="px-4 py-3 font-medium text-[#8C8C8C]">Nom Complet</th>
+                <th className="px-4 py-3 font-medium text-[#8C8C8C]">Email</th>
+                <th className="px-4 py-3 font-medium text-[#8C8C8C]">Téléphone</th>
+                <th className="px-4 py-3 font-medium text-[#8C8C8C]">Inscription</th>
+                <th className="px-4 py-3 font-medium text-[#8C8C8C]">Rôle</th>
+                <th className="px-4 py-3 font-medium text-[#8C8C8C] text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-4 py-8 text-center text-[#8C8C8C]">Aucun utilisateur trouvé</td>
+                </tr>
+              ) : (
+                users.map((user) => (
+                  <tr key={user.id} className="border-b border-[#E8E0D5] last:border-0 hover:bg-[#F8F7F5]/50 transition-colors">
+                    <td className="px-4 py-3 font-medium text-[#1A1A1A]">{user.fullName || '-'}</td>
+                    <td className="px-4 py-3">{user.email}</td>
+                    <td className="px-4 py-3">{user.phone || '-'}</td>
+                    <td className="px-4 py-3">{new Date(user.createdAt).toLocaleDateString('fr-FR')}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-xs tracking-wider uppercase ${
+                        user.role === 'ADMIN' ? 'bg-[#D4AF37]/15 text-[#D4AF37]' : 'bg-[#E8E0D5] text-[#8C8C8C]'
+                      }`}>
+                        {user.role}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right space-x-2 whitespace-nowrap">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={processing === user.id}
+                        onClick={() => handleToggleRole(user.id, user.role)}
+                        className={`h-8 px-2 text-xs uppercase tracking-widest ${user.role === 'ADMIN' ? 'text-[#C44536] hover:bg-[#C44536]/10' : 'text-[#4A7C59] hover:bg-[#4A7C59]/10'}`}
+                        title={user.role === 'ADMIN' ? 'Retirer les droits Admin' : 'Donner les droits Admin'}
+                      >
+                        {user.role === 'ADMIN' ? 'Rétrograder' : 'Promouvoir'}
+                      </Button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
