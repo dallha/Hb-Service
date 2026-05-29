@@ -3,8 +3,12 @@ import { notFound } from 'next/navigation';
 
 export const locales = ['fr', 'en'];
 
-export default getRequestConfig(async ({ locale }) => {
-  if (!locales.includes(locale as any)) notFound();
+export default getRequestConfig(async ({ requestLocale }) => {
+  let locale = await requestLocale;
+  
+  if (!locale || !locales.includes(locale as any)) {
+    locale = 'fr'; // default locale fallback
+  }
 
   return {
     locale: locale as string,

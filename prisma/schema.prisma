@@ -7,8 +7,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -65,8 +66,8 @@ model Product {
   notesOlfactives  String?  // Notes olfactives (head, heart, base)
   inspiration      String?  // Story behind the product
   imageUrl         String?
-  galleryUrls      String?  // JSON array of image URLs
-  relatedRitualIds String?  // JSON array of product IDs for "Complete your Ritual"
+  galleryUrls      Json?    // JSON array of image URLs
+  relatedRitualIds Json?    // JSON array of product IDs for "Complete your Ritual"
   embedding        String?  // Reserved for V2 vector search (pgvector)
   isActive         Boolean  @default(true)
   createdAt        DateTime @default(now())
@@ -133,7 +134,7 @@ model Payment {
   provider  String // "stripe", "wave", "orange_money", "cash"
   status    String @default("pending") // pending, processing, completed, failed, refunded
   reference String? // Transaction reference
-  metadata  String? // JSON for additional payment data
+  metadata  Json?   // JSON for additional payment data
 
   order Order @relation(fields: [orderId], references: [id])
 
@@ -158,7 +159,7 @@ model AnalyticsEvent {
   id        String   @id @default(cuid())
   eventType String   // "page_view", "product_view", "add_to_cart", "checkout_start", "purchase"
   entity    String?  // Product slug, collection slug, etc.
-  metadata  String?  // JSON
+  metadata  Json?    // JSON
   createdAt DateTime @default(now())
 
   @@index([eventType])

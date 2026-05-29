@@ -48,10 +48,16 @@ export default async function RootLayout(props: {
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
-  const { locale } = await props.params;
+  const params = await props.params;
+  const locale = params?.locale || 'fr';
   const { children } = props;
 
-  if (!locales.includes(locale as any)) notFound();
+  console.log('--- LAYOUT MOUNTED WITH LOCALE:', locale);
+
+  if (!locales.includes(locale as any)) {
+    console.error('Invalid locale caught:', locale);
+    notFound();
+  }
 
   const messages = await getMessages();
 

@@ -7,7 +7,7 @@ import { locales } from './i18n';
 const intlMiddleware = createMiddleware({
   locales,
   defaultLocale: 'fr',
-  localePrefix: 'as-needed'
+  localePrefix: 'always'
 });
 
 // List of public API routes that don't require authentication
@@ -71,6 +71,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Match only internationalized pathnames
-  matcher: ['/((?!api|_next|_vercel|.*\\..*).*)', '/([\\w-]+)?/users/(.+)']
+  matcher: ['/((?!_next|_vercel|.*\\..*).*)']
 };

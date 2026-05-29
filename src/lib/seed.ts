@@ -243,7 +243,7 @@ export async function seedDatabase() {
     where: { product: { slug: 'sillage-dor' } },
   });
   const brumeVariants = await db.productVariant.findMany({
-    where: { product: { slug: 'brume-serinite' } },
+    where: { product: { slug: 'brume-serenite' } },
   });
 
   const order1 = await db.order.create({
