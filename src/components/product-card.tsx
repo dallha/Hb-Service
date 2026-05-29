@@ -58,7 +58,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       className="group cursor-pointer"
       onClick={() => navigate('product', { productId: product.id })}
     >
-      <div className="relative aspect-[3/4] overflow-hidden rounded-sm bg-[#E8E0D5] mb-4">
+      <div className="relative aspect-[3/4] overflow-hidden rounded-sm bg-[#E8E0D5] mb-3 sm:mb-4">
         {product.imageUrl && (
           <Image
             src={product.imageUrl}
@@ -68,24 +68,24 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
         )}
-        {/* Quick Add */}
+        {/* Quick Add - always visible on mobile, hover on desktop */}
         <motion.button
           initial={{ opacity: 0, y: 10 }}
           whileHover={{ scale: 1.02 }}
           onClick={handleAddToCart}
-          className="absolute bottom-4 left-4 right-4 bg-[#1A1A1A] text-[#F8F7F5] font-sans text-xs tracking-widest uppercase py-3 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-none hover:bg-[#D4AF37] hover:text-[#1A1A1A]"
+          className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 bg-[#1A1A1A] text-[#F8F7F5] font-sans text-[10px] sm:text-xs tracking-widest uppercase py-2.5 sm:py-3 flex items-center justify-center gap-1.5 sm:gap-2 opacity-80 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-none hover:bg-[#D4AF37] hover:text-[#1A1A1A] min-h-[40px] sm:min-h-0"
         >
-          <ShoppingBag className="w-3.5 h-3.5" />
-          Ajouter au panier
+          <ShoppingBag className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+          Ajouter
         </motion.button>
       </div>
 
       {/* Info */}
-      <div>
-        <p className="font-sans text-[10px] tracking-widest uppercase text-[#D4AF37] mb-1">
+      <div className="px-0.5">
+        <p className="font-sans text-[9px] sm:text-[10px] tracking-widest uppercase text-[#D4AF37] mb-0.5 sm:mb-1">
           {product.collection.name}
         </p>
-        <h3 className="font-serif text-base sm:text-lg text-[#1A1A1A] mb-1 line-clamp-1">
+        <h3 className="font-serif text-sm sm:text-lg text-[#1A1A1A] mb-1 line-clamp-1">
           {product.name}
         </h3>
         <div className="flex items-center gap-1 mb-1">
@@ -94,20 +94,20 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               {[1, 2, 3, 4, 5].map((i) => (
                 <Star
                   key={i}
-                  className={`w-3 h-3 ${
+                  className={`w-2.5 h-2.5 sm:w-3 sm:h-3 ${
                     i <= Math.round(product.averageRating)
                       ? 'fill-[#D4AF37] text-[#D4AF37]'
                       : 'text-[#E8E0D5]'
                   }`}
                 />
               ))}
-              <span className="font-sans text-xs text-[#8C8C8C] ml-1">
+              <span className="font-sans text-[10px] sm:text-xs text-[#8C8C8C] ml-0.5">
                 ({product.reviewCount})
               </span>
             </>
           )}
         </div>
-        <p className="font-sans text-sm text-[#1A1A1A] font-medium">
+        <p className="font-sans text-xs sm:text-sm text-[#1A1A1A] font-medium">
           À partir de {formatPrice(minPrice)}
         </p>
       </div>

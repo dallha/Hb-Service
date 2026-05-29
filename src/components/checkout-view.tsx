@@ -302,18 +302,18 @@ export default function CheckoutView() {
             </div>
 
             {/* Submit */}
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
               <Button
                 type="submit"
                 disabled={submitting}
-                className="bg-[#D4AF37] hover:bg-[#B8962E] text-[#1A1A1A] font-sans text-sm tracking-widest uppercase py-4 h-auto rounded-none border-none"
+                className="bg-[#D4AF37] hover:bg-[#B8962E] text-[#1A1A1A] font-sans text-xs sm:text-sm tracking-widest uppercase py-3.5 sm:py-4 h-auto rounded-none border-none min-h-[44px] sm:min-h-0"
               >
                 {submitting ? 'Traitement...' : 'Confirmer la commande'}
               </Button>
               <button
                 type="button"
                 onClick={() => navigate('shop')}
-                className="flex items-center gap-1 font-sans text-xs text-[#8C8C8C] hover:text-[#D4AF37] transition-colors"
+                className="flex items-center justify-center sm:justify-start gap-1 font-sans text-xs text-[#8C8C8C] hover:text-[#D4AF37] transition-colors py-2"
               >
                 <ChevronLeft className="w-3 h-3" />
                 Continuer les achats
@@ -323,7 +323,7 @@ export default function CheckoutView() {
 
           {/* Order Summary */}
           <div className="lg:col-span-2">
-            <div className="bg-[#F5F0E8] p-6 rounded-sm sticky top-24">
+            <div className="bg-[#F5F0E8] p-4 sm:p-6 rounded-sm lg:sticky lg:top-24">
               <h3 className="font-serif text-lg text-[#1A1A1A] mb-4">
                 Récapitulatif
               </h3>

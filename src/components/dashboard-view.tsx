@@ -105,7 +105,7 @@ export default function DashboardView() {
         </h1>
 
         {/* Analytics Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
           {[
             {
               label: 'CA Total',
@@ -123,7 +123,7 @@ export default function DashboardView() {
               icon: ShoppingCart,
             },
             {
-              label: 'Produits Actifs',
+              label: 'Produits',
               value: analytics?.productCount.toString() || '—',
               icon: Package,
             },
@@ -133,17 +133,17 @@ export default function DashboardView() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white p-4 sm:p-6 rounded-sm border border-[#E8E0D5]"
+              className="bg-white p-3 sm:p-6 rounded-sm border border-[#E8E0D5]"
             >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-9 h-9 bg-[#F5F0E8] flex items-center justify-center rounded-none">
-                  <card.icon className="w-4 h-4 text-[#D4AF37]" />
+              <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                <div className="w-7 h-7 sm:w-9 sm:h-9 bg-[#F5F0E8] flex items-center justify-center rounded-none">
+                  <card.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#D4AF37]" />
                 </div>
-                <span className="font-sans text-xs tracking-wider uppercase text-[#8C8C8C]">
+                <span className="font-sans text-[9px] sm:text-xs tracking-wider uppercase text-[#8C8C8C]">
                   {card.label}
                 </span>
               </div>
-              <p className="font-serif text-xl sm:text-2xl text-[#1A1A1A]">
+              <p className="font-serif text-base sm:text-2xl text-[#1A1A1A]">
                 {card.value}
               </p>
             </motion.div>
@@ -151,11 +151,11 @@ export default function DashboardView() {
         </div>
 
         {/* Revenue Chart */}
-        <div className="bg-white p-4 sm:p-6 rounded-sm border border-[#E8E0D5] mb-8">
-          <h2 className="font-serif text-lg text-[#1A1A1A] mb-6">
+        <div className="bg-white p-3 sm:p-6 rounded-sm border border-[#E8E0D5] mb-6 sm:mb-8">
+          <h2 className="font-serif text-sm sm:text-lg text-[#1A1A1A] mb-4 sm:mb-6">
             Chiffre d&apos;Affaires (30 jours)
           </h2>
-          <div className="h-64 sm:h-80">
+          <div className="h-48 sm:h-80">
             {chartData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData}>

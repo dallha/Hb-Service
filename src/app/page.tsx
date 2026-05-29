@@ -30,7 +30,7 @@ export default function Home() {
       <Header />
       <CartDrawer />
 
-      <main className="flex-1">
+      <main className="flex-1 pt-14 sm:pt-0">
         <AnimatePresence mode="wait">
           {currentView === 'home' && (
             <motion.div

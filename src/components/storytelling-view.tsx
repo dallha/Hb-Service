@@ -140,11 +140,11 @@ export default function StorytellingView() {
             Nos Valeurs
           </h2>
           <div className="w-12 h-[1px] bg-[#D4AF37] mx-auto mb-8" />
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 max-w-3xl mx-auto">
             {['Qualité', 'Authenticité', 'Élégance', 'Confiance'].map(
               (value) => (
-                <div key={value}>
-                  <p className="font-serif text-xl text-[#1A1A1A]">{value}</p>
+                <div key={value} className="py-2">
+                  <p className="font-serif text-base sm:text-xl text-[#1A1A1A]">{value}</p>
                   <div className="w-6 h-[1px] bg-[#D4AF37] mx-auto mt-2" />
                 </div>
               )

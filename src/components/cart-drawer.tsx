@@ -55,13 +55,13 @@ export default function CartDrawer() {
             className="fixed top-0 right-0 bottom-0 w-full sm:w-96 bg-[#F8F7F5] z-50 flex flex-col shadow-2xl"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-[#E8E0D5]">
-              <h2 className="font-serif text-xl text-[#1A1A1A]">
+            <div className="flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 border-b border-[#E8E0D5]">
+              <h2 className="font-serif text-lg sm:text-xl text-[#1A1A1A]">
                 Votre Panier
               </h2>
               <button
                 onClick={closeCart}
-                className="w-9 h-9 flex items-center justify-center text-[#8C8C8C] hover:text-[#1A1A1A] transition-colors"
+                className="w-9 h-9 flex items-center justify-center text-[#8C8C8C] hover:text-[#1A1A1A] transition-colors min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0"
                 aria-label="Fermer le panier"
               >
                 <X className="w-5 h-5" />
@@ -69,7 +69,7 @@ export default function CartDrawer() {
             </div>
 
             {/* Cart Items */}
-            <div className="flex-1 overflow-y-auto px-6 py-4">
+            <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4">
               {items.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center">
                   <ShoppingBag className="w-12 h-12 text-[#E8E0D5] mb-4" />
@@ -98,7 +98,7 @@ export default function CartDrawer() {
                       className="flex gap-4"
                     >
                       {/* Image */}
-                      <div className="relative w-20 h-24 shrink-0 overflow-hidden rounded-sm bg-[#E8E0D5]">
+                      <div className="relative w-16 h-20 sm:w-20 sm:h-24 shrink-0 overflow-hidden rounded-sm bg-[#E8E0D5]">
                         {item.imageUrl && (
                           <Image
                             src={item.imageUrl}
@@ -128,7 +128,7 @@ export default function CartDrawer() {
                             onClick={() =>
                               updateQuantity(item.variantId, item.quantity - 1)
                             }
-                            className="w-7 h-7 flex items-center justify-center border border-[#E8E0D5] text-[#8C8C8C] hover:text-[#1A1A1A] transition-colors rounded-none"
+                            className="w-7 h-7 flex items-center justify-center border border-[#E8E0D5] text-[#8C8C8C] hover:text-[#1A1A1A] transition-colors rounded-none min-h-[32px]"
                           >
                             <Minus className="w-3 h-3" />
                           </button>
@@ -139,7 +139,7 @@ export default function CartDrawer() {
                             onClick={() =>
                               updateQuantity(item.variantId, item.quantity + 1)
                             }
-                            className="w-7 h-7 flex items-center justify-center border border-[#E8E0D5] text-[#8C8C8C] hover:text-[#1A1A1A] transition-colors rounded-none"
+                            className="w-7 h-7 flex items-center justify-center border border-[#E8E0D5] text-[#8C8C8C] hover:text-[#1A1A1A] transition-colors rounded-none min-h-[32px]"
                           >
                             <Plus className="w-3 h-3" />
                           </button>
@@ -159,24 +159,24 @@ export default function CartDrawer() {
 
             {/* Footer */}
             {items.length > 0 && (
-              <div className="border-t border-[#E8E0D5] px-6 py-5">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="font-sans text-sm text-[#8C8C8C]">
+              <div className="border-t border-[#E8E0D5] px-4 sm:px-6 py-4 sm:py-5">
+                <div className="flex items-center justify-between mb-3 sm:mb-4">
+                  <span className="font-sans text-xs sm:text-sm text-[#8C8C8C]">
                     Sous-total ({totalItems} article{totalItems !== 1 ? 's' : ''})
                   </span>
-                  <span className="font-serif text-xl text-[#1A1A1A]">
+                  <span className="font-serif text-lg sm:text-xl text-[#1A1A1A]">
                     {formatPrice(total)}
                   </span>
                 </div>
                 <Button
                   onClick={handleCheckout}
-                  className="w-full bg-[#D4AF37] hover:bg-[#B8962E] text-[#1A1A1A] font-sans text-sm tracking-widest uppercase py-4 h-auto rounded-none border-none mb-3"
+                  className="w-full bg-[#D4AF37] hover:bg-[#B8962E] text-[#1A1A1A] font-sans text-xs sm:text-sm tracking-widest uppercase py-3.5 sm:py-4 h-auto rounded-none border-none mb-2 sm:mb-3 min-h-[44px] sm:min-h-0"
                 >
                   Passer la commande
                 </Button>
                 <button
                   onClick={handleContinueShopping}
-                  className="w-full text-center font-sans text-xs tracking-wider uppercase text-[#8C8C8C] hover:text-[#D4AF37] transition-colors py-2"
+                  className="w-full text-center font-sans text-[10px] sm:text-xs tracking-wider uppercase text-[#8C8C8C] hover:text-[#D4AF37] transition-colors py-2 min-h-[44px] sm:min-h-0"
                 >
                   Continuer les achats
                 </button>

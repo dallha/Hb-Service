@@ -181,10 +181,10 @@ export default function ProductView() {
         </nav>
 
         {/* Main Product */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-16">
           {/* Image Gallery */}
           <div>
-            <div className="relative aspect-square overflow-hidden rounded-sm bg-[#E8E0D5] mb-4 group">
+            <div className="relative aspect-square overflow-hidden rounded-sm bg-[#E8E0D5] mb-3 sm:mb-4 group">
               {galleryImages[selectedImageIndex] && (
                 <Image
                   src={galleryImages[selectedImageIndex]}
@@ -196,12 +196,12 @@ export default function ProductView() {
               )}
             </div>
             {galleryImages.length > 1 && (
-              <div className="flex gap-3">
+              <div className="flex gap-2 sm:gap-3">
                 {galleryImages.map((img, i) => (
                   <button
                     key={i}
                     onClick={() => setSelectedImageIndex(i)}
-                    className={`relative w-20 h-20 overflow-hidden rounded-sm border-2 transition-colors ${
+                    className={`relative w-16 h-16 sm:w-20 sm:h-20 overflow-hidden rounded-sm border-2 transition-colors ${
                       i === selectedImageIndex
                         ? 'border-[#D4AF37]'
                         : 'border-transparent'
@@ -289,20 +289,20 @@ export default function ProductView() {
             </p>
 
             {/* Quantity & Add to Cart */}
-            <div className="flex items-center gap-4 mb-4">
+            <div className="flex items-center gap-3 sm:gap-4 mb-4">
               <div className="flex items-center border border-[#E8E0D5] rounded-none">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-10 h-10 flex items-center justify-center text-[#8C8C8C] hover:text-[#1A1A1A] transition-colors"
+                  className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-[#8C8C8C] hover:text-[#1A1A1A] transition-colors min-h-[44px] sm:min-h-0"
                 >
                   <Minus className="w-4 h-4" />
                 </button>
-                <span className="w-10 h-10 flex items-center justify-center font-sans text-sm text-[#1A1A1A]">
+                <span className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center font-sans text-sm text-[#1A1A1A]">
                   {quantity}
                 </span>
                 <button
                   onClick={() => setQuantity(quantity + 1)}
-                  className="w-10 h-10 flex items-center justify-center text-[#8C8C8C] hover:text-[#1A1A1A] transition-colors"
+                  className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-[#8C8C8C] hover:text-[#1A1A1A] transition-colors min-h-[44px] sm:min-h-0"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
@@ -310,20 +310,20 @@ export default function ProductView() {
               <Button
                 onClick={handleAddToCart}
                 disabled={!variant || variant.stock === 0}
-                className="flex-1 bg-[#D4AF37] hover:bg-[#B8962E] text-[#1A1A1A] font-sans text-sm tracking-widest uppercase py-4 h-auto rounded-none border-none"
+                className="flex-1 bg-[#D4AF37] hover:bg-[#B8962E] text-[#1A1A1A] font-sans text-xs sm:text-sm tracking-widest uppercase py-3.5 sm:py-4 h-auto rounded-none border-none min-h-[44px] sm:min-h-0"
               >
-                <ShoppingBag className="w-4 h-4 mr-2" />
+                <ShoppingBag className="w-4 h-4 mr-1.5 sm:mr-2" />
                 Ajouter au panier
               </Button>
             </div>
 
             {/* Quick Buy & WhatsApp */}
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3">
               <Button
                 variant="outline"
                 onClick={handleAddToCart}
                 disabled={!variant || variant.stock === 0}
-                className="flex-1 border-[#1A1A1A] text-[#1A1A1A] hover:bg-[#1A1A1A] hover:text-[#F8F7F5] font-sans text-xs tracking-widest uppercase rounded-none"
+                className="flex-1 border-[#1A1A1A] text-[#1A1A1A] hover:bg-[#1A1A1A] hover:text-[#F8F7F5] font-sans text-[10px] sm:text-xs tracking-widest uppercase rounded-none min-h-[44px] sm:min-h-0"
               >
                 Achat rapide
               </Button>
@@ -331,9 +331,9 @@ export default function ProductView() {
                 href={waLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 flex-1 border border-[#4A7C59] text-[#4A7C59] hover:bg-[#4A7C59] hover:text-white font-sans text-xs tracking-widest uppercase py-3 rounded-none transition-colors"
+                className="flex items-center justify-center gap-1.5 sm:gap-2 flex-1 border border-[#4A7C59] text-[#4A7C59] hover:bg-[#4A7C59] hover:text-white font-sans text-[10px] sm:text-xs tracking-widest uppercase py-2.5 sm:py-3 rounded-none transition-colors min-h-[44px] sm:min-h-0"
               >
-                <MessageCircle className="w-4 h-4" />
+                <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 WhatsApp
               </a>
             </div>
