@@ -69,7 +69,7 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8C8C8C]" />
             <Input
               type="email"
-              placeholder="admin@hb-service.com"
+              placeholder="Adresse e-mail"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="bg-white border-[#E8E0D5] rounded-none font-sans text-sm h-12 pl-10"
