@@ -7,7 +7,7 @@ import {
   Plus, Pencil, Trash2, X, Save, Search, Eye, ChevronDown,
   LayoutGrid, FolderOpen, ClipboardList, BarChart3, Upload,
   AlertTriangle, Users, Shield, ShieldCheck, Star, CheckCircle,
-  Ticket, Menu, LogOut, Download, Copy,
+  Ticket, Menu, LogOut, Download, Copy, Printer,
 } from 'lucide-react';
 import { useNavigationStore } from '@/lib/store';
 import { formatPrice } from '@/lib/format';
@@ -192,6 +192,7 @@ async function apiFetch(url: string, options: RequestInit = {}) {
 export default function AdminDashboardClient() {
   const [activeTab, setActiveTab] = useState<AdminTab>('analytics');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [printingOrder, setPrintingOrder] = useState<Order | null>(null);
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [collections, setCollections] = useState<Collection[]>([]);
@@ -328,6 +329,10 @@ export default function AdminDashboardClient() {
     { id: 'reviews', label: 'Avis', icon: Star },
     { id: 'promos', label: 'Codes Promo', icon: Ticket },
   ];
+
+  if (printingOrder) {
+    return <InvoicePrintView order={printingOrder} onClose={() => setPrintingOrder(null)} />;
+  }
 
   return (
     <div className="flex min-h-screen bg-[#F8F7F5] font-sans">
@@ -477,6 +482,7 @@ export default function AdminDashboardClient() {
                 setSearchQuery={setSearchQuery}
                 onRefresh={fetchOrders}
                 showToast={showToast}
+                onPrintInvoice={(order) => setPrintingOrder(order)}
               />
             )}
             {activeTab === 'users' && (
@@ -1558,12 +1564,13 @@ function CollectionsTab({ collections, onRefresh, showToast }: {
 
 // ─── Orders Tab ─────────────────────────────────────────────────
 
-function OrdersTab({ orders, searchQuery, setSearchQuery, onRefresh, showToast }: {
+function OrdersTab({ orders, searchQuery, setSearchQuery, onRefresh, showToast, onPrintInvoice }: {
   orders: Order[];
   searchQuery: string;
   setSearchQuery: (q: string) => void;
   onRefresh: () => void;
   showToast: (msg: string, variant?: 'default' | 'destructive') => void;
+  onPrintInvoice: (order: Order) => void;
 }) {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [orderStatus, setOrderStatus] = useState('');
@@ -1907,31 +1914,43 @@ function OrdersTab({ orders, searchQuery, setSearchQuery, onRefresh, showToast }
             </div>
           )}
 
-          <SheetFooter className="px-4 sm:px-6 py-4 border-t border-[#E8E0D5] flex-row gap-3">
-            <Button
-              onClick={() => setSelectedOrder(null)}
-              variant="outline"
-              className="flex-1 rounded-none font-sans text-xs tracking-wider uppercase border-[#E8E0D5] h-10"
-            >
-              Fermer
-            </Button>
-            {selectedOrder && (
+          <SheetFooter className="px-4 sm:px-6 py-4 border-t border-[#E8E0D5] flex flex-col sm:flex-row gap-3">
+            <div className="flex gap-3 w-full sm:w-auto sm:flex-1">
               <Button
-                onClick={() => setDeleteConfirm(selectedOrder.id)}
+                onClick={() => onPrintInvoice(selectedOrder!)}
                 variant="outline"
-                className="rounded-none font-sans text-xs tracking-wider uppercase text-[#C44536] border-[#C44536]/30 hover:bg-[#C44536]/10 h-10"
+                className="flex-1 rounded-none font-sans text-xs tracking-wider uppercase border-[#E8E0D5] h-10"
               >
-                <Trash2 className="w-3.5 h-3.5 mr-1.5" />
-                Supprimer
+                <Printer className="w-3.5 h-3.5 mr-1.5" />
+                Facture
               </Button>
-            )}
-            <Button
-              onClick={handleUpdateOrder}
-              className="flex-1 bg-[#1A1A1A] hover:bg-[#1A1A1A]/90 text-[#F8F7F5] rounded-none font-sans text-xs tracking-wider uppercase h-10"
-            >
-              <Save className="w-3.5 h-3.5 mr-1.5" />
-              Sauvegarder
-            </Button>
+              {selectedOrder && (
+                <Button
+                  onClick={() => setDeleteConfirm(selectedOrder.id)}
+                  variant="outline"
+                  className="flex-1 rounded-none font-sans text-xs tracking-wider uppercase text-[#C44536] border-[#C44536]/30 hover:bg-[#C44536]/10 h-10"
+                >
+                  <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                  Supprimer
+                </Button>
+              )}
+            </div>
+            <div className="flex gap-3 w-full sm:w-auto">
+              <Button
+                onClick={() => setSelectedOrder(null)}
+                variant="outline"
+                className="flex-1 sm:flex-none rounded-none font-sans text-xs tracking-wider uppercase border-[#E8E0D5] h-10 px-6"
+              >
+                Fermer
+              </Button>
+              <Button
+                onClick={handleUpdateOrder}
+                className="flex-1 sm:flex-none bg-[#1A1A1A] hover:bg-[#1A1A1A]/90 text-[#F8F7F5] rounded-none font-sans text-xs tracking-wider uppercase h-10 px-6"
+              >
+                <Save className="w-3.5 h-3.5 mr-1.5" />
+                Sauvegarder
+              </Button>
+            </div>
           </SheetFooter>
         </SheetContent>
       </Sheet>
@@ -2489,5 +2508,111 @@ function UsersTab({ users, searchQuery, setSearchQuery, onRefresh, showToast }: 
         </div>
       </div>
     </motion.div>
+  );
+}
+
+// ─── Invoice Print View ─────────────────────────────────────────
+
+function InvoicePrintView({ order, onClose }: { order: Order; onClose: () => void }) {
+  useEffect(() => {
+    // Petit délai pour laisser le rendu se faire avant d'ouvrir la boîte de dialogue d'impression
+    const timer = setTimeout(() => {
+      window.print();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-white text-black p-8 max-w-4xl mx-auto font-sans">
+      {/* Boutons d'action visibles uniquement à l'écran, cachés à l'impression */}
+      <div className="mb-8 flex justify-between items-center print:hidden bg-gray-50 p-4 rounded-md border border-gray-200">
+        <p className="text-sm text-gray-600">Vue d'impression de la facture. Vous pouvez imprimer ou sauvegarder en PDF.</p>
+        <div className="flex gap-4">
+          <Button onClick={onClose} variant="outline" className="rounded-none font-sans text-xs uppercase tracking-wider h-10 px-6">
+            Retour
+          </Button>
+          <Button onClick={() => window.print()} className="bg-[#1A1A1A] hover:bg-[#1A1A1A]/90 text-[#F8F7F5] rounded-none font-sans text-xs uppercase tracking-wider h-10 px-6">
+            <Printer className="w-4 h-4 mr-2" />
+            Imprimer
+          </Button>
+        </div>
+      </div>
+
+      {/* Contenu de la facture */}
+      <div className="print:m-0">
+        <div className="flex justify-between items-start mb-12 border-b border-gray-200 pb-8">
+          <div>
+            <img src="/logo-gold.jpg" alt="HB Service" className="w-20 h-20 rounded-full mb-4 object-cover" />
+            <h1 className="font-serif text-3xl font-bold text-[#1A1A1A] mb-1">HB_Service</h1>
+            <p className="text-gray-500 text-sm">Parfums de Luxe & Cosmétiques</p>
+            <p className="text-gray-500 text-sm">contact@hb-service.com</p>
+            <p className="text-gray-500 text-sm">+212 601 13 45 45</p>
+          </div>
+          <div className="text-right">
+            <h2 className="font-serif text-4xl text-gray-200 uppercase tracking-widest mb-4">Facture</h2>
+            <p className="text-sm"><span className="font-bold text-gray-700">Facture N° :</span> {order.id.slice(-8).toUpperCase()}</p>
+            <p className="text-sm"><span className="font-bold text-gray-700">Date :</span> {new Date(order.createdAt).toLocaleDateString('fr-FR')}</p>
+            {order.payment && (
+              <p className="text-sm"><span className="font-bold text-gray-700">Paiement :</span> {paymentProviderLabels[order.payment.provider] || order.payment.provider}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="mb-12">
+          <h3 className="font-bold text-gray-800 border-b border-gray-200 pb-2 mb-4 uppercase tracking-wider text-sm">Facturé à</h3>
+          {order.guestEmail && <p className="text-gray-800">{order.guestEmail}</p>}
+          {order.guestPhone && <p className="text-gray-800">{order.guestPhone}</p>}
+          <p className="text-gray-500 mt-2 text-sm italic">
+            Client en ligne
+          </p>
+        </div>
+
+        <table className="w-full mb-12 text-left border-collapse">
+          <thead>
+            <tr className="border-b-2 border-gray-800">
+              <th className="py-3 font-bold text-sm uppercase tracking-wider text-gray-800">Description</th>
+              <th className="py-3 font-bold text-sm uppercase tracking-wider text-gray-800 text-right">Qté</th>
+              <th className="py-3 font-bold text-sm uppercase tracking-wider text-gray-800 text-right">Prix Unitaire</th>
+              <th className="py-3 font-bold text-sm uppercase tracking-wider text-gray-800 text-right">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {order.items.map((item, index) => (
+              <tr key={index} className="border-b border-gray-200">
+                <td className="py-4">
+                  <p className="font-bold text-gray-800">{item.variant.product.name}</p>
+                  <p className="text-sm text-gray-500">Format: {item.variant.size}</p>
+                </td>
+                <td className="py-4 text-right text-gray-800">{item.quantity}</td>
+                <td className="py-4 text-right text-gray-800">{formatPrice(item.unitPrice)}</td>
+                <td className="py-4 text-right text-gray-800 font-bold">{formatPrice(item.unitPrice * item.quantity)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <div className="flex justify-end">
+          <div className="w-1/2">
+            <div className="flex justify-between py-2 border-b border-gray-200">
+              <span className="text-gray-600">Sous-total</span>
+              <span className="text-gray-800">{formatPrice(order.totalAmount)}</span>
+            </div>
+            <div className="flex justify-between py-2 border-b border-gray-200">
+              <span className="text-gray-600">Livraison</span>
+              <span className="text-gray-800">Inclus</span>
+            </div>
+            <div className="flex justify-between py-4 mt-2">
+              <span className="font-serif text-2xl font-bold text-[#1A1A1A]">Total</span>
+              <span className="font-serif text-2xl font-bold text-[#1A1A1A]">{formatPrice(order.totalAmount)}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-20 pt-8 border-t border-gray-200 text-center text-sm text-gray-500">
+          <p className="mb-1">Merci pour votre confiance !</p>
+          <p>Pour toute question concernant cette facture, veuillez contacter notre support sur WhatsApp au +212 601 13 45 45.</p>
+        </div>
+      </div>
+    </div>
   );
 }
