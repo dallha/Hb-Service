@@ -6,7 +6,10 @@ export async function GET() {
     const collections = await db.collection.findMany({
       include: {
         products: {
-          include: { variants: true },
+          where: { isActive: true },
+          include: {
+            variants: true,
+          },
         },
       },
       orderBy: { sortOrder: 'asc' },
@@ -22,7 +25,23 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, slug, description, imageUrl, heroText, sortOrder } = body;
+    const { name, slug, description, imageUrl, sortOrder } = body;
+
+    // Validate required fields
+    if (!name || typeof name !== 'string' || name.trim().length === 0) {
+      return NextResponse.json({ error: 'Le nom de la collection est requis' }, { status: 400 });
+    }
+    if (!slug || typeof slug !== 'string' || slug.trim().length === 0) {
+      return NextResponse.json({ error: 'Le slug de la collection est requis' }, { status: 400 });
+    }
+
+    // Validate slug format
+    if (!/^[a-z0-9-]+$/.test(slug)) {
+      return NextResponse.json(
+        { error: 'Le slug ne peut contenir que des lettres minuscules, des chiffres et des tirets' },
+        { status: 400 }
+      );
+    }
 
     // Check slug uniqueness
     const existing = await db.collection.findUnique({ where: { slug } });
@@ -32,14 +51,12 @@ export async function POST(request: Request) {
 
     const collection = await db.collection.create({
       data: {
-        name,
-        slug,
+        name: name.trim(),
+        slug: slug.trim(),
         description: description || null,
         imageUrl: imageUrl || null,
-        heroText: heroText || null,
-        sortOrder: sortOrder || 0,
+        sortOrder: typeof sortOrder === 'number' ? sortOrder : 0,
       },
-      include: { products: true },
     });
 
     return NextResponse.json(collection, { status: 201 });
@@ -52,21 +69,34 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    const { id, ...data } = body;
+    const { id, name, slug, description, imageUrl, sortOrder } = body;
 
     if (!id) {
       return NextResponse.json({ error: 'Collection ID required' }, { status: 400 });
     }
 
+    // Validate id format
+    if (typeof id !== 'string' || id.length < 10) {
+      return NextResponse.json({ error: 'ID de collection invalide' }, { status: 400 });
+    }
+
+    // Validate slug format if provided
+    if (slug && !/^[a-z0-9-]+$/.test(slug)) {
+      return NextResponse.json(
+        { error: 'Le slug ne peut contenir que des lettres minuscules, des chiffres et des tirets' },
+        { status: 400 }
+      );
+    }
+
     const collection = await db.collection.update({
       where: { id },
       data: {
-        ...data,
-        description: data.description || undefined,
-        imageUrl: data.imageUrl || undefined,
-        heroText: data.heroText || undefined,
+        ...(name ? { name: name.trim() } : {}),
+        ...(slug ? { slug: slug.trim() } : {}),
+        ...(description !== undefined ? { description } : {}),
+        ...(imageUrl !== undefined ? { imageUrl } : {}),
+        ...(sortOrder !== undefined ? { sortOrder } : {}),
       },
-      include: { products: true },
     });
 
     return NextResponse.json(collection);
@@ -85,13 +115,11 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Collection ID required' }, { status: 400 });
     }
 
-    // Delete all products in collection first
-    const products = await db.product.findMany({ where: { collectionId: id }, select: { id: true } });
-    for (const p of products) {
-      await db.productVariant.deleteMany({ where: { productId: p.id } });
-      await db.review.deleteMany({ where: { productId: p.id } });
+    // Validate id format
+    if (typeof id !== 'string' || id.length < 10) {
+      return NextResponse.json({ error: 'ID de collection invalide' }, { status: 400 });
     }
-    await db.product.deleteMany({ where: { collectionId: id } });
+
     await db.collection.delete({ where: { id } });
 
     return NextResponse.json({ success: true });

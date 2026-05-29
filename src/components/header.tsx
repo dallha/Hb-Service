@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, Menu, X, MessageCircle, Settings } from 'lucide-react';
+import { ShoppingBag, Menu, X, MessageCircle, Moon, Sun } from 'lucide-react';
 import { useCartStore, useNavigationStore } from '@/lib/store';
+import { useTheme } from '@/hooks/use-theme';
 import { Button } from '@/components/ui/button';
 
 const navLinks = [
@@ -16,8 +17,10 @@ const navLinks = [
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [clickCount, setClickCount] = useState(0);
   const { getTotalItems, openCart } = useCartStore();
   const { navigate } = useNavigationStore();
+  const { isDark, toggle, mounted } = useTheme();
   const totalItems = getTotalItems();
 
   useEffect(() => {
@@ -31,6 +34,17 @@ export default function Header() {
     setMobileMenuOpen(false);
   };
 
+  // Secret access: double-click on logo to open admin
+  const handleLogoClick = () => {
+    const newCount = clickCount + 1;
+    setClickCount(newCount);
+    if (newCount >= 2) {
+      setClickCount(0);
+      handleNav('dashboard');
+    }
+    setTimeout(() => setClickCount(0), 500);
+  };
+
   return (
     <>
       <motion.header
@@ -39,20 +53,28 @@ export default function Header() {
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
-            ? 'bg-[#F8F7F5]/95 backdrop-blur-md shadow-sm'
+            ? 'bg-background/95 backdrop-blur-md shadow-sm'
             : 'bg-transparent'
         }`}
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14 sm:h-20">
-            {/* Logo */}
+            {/* Logo - double-click to access admin */}
             <button
-              onClick={() => handleNav('home')}
+              onClick={handleLogoClick}
               className="flex items-center gap-1.5 sm:gap-2 group"
             >
-              <span className="font-serif text-lg sm:text-2xl font-bold tracking-tight text-[#1A1A1A]">
-                HB<span className="text-[#D4AF37]">_</span>Service
-              </span>
+              {/* Logo clair (défaut) / Logo blanc (mode sombre) */}
+              <img
+                src="/logo-hb.png"
+                alt="HB Service"
+                className="h-8 sm:h-10 w-auto object-contain block dark:hidden"
+              />
+              <img
+                src="/logo-hb-white.png"
+                alt="HB Service"
+                className="h-8 sm:h-10 w-auto object-contain hidden dark:block"
+              />
             </button>
 
             {/* Desktop Nav */}
@@ -61,10 +83,10 @@ export default function Header() {
                 <button
                   key={link.label}
                   onClick={() => handleNav(link.view)}
-                  className="font-sans text-sm tracking-widest uppercase text-[#1A1A1A] hover:text-[#D4AF37] transition-colors duration-300 relative group"
+                  className="font-sans text-sm tracking-widest uppercase text-foreground hover:text-accent transition-colors duration-300 relative group"
                 >
                   {link.label}
-                  <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-[#D4AF37] transition-all duration-300 group-hover:w-full" />
+                  <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-accent transition-all duration-300 group-hover:w-full" />
                 </button>
               ))}
             </nav>
@@ -82,12 +104,29 @@ export default function Header() {
                 <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
               </a>
 
+              {/* Dark/Light Mode Toggle */}
+              {mounted && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={toggle}
+                  className="rounded-none hover:bg-accent/10 w-9 h-9 sm:w-10 sm:h-10"
+                  aria-label={isDark ? 'Activer le mode clair' : 'Activer le mode sombre'}
+                >
+                  {isDark ? (
+                    <Sun className="w-4 h-4 sm:w-5 sm:h-5" />
+                  ) : (
+                    <Moon className="w-4 h-4 sm:w-5 sm:h-5" />
+                  )}
+                </Button>
+              )}
+
               {/* Cart */}
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={openCart}
-                className="relative rounded-none hover:bg-[#D4AF37]/10 w-9 h-9 sm:w-10 sm:h-10"
+                className="relative rounded-none hover:bg-accent/10 w-9 h-9 sm:w-10 sm:h-10"
                 aria-label="Ouvrir le panier"
               >
                 <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -95,22 +134,11 @@ export default function Header() {
                   <motion.span
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-4 h-4 sm:w-5 sm:h-5 bg-[#D4AF37] text-[#1A1A1A] text-[10px] sm:text-xs font-bold flex items-center justify-center rounded-full"
+                    className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-4 h-4 sm:w-5 sm:h-5 bg-accent text-accent-foreground text-[10px] sm:text-xs font-bold flex items-center justify-center rounded-full"
                   >
                     {totalItems}
                   </motion.span>
                 )}
-              </Button>
-
-              {/* Admin */}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleNav('dashboard')}
-                className="hidden md:flex rounded-none hover:bg-[#D4AF37]/10 w-9 h-9 sm:w-10 sm:h-10"
-                aria-label="Administration"
-              >
-                <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
               </Button>
 
               {/* Mobile Menu Toggle */}
@@ -148,7 +176,7 @@ export default function Header() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="fixed top-0 right-0 bottom-0 w-[280px] sm:w-72 bg-[#F8F7F5] z-50 md:hidden flex flex-col pt-16 sm:pt-20 px-5 sm:px-6"
+              className="fixed top-0 right-0 bottom-0 w-[280px] sm:w-72 bg-background z-50 md:hidden flex flex-col pt-16 sm:pt-20 px-5 sm:px-6"
             >
               {navLinks.map((link, i) => (
                 <motion.button
@@ -157,21 +185,11 @@ export default function Header() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.08 }}
                   onClick={() => handleNav(link.view)}
-                  className="py-3.5 sm:py-4 text-left font-serif text-base sm:text-lg text-[#1A1A1A] border-b border-[#E8E0D5] hover:text-[#D4AF37] transition-colors"
+                  className="py-3.5 sm:py-4 text-left font-serif text-base sm:text-lg text-foreground border-b border-border hover:text-accent transition-colors"
                 >
                   {link.label}
                 </motion.button>
               ))}
-              <motion.button
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: navLinks.length * 0.08 }}
-                onClick={() => handleNav('dashboard')}
-                className="py-3.5 sm:py-4 text-left font-serif text-base sm:text-lg text-[#D4AF37] border-b border-[#E8E0D5] hover:text-[#B8962E] transition-colors flex items-center gap-2"
-              >
-                <Settings className="w-4 h-4" />
-                Administration
-              </motion.button>
               <a
                 href="https://wa.me/221770000000?text=Bonjour%20HB_Service%2C%20j%27aimerais%20en%20savoir%20plus%20sur%20vos%20produits."
                 target="_blank"

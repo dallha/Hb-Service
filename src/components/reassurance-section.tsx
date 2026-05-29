@@ -23,7 +23,7 @@ export default function ReassuranceSection() {
   ];
 
   return (
-    <section className="py-16 sm:py-24 bg-[#F8F7F5]">
+    <section className="py-16 sm:py-24 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Social Proof */}
         <motion.div
@@ -33,7 +33,7 @@ export default function ReassuranceSection() {
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           className="text-center mb-12"
         >
-          <p className="font-serif text-3xl sm:text-4xl text-[#1A1A1A] mb-2">
+          <p className="font-serif text-3xl sm:text-4xl text-foreground mb-2">
             2 500+ Clients Satisfaits
           </p>
           <div className="flex items-center justify-center gap-1 mt-3">
@@ -44,7 +44,7 @@ export default function ReassuranceSection() {
               />
             ))}
           </div>
-          <p className="font-sans text-sm text-[#8C8C8C] mt-2">
+          <p className="font-sans text-sm text-muted-foreground mt-2">
             Note moyenne de 4.8/5 basée sur les avis clients
           </p>
         </motion.div>
@@ -62,15 +62,15 @@ export default function ReassuranceSection() {
                 ease: [0.22, 1, 0.36, 1],
                 delay: index * 0.1,
               }}
-              className="flex flex-col items-center text-center p-6 sm:p-8 bg-[#F5F0E8] rounded-sm"
+              className="flex flex-col items-center text-center p-6 sm:p-8 bg-muted rounded-sm"
             >
               <div className="w-12 h-12 flex items-center justify-center mb-4">
                 <item.icon className="w-6 h-6 text-[#D4AF37]" />
               </div>
-              <h4 className="font-serif text-lg text-[#1A1A1A] mb-1">
+              <h4 className="font-serif text-lg text-foreground mb-1">
                 {item.label}
               </h4>
-              <p className="font-sans text-sm text-[#8C8C8C]">{item.desc}</p>
+              <p className="font-sans text-sm text-muted-foreground">{item.desc}</p>
             </motion.div>
           ))}
         </div>

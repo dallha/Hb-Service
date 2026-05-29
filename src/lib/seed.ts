@@ -238,6 +238,14 @@ export async function seedDatabase() {
     },
   });
 
+  // Fetch variants for sample orders
+  const sillageDOrVariants = await db.productVariant.findMany({
+    where: { product: { slug: 'sillage-dor' } },
+  });
+  const brumeVariants = await db.productVariant.findMany({
+    where: { product: { slug: 'brume-serinite' } },
+  });
+
   const order1 = await db.order.create({
     data: {
       userId: sampleUser.id,
@@ -245,8 +253,8 @@ export async function seedDatabase() {
       status: 'delivered',
       items: {
         create: [
-          { variantId: sillageDOr.variants?.[0]?.id || '', quantity: 1, unitPrice: 35000 },
-          { variantId: brume.variants?.[0]?.id || '', quantity: 1, unitPrice: 12000 },
+          { variantId: sillageDOrVariants[0]?.id || '', quantity: 1, unitPrice: 35000 },
+          { variantId: brumeVariants[0]?.id || '', quantity: 1, unitPrice: 12000 },
         ],
       },
     },

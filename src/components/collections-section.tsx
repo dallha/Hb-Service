@@ -29,7 +29,7 @@ export default function CollectionsSection() {
   if (collections.length === 0) return null;
 
   return (
-    <section className="py-16 sm:py-24 bg-[#F8F7F5]">
+    <section className="py-16 sm:py-24 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Title */}
         <motion.div
@@ -39,7 +39,7 @@ export default function CollectionsSection() {
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           className="text-center mb-12 lg:mb-16"
         >
-          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-[#1A1A1A] mb-4">
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-foreground mb-4">
             Nos Collections
           </h2>
           <div className="w-16 h-[1px] bg-[#D4AF37] mx-auto" />
@@ -64,7 +64,7 @@ export default function CollectionsSection() {
                 navigate('shop', { collectionSlug: collection.slug })
               }
             >
-              <div className="relative aspect-[3/4] overflow-hidden rounded-sm bg-[#E8E0D5]">
+              <div className="relative aspect-[3/4] overflow-hidden rounded-sm bg-muted">
                 {collection.imageUrl && (
                   <Image
                     src={collection.imageUrl}

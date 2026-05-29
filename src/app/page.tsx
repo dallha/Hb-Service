@@ -20,13 +20,15 @@ import DashboardView from '@/components/dashboard-view';
 export default function Home() {
   const { currentView } = useNavigationStore();
 
-  // Seed database on first load
+  // Seed database on first load (uniquement en développement)
   useEffect(() => {
-    fetch('/api/seed').catch(() => {});
+    if (process.env.NODE_ENV === 'development') {
+      fetch('/api/seed').catch(() => {});
+    }
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8F7F5]">
+    <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <CartDrawer />
 

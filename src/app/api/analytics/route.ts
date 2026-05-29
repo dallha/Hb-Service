@@ -3,71 +3,76 @@ import { db } from '@/lib/db';
 
 export async function GET() {
   try {
-    // Total revenue
-    const orders = await db.order.findMany({
-      where: { status: { not: 'cancelled' } },
-    });
-    const totalRevenue = orders.reduce((sum, o) => sum + o.totalAmount, 0);
+    const [
+      totalOrders,
+      totalRevenue,
+      totalProducts,
+      recentOrders,
+      ordersByStatus,
+      ordersByDate,
+    ] = await Promise.all([
+      // Total orders count
+      db.order.count(),
 
-    // Order count
-    const orderCount = orders.length;
-
-    // Average order value (AOV)
-    const aov = orderCount > 0 ? totalRevenue / orderCount : 0;
-
-    // Recent orders (last 7 days)
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const recentOrders = await db.order.count({
-      where: { createdAt: { gte: sevenDaysAgo } },
-    });
-
-    // Product count
-    const productCount = await db.product.count({ where: { isActive: true } });
-
-    // Collection count
-    const collectionCount = await db.collection.count();
-
-    // Recent orders for dashboard
-    const recentOrderList = await db.order.findMany({
-      take: 10,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        items: {
-          include: {
-            variant: { include: { product: true } },
+      // Total revenue (sum of all completed orders)
+      db.order.aggregate({
+        _sum: { totalAmount: true },
+        where: {
+          payment: {
+            status: 'completed',
           },
         },
-        payment: true,
-      },
-    });
+      }),
 
-    // Daily revenue for chart (last 30 days)
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const allRecentOrders = await db.order.findMany({
-      where: {
-        createdAt: { gte: thirtyDaysAgo },
-        status: { not: 'cancelled' },
-      },
-      select: { createdAt: true, totalAmount: true },
-    });
+      // Total products count
+      db.product.count(),
 
-    // Group by day
+      // Recent orders (last 5)
+      db.order.findMany({
+        take: 5,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          items: {
+            include: {
+              variant: { include: { product: true } },
+            },
+          },
+          payment: true,
+        },
+      }),
+
+      // Orders grouped by status
+      db.order.groupBy({
+        by: ['status'],
+        _count: { id: true },
+      }),
+
+      // Orders grouped by date (last 7 days)
+      db.order.groupBy({
+        by: ['createdAt'],
+        _count: { id: true },
+        _sum: { totalAmount: true },
+        orderBy: { createdAt: 'desc' },
+        take: 7,
+      }),
+    ]);
+
+    // Build dailyRevenue from ordersByDate
     const dailyRevenue: Record<string, number> = {};
-    allRecentOrders.forEach((o) => {
-      const day = o.createdAt.toISOString().split('T')[0];
-      dailyRevenue[day] = (dailyRevenue[day] || 0) + o.totalAmount;
-    });
+    for (const d of ordersByDate) {
+      const dateKey = d.createdAt.toISOString().split('T')[0]; // YYYY-MM-DD
+      dailyRevenue[dateKey] = (dailyRevenue[dateKey] || 0) + (d._sum.totalAmount || 0);
+    }
+
+    // Calculate AOV (Average Order Value)
+    const aov = totalOrders > 0 ? Math.round((totalRevenue._sum.totalAmount || 0) / totalOrders) : 0;
 
     return NextResponse.json({
-      totalRevenue,
-      orderCount,
+      totalRevenue: totalRevenue._sum.totalAmount || 0,
+      orderCount: totalOrders,
       aov,
-      recentOrders,
-      productCount,
-      collectionCount,
-      recentOrderList,
+      productCount: totalProducts,
+      recentOrderList: recentOrders,
       dailyRevenue,
     });
   } catch (error) {

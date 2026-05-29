@@ -1,6 +1,13 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 
+// Valid order statuses
+const VALID_STATUSES = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'] as const;
+// Valid payment statuses
+const VALID_PAYMENT_STATUSES = ['pending', 'processing', 'completed', 'failed', 'refunded'] as const;
+// Valid payment providers
+const VALID_PAYMENT_PROVIDERS = ['stripe', 'wave', 'orange_money', 'cash', 'pending'] as const;
+
 export async function GET() {
   try {
     const orders = await db.order.findMany({
@@ -31,9 +38,37 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { guestEmail, guestPhone, items, note, paymentProvider } = body;
 
+    // Validate required fields
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return NextResponse.json({ error: 'Au moins un article est requis' }, { status: 400 });
+    }
+
+    // Validate email or phone
+    if (!guestEmail && !guestPhone) {
+      return NextResponse.json({ error: 'Email ou téléphone requis' }, { status: 400 });
+    }
+
+    // Validate email format if provided
+    if (guestEmail && typeof guestEmail === 'string') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(guestEmail)) {
+        return NextResponse.json({ error: 'Format d\'email invalide' }, { status: 400 });
+      }
+    }
+
+    // Validate items structure
+    for (const item of items) {
+      if (!item.variantId || typeof item.variantId !== 'string') {
+        return NextResponse.json({ error: 'Chaque article doit avoir un variantId' }, { status: 400 });
+      }
+      if (!item.quantity || typeof item.quantity !== 'number' || item.quantity < 1 || item.quantity > 100) {
+        return NextResponse.json({ error: 'La quantité doit être comprise entre 1 et 100' }, { status: 400 });
+      }
+    }
+
     // Calculate total
     let totalAmount = 0;
-    const orderItems = [];
+    const orderItems: Array<{ variantId: string; quantity: number; unitPrice: number }> = [];
 
     for (const item of items) {
       const variant = await db.productVariant.findUnique({
@@ -46,7 +81,7 @@ export async function POST(request: Request) {
       }
 
       if (variant.stock < item.quantity) {
-        return NextResponse.json({ error: `Insufficient stock for ${variant.product.name} (${variant.size})` }, { status: 400 });
+        return NextResponse.json({ error: `Stock insuffisant pour ${variant.product.name} (${variant.size})` }, { status: 400 });
       }
 
       totalAmount += variant.price * item.quantity;
@@ -60,10 +95,10 @@ export async function POST(request: Request) {
     // Create order
     const order = await db.order.create({
       data: {
-        guestEmail,
-        guestPhone,
+        guestEmail: guestEmail || null,
+        guestPhone: guestPhone || null,
         totalAmount,
-        note,
+        note: note || null,
         items: {
           create: orderItems,
         },
@@ -108,6 +143,40 @@ export async function PUT(request: Request) {
 
     if (!id) {
       return NextResponse.json({ error: 'Order ID required' }, { status: 400 });
+    }
+
+    // Validate id format
+    if (typeof id !== 'string' || id.length < 10) {
+      return NextResponse.json({ error: 'ID de commande invalide' }, { status: 400 });
+    }
+
+    // Validate status against whitelist
+    if (status && !VALID_STATUSES.includes(status as typeof VALID_STATUSES[number])) {
+      return NextResponse.json(
+        { error: `Statut invalide. Valeurs acceptées : ${VALID_STATUSES.join(', ')}` },
+        { status: 400 }
+      );
+    }
+
+    // Validate payment status against whitelist
+    if (paymentStatus && !VALID_PAYMENT_STATUSES.includes(paymentStatus as typeof VALID_PAYMENT_STATUSES[number])) {
+      return NextResponse.json(
+        { error: `Statut de paiement invalide. Valeurs acceptées : ${VALID_PAYMENT_STATUSES.join(', ')}` },
+        { status: 400 }
+      );
+    }
+
+    // Validate payment provider against whitelist
+    if (paymentProvider && !VALID_PAYMENT_PROVIDERS.includes(paymentProvider as typeof VALID_PAYMENT_PROVIDERS[number])) {
+      return NextResponse.json(
+        { error: `Moyen de paiement invalide. Valeurs acceptées : ${VALID_PAYMENT_PROVIDERS.join(', ')}` },
+        { status: 400 }
+      );
+    }
+
+    // Validate payment reference length
+    if (paymentReference && typeof paymentReference === 'string' && paymentReference.length > 100) {
+      return NextResponse.json({ error: 'La référence de paiement est trop longue (max 100 caractères)' }, { status: 400 });
     }
 
     // Update order status
@@ -157,6 +226,11 @@ export async function DELETE(request: Request) {
 
     if (!id) {
       return NextResponse.json({ error: 'Order ID required' }, { status: 400 });
+    }
+
+    // Validate id format
+    if (typeof id !== 'string' || id.length < 10) {
+      return NextResponse.json({ error: 'ID de commande invalide' }, { status: 400 });
     }
 
     await db.orderItem.deleteMany({ where: { orderId: id } });

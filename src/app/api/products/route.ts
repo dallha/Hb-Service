@@ -8,6 +8,14 @@ export async function GET(request: Request) {
     const search = searchParams.get('search');
     const includeInactive = searchParams.get('all') === 'true';
 
+    // Validate search parameter length to prevent ReDoS
+    if (search && search.length > 200) {
+      return NextResponse.json(
+        { error: 'Le terme de recherche est trop long (max 200 caractères)' },
+        { status: 400 }
+      );
+    }
+
     const products = await db.product.findMany({
       where: {
         ...(includeInactive ? {} : { isActive: true }),
@@ -65,6 +73,40 @@ export async function POST(request: Request) {
       variants,
     } = body;
 
+    // Validate required fields
+    if (!name || typeof name !== 'string' || name.trim().length === 0) {
+      return NextResponse.json({ error: 'Le nom du produit est requis' }, { status: 400 });
+    }
+    if (!slug || typeof slug !== 'string' || slug.trim().length === 0) {
+      return NextResponse.json({ error: 'Le slug du produit est requis' }, { status: 400 });
+    }
+    if (!collectionId || typeof collectionId !== 'string') {
+      return NextResponse.json({ error: 'La collection est requise' }, { status: 400 });
+    }
+
+    // Validate slug format (alphanumeric, hyphens only)
+    if (!/^[a-z0-9-]+$/.test(slug)) {
+      return NextResponse.json(
+        { error: 'Le slug ne peut contenir que des lettres minuscules, des chiffres et des tirets' },
+        { status: 400 }
+      );
+    }
+
+    // Validate variants if provided
+    if (variants && Array.isArray(variants)) {
+      for (const v of variants) {
+        if (!v.size || typeof v.size !== 'string') {
+          return NextResponse.json({ error: 'Chaque variante doit avoir une taille' }, { status: 400 });
+        }
+        if (typeof v.price !== 'number' || v.price <= 0) {
+          return NextResponse.json({ error: 'Le prix doit être un nombre positif' }, { status: 400 });
+        }
+        if (typeof v.stock !== 'number' || v.stock < 0) {
+          return NextResponse.json({ error: 'Le stock doit être un nombre positif ou nul' }, { status: 400 });
+        }
+      }
+    }
+
     // Check slug uniqueness
     const existing = await db.product.findUnique({ where: { slug } });
     if (existing) {
@@ -73,8 +115,8 @@ export async function POST(request: Request) {
 
     const product = await db.product.create({
       data: {
-        name,
-        slug,
+        name: name.trim(),
+        slug: slug.trim(),
         description: description || null,
         notesOlfactives: notesOlfactives || null,
         inspiration: inspiration || null,
@@ -109,8 +151,25 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Product ID required' }, { status: 400 });
     }
 
+    // Validate id format
+    if (typeof id !== 'string' || id.length < 10) {
+      return NextResponse.json({ error: 'ID de produit invalide' }, { status: 400 });
+    }
+
     // Update variants if provided
     if (variants && Array.isArray(variants)) {
+      for (const v of variants) {
+        if (!v.size || typeof v.size !== 'string') {
+          return NextResponse.json({ error: 'Chaque variante doit avoir une taille' }, { status: 400 });
+        }
+        if (typeof v.price !== 'number' || v.price <= 0) {
+          return NextResponse.json({ error: 'Le prix doit être un nombre positif' }, { status: 400 });
+        }
+        if (typeof v.stock !== 'number' || v.stock < 0) {
+          return NextResponse.json({ error: 'Le stock doit être un nombre positif ou nul' }, { status: 400 });
+        }
+      }
+
       // Delete existing variants and recreate
       await db.productVariant.deleteMany({ where: { productId: id } });
       await db.productVariant.createMany({
@@ -151,6 +210,11 @@ export async function DELETE(request: Request) {
 
     if (!id) {
       return NextResponse.json({ error: 'Product ID required' }, { status: 400 });
+    }
+
+    // Validate id format
+    if (typeof id !== 'string' || id.length < 10) {
+      return NextResponse.json({ error: 'ID de produit invalide' }, { status: 400 });
     }
 
     // Delete variants first (cascade)

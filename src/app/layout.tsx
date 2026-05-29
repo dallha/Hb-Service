@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -46,6 +47,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" suppressHydrationWarning>
+      <head>
+        <Script src="/scripts/theme-init.js" strategy="beforeInteractive" />
+      </head>
       <body
         className={`${inter.variable} ${playfair.variable} antialiased bg-background text-foreground font-sans`}
       >

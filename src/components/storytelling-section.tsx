@@ -23,7 +23,7 @@ export default function StorytellingSection() {
   ];
 
   return (
-    <section className="py-16 sm:py-24 bg-[#F5F0E8]">
+    <section className="py-16 sm:py-24 bg-muted">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {sections.map((section, index) => (
           <motion.div
@@ -42,7 +42,7 @@ export default function StorytellingSection() {
           >
             {/* Image */}
             <div
-              className={`relative aspect-[4/3] overflow-hidden rounded-sm bg-[#E8E0D5] ${
+              className={`relative aspect-[4/3] overflow-hidden rounded-sm bg-muted ${
                 index % 2 === 1 ? 'lg:order-2' : ''
               }`}
             >
@@ -57,11 +57,11 @@ export default function StorytellingSection() {
 
             {/* Text */}
             <div className={index % 2 === 1 ? 'lg:order-1' : ''}>
-              <h3 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[#1A1A1A] mb-4">
+              <h3 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-foreground mb-4">
                 {section.title}
               </h3>
               <div className="w-12 h-[1px] bg-[#D4AF37] mb-6" />
-              <p className="font-sans text-base text-[#8C8C8C] leading-relaxed">
+              <p className="font-sans text-base text-muted-foreground leading-relaxed">
                 {section.text}
               </p>
             </div>

@@ -1,6 +1,6 @@
 :81 {
 	@transform_port_query {
-		query XTransformPort=*
+		query XTransformPort=3003
 	}
 
 	handle @transform_port_query {

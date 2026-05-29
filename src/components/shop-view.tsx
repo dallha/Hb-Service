@@ -73,22 +73,22 @@ export default function ShopView() {
   );
 
   return (
-    <div className="min-h-screen pt-24 pb-16 bg-[#F8F7F5]">
+    <div className="min-h-screen pt-24 pb-16 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 font-sans text-xs text-[#8C8C8C] mb-8">
+        <nav className="flex items-center gap-2 font-sans text-xs text-muted-foreground mb-8">
           <button
             onClick={() => navigate('home')}
-            className="hover:text-[#D4AF37] transition-colors"
+            className="hover:text-accent transition-colors"
           >
             Accueil
           </button>
           <ChevronRight className="w-3 h-3" />
-          <span className="text-[#1A1A1A]">Boutique</span>
+          <span className="text-foreground">Boutique</span>
           {activeCollection && activeCollection.slug && (
             <>
               <ChevronRight className="w-3 h-3" />
-              <span className="text-[#1A1A1A]">
+              <span className="text-foreground">
                 {activeCollection.label}
               </span>
             </>
@@ -97,18 +97,18 @@ export default function ShopView() {
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-[#1A1A1A] mb-2">
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-foreground mb-2">
             {activeCollection && activeCollection.slug
               ? `Collection ${activeCollection.label}`
               : 'Boutique'}
           </h1>
-          <p className="font-sans text-sm text-[#8C8C8C]">
+          <p className="font-sans text-sm text-muted-foreground">
             {sortedProducts.length} produit{sortedProducts.length !== 1 ? 's' : ''}
           </p>
         </div>
 
         {/* Filters & Sort */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 pb-6 border-b border-[#E8E0D5]">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 pb-6 border-b border-border">
           {/* Collection Filters */}
           <div className="flex items-center gap-2 flex-wrap">
             {collectionFilters.map((filter) => (
@@ -117,8 +117,8 @@ export default function ShopView() {
                 onClick={() => setActiveFilter(filter.slug)}
                 className={`font-sans text-xs tracking-wider uppercase px-4 py-2 rounded-none transition-all duration-200 ${
                   activeFilter === filter.slug
-                    ? 'bg-[#1A1A1A] text-[#F8F7F5]'
-                    : 'bg-[#F5F0E8] text-[#8C8C8C] hover:text-[#1A1A1A]'
+                    ? 'bg-foreground text-background'
+                    : 'bg-muted text-muted-foreground hover:text-foreground'
                 }`}
               >
                 {filter.label}
@@ -128,11 +128,11 @@ export default function ShopView() {
 
           {/* Sort */}
           <div className="flex items-center gap-2">
-            <SlidersHorizontal className="w-4 h-4 text-[#8C8C8C]" />
+            <SlidersHorizontal className="w-4 h-4 text-muted-foreground" />
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortOption)}
-              className="font-sans text-xs text-[#8C8C8C] bg-transparent border border-[#E8E0D5] rounded-none px-3 py-2 focus:outline-none focus:border-[#D4AF37]"
+              className="font-sans text-xs text-muted-foreground bg-transparent border border-border rounded-none px-3 py-2 focus:outline-none focus:border-accent"
             >
               <option value="relevance">Pertinence</option>
               <option value="price-asc">Prix croissant</option>
@@ -147,9 +147,9 @@ export default function ShopView() {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="animate-pulse">
-                <div className="aspect-[3/4] bg-[#E8E0D5] rounded-sm mb-4" />
-                <div className="h-3 bg-[#E8E0D5] rounded w-3/4 mb-2" />
-                <div className="h-4 bg-[#E8E0D5] rounded w-1/2" />
+                <div className="aspect-[3/4] bg-muted rounded-sm mb-4" />
+                <div className="h-3 bg-muted rounded w-3/4 mb-2" />
+                <div className="h-4 bg-muted rounded w-1/2" />
               </div>
             ))}
           </div>
@@ -176,7 +176,7 @@ export default function ShopView() {
 
         {sortedProducts.length === 0 && !loading && (
           <div className="text-center py-16">
-            <p className="font-serif text-2xl text-[#1A1A1A] mb-4">
+            <p className="font-serif text-2xl text-foreground mb-4">
               Aucun produit trouvé
             </p>
             <Button

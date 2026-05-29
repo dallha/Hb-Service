@@ -69,15 +69,15 @@ export default function ProductView() {
 
   if (loading) {
     return (
-      <div className="min-h-screen pt-24 pb-16 bg-[#F8F7F5]">
+      <div className="min-h-screen pt-24 pb-16 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
-            <div className="animate-pulse aspect-square bg-[#E8E0D5] rounded-sm" />
+            <div className="animate-pulse aspect-square bg-muted rounded-sm" />
             <div className="space-y-4">
-              <div className="h-4 bg-[#E8E0D5] rounded w-1/4" />
-              <div className="h-8 bg-[#E8E0D5] rounded w-3/4" />
-              <div className="h-4 bg-[#E8E0D5] rounded w-1/3" />
-              <div className="h-20 bg-[#E8E0D5] rounded w-full" />
+              <div className="h-4 bg-muted rounded w-1/4" />
+              <div className="h-8 bg-muted rounded w-3/4" />
+              <div className="h-4 bg-muted rounded w-1/3" />
+              <div className="h-20 bg-muted rounded w-full" />
             </div>
           </div>
         </div>
@@ -87,8 +87,8 @@ export default function ProductView() {
 
   if (!product) {
     return (
-      <div className="min-h-screen pt-24 pb-16 bg-[#F8F7F5] flex items-center justify-center">
-        <p className="font-serif text-2xl text-[#1A1A1A]">Produit non trouvé</p>
+      <div className="min-h-screen pt-24 pb-16 bg-background flex items-center justify-center">
+        <p className="font-serif text-2xl text-foreground">Produit non trouvé</p>
       </div>
     );
   }
@@ -149,21 +149,21 @@ export default function ProductView() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className="min-h-screen pt-24 pb-16 bg-[#F8F7F5]"
+      className="min-h-screen pt-24 pb-16 bg-background"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 font-sans text-xs text-[#8C8C8C] mb-8 flex-wrap">
+        <nav className="flex items-center gap-2 font-sans text-xs text-muted-foreground mb-8 flex-wrap">
           <button
             onClick={() => navigate('home')}
-            className="hover:text-[#D4AF37] transition-colors"
+            className="hover:text-accent transition-colors"
           >
             Accueil
           </button>
           <ChevronRight className="w-3 h-3" />
           <button
             onClick={() => navigate('shop')}
-            className="hover:text-[#D4AF37] transition-colors"
+            className="hover:text-accent transition-colors"
           >
             Boutique
           </button>
@@ -172,19 +172,19 @@ export default function ProductView() {
             onClick={() =>
               navigate('shop', { collectionSlug: product.collection.slug })
             }
-            className="hover:text-[#D4AF37] transition-colors"
+            className="hover:text-accent transition-colors"
           >
             {product.collection.name}
           </button>
           <ChevronRight className="w-3 h-3" />
-          <span className="text-[#1A1A1A]">{product.name}</span>
+          <span className="text-foreground">{product.name}</span>
         </nav>
 
         {/* Main Product */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-16">
           {/* Image Gallery */}
           <div>
-            <div className="relative aspect-square overflow-hidden rounded-sm bg-[#E8E0D5] mb-3 sm:mb-4 group">
+            <div className="relative aspect-square overflow-hidden rounded-sm bg-muted mb-3 sm:mb-4 group">
               {galleryImages[selectedImageIndex] && (
                 <Image
                   src={galleryImages[selectedImageIndex]}
@@ -222,10 +222,10 @@ export default function ProductView() {
 
           {/* Product Info */}
           <div>
-            <p className="font-sans text-[10px] tracking-widest uppercase text-[#D4AF37] mb-2">
+            <p className="font-sans text-[10px] tracking-widest uppercase text-accent mb-2">
               {product.collection.name}
             </p>
-            <h1 className="font-serif text-3xl sm:text-4xl text-[#1A1A1A] mb-4">
+            <h1 className="font-serif text-3xl sm:text-4xl text-foreground mb-4">
               {product.name}
             </h1>
 
@@ -243,7 +243,7 @@ export default function ProductView() {
                   />
                 ))}
               </div>
-              <span className="font-sans text-sm text-[#8C8C8C]">
+              <span className="font-sans text-sm text-muted-foreground">
                 ({product.reviewCount} avis)
               </span>
             </div>
@@ -251,7 +251,7 @@ export default function ProductView() {
             {/* Variant Selector */}
             {product.variants.length > 1 && (
               <div className="mb-6">
-                <p className="font-sans text-xs tracking-widest uppercase text-[#8C8C8C] mb-3">
+                <p className="font-sans text-xs tracking-widest uppercase text-muted-foreground mb-3">
                   Contenance
                 </p>
                 <div className="flex gap-3">
@@ -277,32 +277,32 @@ export default function ProductView() {
 
             {/* Price & Stock */}
             <div className="mb-6">
-              <p className="font-serif text-2xl text-[#1A1A1A] mb-1">
+              <p className="font-serif text-2xl text-foreground mb-1">
                 {formatPrice(variant?.price || 0)}
               </p>
               <p className={`font-sans text-xs ${stockColor}`}>{stockText}</p>
             </div>
 
             {/* Description */}
-            <p className="font-sans text-sm text-[#8C8C8C] leading-relaxed mb-8">
+            <p className="font-sans text-sm text-muted-foreground leading-relaxed mb-8">
               {product.description}
             </p>
 
             {/* Quantity & Add to Cart */}
             <div className="flex items-center gap-3 sm:gap-4 mb-4">
-              <div className="flex items-center border border-[#E8E0D5] rounded-none">
+              <div className="flex items-center border border-border rounded-none">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-[#8C8C8C] hover:text-[#1A1A1A] transition-colors min-h-[44px] sm:min-h-0"
+                  className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors min-h-[44px] sm:min-h-0"
                 >
                   <Minus className="w-4 h-4" />
                 </button>
-                <span className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center font-sans text-sm text-[#1A1A1A]">
+                <span className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center font-sans text-sm text-foreground">
                   {quantity}
                 </span>
                 <button
                   onClick={() => setQuantity(quantity + 1)}
-                  className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-[#8C8C8C] hover:text-[#1A1A1A] transition-colors min-h-[44px] sm:min-h-0"
+                  className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors min-h-[44px] sm:min-h-0"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
@@ -323,7 +323,7 @@ export default function ProductView() {
                 variant="outline"
                 onClick={handleAddToCart}
                 disabled={!variant || variant.stock === 0}
-                className="flex-1 border-[#1A1A1A] text-[#1A1A1A] hover:bg-[#1A1A1A] hover:text-[#F8F7F5] font-sans text-[10px] sm:text-xs tracking-widest uppercase rounded-none min-h-[44px] sm:min-h-0"
+                className="flex-1 border-foreground text-foreground hover:bg-foreground hover:text-background font-sans text-[10px] sm:text-xs tracking-widest uppercase rounded-none min-h-[44px] sm:min-h-0"
               >
                 Achat rapide
               </Button>
@@ -341,7 +341,7 @@ export default function ProductView() {
             {/* Back */}
             <button
               onClick={() => navigate('shop')}
-              className="mt-6 flex items-center gap-2 font-sans text-xs text-[#8C8C8C] hover:text-[#D4AF37] transition-colors"
+              className="mt-6 flex items-center gap-2 font-sans text-xs text-muted-foreground hover:text-accent transition-colors"
             >
               <ChevronLeft className="w-3 h-3" />
               Retour à la boutique
@@ -352,10 +352,10 @@ export default function ProductView() {
         {/* Notes Olfactives */}
         {notes && (
           <div className="mt-16 lg:mt-24">
-            <h2 className="font-serif text-2xl sm:text-3xl text-[#1A1A1A] mb-2">
+            <h2 className="font-serif text-2xl sm:text-3xl text-foreground mb-2">
               Notes Olfactives
             </h2>
-            <div className="w-12 h-[1px] bg-[#D4AF37] mb-8" />
+            <div className="w-12 h-[1px] bg-accent mb-8" />
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               {[
                 { label: 'Notes de Tête', items: notes.head, icon: '✦' },
@@ -364,16 +364,16 @@ export default function ProductView() {
               ].map((section) => (
                 <div
                   key={section.label}
-                  className="p-6 bg-[#F5F0E8] rounded-sm border border-[#E8E0D5]"
+                  className="p-6 bg-muted rounded-sm border border-border"
                 >
-                  <p className="font-sans text-[10px] tracking-widest uppercase text-[#D4AF37] mb-3">
+                  <p className="font-sans text-[10px] tracking-widest uppercase text-accent mb-3">
                     {section.icon} {section.label}
                   </p>
                   <ul className="space-y-1.5">
                     {section.items?.map((item: string) => (
                       <li
                         key={item}
-                        className="font-serif text-base text-[#1A1A1A]"
+                        className="font-serif text-base text-foreground"
                       >
                         {item}
                       </li>
@@ -388,11 +388,11 @@ export default function ProductView() {
         {/* Inspiration */}
         {product.inspiration && (
           <div className="mt-16">
-            <h2 className="font-serif text-2xl sm:text-3xl text-[#1A1A1A] mb-2">
+            <h2 className="font-serif text-2xl sm:text-3xl text-foreground mb-2">
               Inspiration
             </h2>
-            <div className="w-12 h-[1px] bg-[#D4AF37] mb-6" />
-            <p className="font-serif text-lg text-[#8C8C8C] leading-relaxed max-w-3xl italic">
+            <div className="w-12 h-[1px] bg-accent mb-6" />
+            <p className="font-serif text-lg text-muted-foreground leading-relaxed max-w-3xl italic">
               &ldquo;{product.inspiration}&rdquo;
             </p>
           </div>
@@ -401,10 +401,10 @@ export default function ProductView() {
         {/* Related Ritual Products */}
         {relatedProducts.length > 0 && (
           <div className="mt-16 lg:mt-24">
-            <h2 className="font-serif text-2xl sm:text-3xl text-[#1A1A1A] mb-2">
+            <h2 className="font-serif text-2xl sm:text-3xl text-foreground mb-2">
               Complétez votre Rituel
             </h2>
-            <div className="w-12 h-[1px] bg-[#D4AF37] mb-8" />
+            <div className="w-12 h-[1px] bg-accent mb-8" />
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
               {relatedProducts.map((rp, index) => (
                 <ProductCard key={rp.id} product={rp} index={index} />

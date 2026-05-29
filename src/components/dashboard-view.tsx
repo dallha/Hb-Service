@@ -27,6 +27,7 @@ import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter,
 } from '@/components/ui/sheet';
 import { useToast } from '@/hooks/use-toast';
+import AdminLogin from '@/components/admin-login';
 
 // ─── Types ──────────────────────────────────────────────────────
 
@@ -149,9 +150,56 @@ const paymentProviderLabels: Record<string, string> = {
   pending: 'Non défini',
 };
 
+// ─── API Helper with Auth ────────────────────────────────────────
+
+const API_TOKEN = process.env.NEXT_PUBLIC_API_TOKEN;
+
+async function apiFetch(url: string, options: RequestInit = {}) {
+  const headers: Record<string, string> = {
+    ...(options.headers as Record<string, string> || {}),
+  };
+  // Add auth token for mutations (POST, PUT, DELETE)
+  if (API_TOKEN && options.method && options.method !== 'GET') {
+    headers['Authorization'] = `Bearer ${API_TOKEN}`;
+  }
+  return fetch(url, { ...options, headers });
+}
+
 // ─── Main Component ─────────────────────────────────────────────
 
 export default function DashboardView() {
+  const [authenticated, setAuthenticated] = useState<boolean | null>(null);
+
+  // ─── Session Check (must be before any early return) ────────
+
+  useEffect(() => {
+    fetch('/api/auth/check')
+      .then((res) => {
+        if (res.ok) setAuthenticated(true);
+        else setAuthenticated(false);
+      })
+      .catch(() => setAuthenticated(false));
+  }, []);
+
+  // Show login screen while checking or if not authenticated
+  if (authenticated === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F8F7F5]">
+        <div className="w-8 h-8 border-2 border-[#D4AF37] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!authenticated) {
+    return <AdminLogin onLoginSuccess={() => setAuthenticated(true)} />;
+  }
+
+  return <AdminDashboard />;
+}
+
+// ─── Admin Dashboard (separate component so hooks are stable) ──
+
+function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<AdminTab>('analytics');
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
@@ -259,7 +307,7 @@ export default function DashboardView() {
           className="flex items-center gap-2 font-sans text-xs text-[#8C8C8C] hover:text-[#D4AF37] transition-colors mb-4 sm:mb-6"
         >
           <ChevronLeft className="w-3 h-3" />
-          Retour à l&apos;accueil
+          Retour à l'accueil
         </button>
 
         <div className="flex items-center justify-between mb-6 sm:mb-8">
@@ -518,7 +566,7 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
 
     try {
       if (isCreateMode) {
-        const res = await fetch('/api/products', {
+        const res = await apiFetch('/api/products', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
@@ -530,7 +578,7 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
         showToast('Produit créé avec succès');
       } else if (editingProduct) {
         body.id = editingProduct.id;
-        const res = await fetch('/api/products', {
+        const res = await apiFetch('/api/products', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
@@ -551,7 +599,7 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
 
   const handleDelete = async (id: string) => {
     try {
-      const res = await fetch(`/api/products?id=${id}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/products?id=${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Erreur lors de la suppression');
       showToast('Produit supprimé');
       setDeleteConfirm(null);
@@ -993,7 +1041,7 @@ function CollectionsTab({ collections, onRefresh, showToast }: {
     };
 
     try {
-      const res = await fetch('/api/collections', {
+      const res = await apiFetch('/api/collections', {
         method: isCreateMode ? 'POST' : 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -1013,7 +1061,7 @@ function CollectionsTab({ collections, onRefresh, showToast }: {
 
   const handleDelete = async (id: string) => {
     try {
-      const res = await fetch(`/api/collections?id=${id}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/collections?id=${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Erreur');
       showToast('Collection supprimée');
       setDeleteConfirm(null);
@@ -1283,7 +1331,7 @@ function OrdersTab({ orders, searchQuery, setSearchQuery, onRefresh, showToast }
       if (payProvider) paymentBody.paymentProvider = payProvider;
       if (payReference) paymentBody.paymentReference = payReference;
 
-      const res = await fetch('/api/orders', {
+      const res = await apiFetch('/api/orders', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...body, ...paymentBody }),
@@ -1299,7 +1347,7 @@ function OrdersTab({ orders, searchQuery, setSearchQuery, onRefresh, showToast }
 
   const handleDeleteOrder = async (id: string) => {
     try {
-      const res = await fetch(`/api/orders?id=${id}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/orders?id=${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Erreur');
       showToast('Commande supprimée');
       setDeleteConfirm(null);

@@ -30,7 +30,7 @@ export default function FeaturedProducts() {
   if (products.length === 0) return null;
 
   return (
-    <section className="py-16 sm:py-24 bg-[#F8F7F5]">
+    <section className="py-16 sm:py-24 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Title */}
         <motion.div
@@ -40,11 +40,11 @@ export default function FeaturedProducts() {
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           className="text-center mb-12 lg:mb-16"
         >
-          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-[#1A1A1A] mb-4">
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-foreground mb-4">
             Sélection du Moment
           </h2>
           <div className="w-16 h-[1px] bg-[#D4AF37] mx-auto mb-4" />
-          <p className="font-sans text-sm text-[#8C8C8C] max-w-lg mx-auto">
+          <p className="font-sans text-sm text-muted-foreground max-w-lg mx-auto">
             Nos créations les plus plébiscitées, sélectionnées pour leur
             excellence et leur sillage unique.
           </p>
