@@ -29,7 +29,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { guestEmail, guestPhone, items, note } = body;
+    const { guestEmail, guestPhone, items, note, paymentProvider } = body;
 
     // Calculate total
     let totalAmount = 0;
@@ -89,7 +89,7 @@ export async function POST(request: Request) {
     await db.payment.create({
       data: {
         orderId: order.id,
-        provider: 'pending',
+        provider: paymentProvider || 'pending',
         status: 'pending',
       },
     });
@@ -98,5 +98,74 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Order creation error:', error);
     return NextResponse.json({ error: 'Failed to create order' }, { status: 500 });
+  }
+}
+
+export async function PUT(request: Request) {
+  try {
+    const body = await request.json();
+    const { id, status, paymentStatus, paymentProvider, paymentReference, note } = body;
+
+    if (!id) {
+      return NextResponse.json({ error: 'Order ID required' }, { status: 400 });
+    }
+
+    // Update order status
+    if (status) {
+      await db.order.update({
+        where: { id },
+        data: { status, note: note || undefined },
+      });
+    }
+
+    // Update payment status
+    if (paymentStatus || paymentProvider || paymentReference) {
+      const paymentData: Record<string, string> = {};
+      if (paymentStatus) paymentData.status = paymentStatus;
+      if (paymentProvider) paymentData.provider = paymentProvider;
+      if (paymentReference) paymentData.reference = paymentReference;
+
+      await db.payment.updateMany({
+        where: { orderId: id },
+        data: paymentData,
+      });
+    }
+
+    const updatedOrder = await db.order.findUnique({
+      where: { id },
+      include: {
+        items: {
+          include: {
+            variant: { include: { product: true } },
+          },
+        },
+        payment: true,
+      },
+    });
+
+    return NextResponse.json(updatedOrder);
+  } catch (error) {
+    console.error('Order update error:', error);
+    return NextResponse.json({ error: 'Failed to update order' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: 'Order ID required' }, { status: 400 });
+    }
+
+    await db.orderItem.deleteMany({ where: { orderId: id } });
+    await db.payment.deleteMany({ where: { orderId: id } });
+    await db.order.delete({ where: { id } });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Order deletion error:', error);
+    return NextResponse.json({ error: 'Failed to delete order' }, { status: 500 });
   }
 }

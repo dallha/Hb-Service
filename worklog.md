@@ -50,3 +50,29 @@ Stage Summary:
 - Lint passes cleanly with zero errors
 - All API endpoints serving data correctly (verified in dev logs)
 - Platform is fully functional and running
+
+---
+Task ID: admin-crud
+Agent: Main Agent
+Task: Add full admin panel with CRUD operations for all entities
+
+Work Log:
+- Added POST/PUT/DELETE to /api/products (with variant management, slug auto-generation)
+- Added POST/PUT/DELETE to /api/collections (with cascade product deletion)
+- Added PUT/DELETE to /api/orders (with payment status update)
+- Added ?all=true param to products API to include inactive products in admin
+- Rebuilt DashboardView as comprehensive admin panel with 4 tabs
+- Products Tab: grid view, search, create/edit sheet with variants, notes olfactives, gallery, rituals, active toggle, delete confirmation
+- Collections Tab: grid view, create/edit sheet with heroText, sortOrder, image, cascade delete warning
+- Orders Tab: searchable list, detail sheet with status/payment/provider/reference editing
+- Analytics Tab: KPI cards + revenue chart (preserved from original)
+- Added Settings icon in header navbar for admin access (desktop + mobile)
+- All admin components are mobile responsive with proper breakpoints
+- Tested all CRUD operations: Create, Read, Update, Delete for products, collections, and orders
+- Build passes successfully
+
+Stage Summary:
+- Full admin dashboard with editable everything is now operational
+- All 3 entities (Products, Collections, Orders) support full CRUD
+- Admin accessible via Settings icon in navbar or mobile menu
+- Mobile responsive with sheet-based editors instead of modals on small screens

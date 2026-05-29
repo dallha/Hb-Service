@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, Menu, X, MessageCircle } from 'lucide-react';
+import { ShoppingBag, Menu, X, MessageCircle, Settings } from 'lucide-react';
 import { useCartStore, useNavigationStore } from '@/lib/store';
 import { Button } from '@/components/ui/button';
 
@@ -26,7 +26,7 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleNav = (view: 'home' | 'shop' | 'storytelling') => {
+  const handleNav = (view: 'home' | 'shop' | 'storytelling' | 'dashboard') => {
     navigate(view);
     setMobileMenuOpen(false);
   };
@@ -102,6 +102,17 @@ export default function Header() {
                 )}
               </Button>
 
+              {/* Admin */}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleNav('dashboard')}
+                className="hidden md:flex rounded-none hover:bg-[#D4AF37]/10 w-9 h-9 sm:w-10 sm:h-10"
+                aria-label="Administration"
+              >
+                <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
+              </Button>
+
               {/* Mobile Menu Toggle */}
               <Button
                 variant="ghost"
@@ -151,6 +162,16 @@ export default function Header() {
                   {link.label}
                 </motion.button>
               ))}
+              <motion.button
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: navLinks.length * 0.08 }}
+                onClick={() => handleNav('dashboard')}
+                className="py-3.5 sm:py-4 text-left font-serif text-base sm:text-lg text-[#D4AF37] border-b border-[#E8E0D5] hover:text-[#B8962E] transition-colors flex items-center gap-2"
+              >
+                <Settings className="w-4 h-4" />
+                Administration
+              </motion.button>
               <a
                 href="https://wa.me/221770000000?text=Bonjour%20HB_Service%2C%20j%27aimerais%20en%20savoir%20plus%20sur%20vos%20produits."
                 target="_blank"
