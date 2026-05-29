@@ -12,8 +12,8 @@ export function WhatsAppButton() {
     return () => clearTimeout(timer);
   }, []);
 
-  // WhatsApp number (to be replaced with actual env variable or constant)
-  const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '221770000000';
+  // WhatsApp number
+  const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '212601134545';
   const defaultMessage = encodeURIComponent("Bonjour ! J'aimerais avoir plus d'informations sur vos parfums.");
 
   return (
