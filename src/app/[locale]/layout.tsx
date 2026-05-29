@@ -7,6 +7,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { locales } from "@/i18n";
+import SupabaseAuthListener from "@/components/SupabaseAuthListener";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -70,6 +71,7 @@ export default async function RootLayout(props: {
         className={`${inter.variable} ${playfair.variable} antialiased bg-background text-foreground font-sans`}
       >
         <NextIntlClientProvider messages={messages}>
+          <SupabaseAuthListener />
           {children}
           <Toaster position="top-right" richColors />
         </NextIntlClientProvider>
