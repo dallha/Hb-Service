@@ -53,8 +53,8 @@ export default function Header() {
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
-            ? 'bg-background/95 backdrop-blur-md shadow-sm'
-            : 'bg-transparent'
+            ? 'bg-background/95 backdrop-blur-md shadow-sm border-b border-border/40'
+            : 'bg-background/70 backdrop-blur-md'
         }`}
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
