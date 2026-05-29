@@ -1,5 +1,5 @@
 import { requireAdmin } from '@/lib/auth-admin';
-import prisma from '@/lib/prisma';
+import prisma from '@/lib/db';
 import { notFound } from 'next/navigation';
 import { formatPrice } from '@/lib/format';
 import { Printer } from 'lucide-react';
