@@ -7,8 +7,8 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { locales } from "@/i18n";
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
+import Header from '@/components/header';
+import Footer from '@/components/footer';
 import { WhatsAppButton } from '@/components/whatsapp-button';
 import { Providers } from './providers';
 import SupabaseAuthListener from "@/components/SupabaseAuthListener";
@@ -68,21 +68,20 @@ export default async function RootLayout(props: {
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      <head>
-        <Script src="/scripts/theme-init.js" strategy="beforeInteractive" />
-      </head>
       <body
         className={`${inter.variable} ${playfair.variable} antialiased bg-background text-foreground font-sans`}
       >
         <NextIntlClientProvider messages={messages}>
-          <Header />
-          <main className="flex-1 min-h-screen">
-            <SupabaseAuthListener />
-            {children}
-          </main>
-          <WhatsAppButton />
-          <Footer />
-          <Toaster position="top-right" richColors />
+          <Providers>
+            <Header />
+            <main className="flex-1 min-h-screen">
+              <SupabaseAuthListener />
+              {children}
+            </main>
+            <WhatsAppButton />
+            <Footer />
+            <Toaster position="top-right" richColors />
+          </Providers>
         </NextIntlClientProvider>
       </body>
     </html>
