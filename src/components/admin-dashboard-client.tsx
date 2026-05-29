@@ -7,7 +7,7 @@ import {
   Plus, Pencil, Trash2, X, Save, Search, Eye, ChevronDown,
   LayoutGrid, FolderOpen, ClipboardList, BarChart3, Upload,
   AlertTriangle, Users, Shield, ShieldCheck, Star, CheckCircle,
-  Ticket,
+  Ticket, Menu, LogOut, Download, Copy,
 } from 'lucide-react';
 import { useNavigationStore } from '@/lib/store';
 import { formatPrice } from '@/lib/format';
@@ -191,6 +191,7 @@ async function apiFetch(url: string, options: RequestInit = {}) {
 
 export default function AdminDashboardClient() {
   const [activeTab, setActiveTab] = useState<AdminTab>('analytics');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [collections, setCollections] = useState<Collection[]>([]);
@@ -329,114 +330,186 @@ export default function AdminDashboardClient() {
   ];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className="min-h-screen pt-20 sm:pt-24 pb-16 bg-[#F8F7F5]"
-    >
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        {/* Back */}
-        <button
-          onClick={() => navigate('home')}
-          className="flex items-center gap-2 font-sans text-xs text-[#8C8C8C] hover:text-[#D4AF37] transition-colors mb-4 sm:mb-6"
-        >
-          <ChevronLeft className="w-3 h-3" />
-          Retour à l'accueil
-        </button>
-
-        <div className="flex items-center justify-between mb-6 sm:mb-8">
-          <h1 className="font-serif text-2xl sm:text-4xl text-[#1A1A1A]">
-            Administration
-          </h1>
-          <span className="font-sans text-[10px] sm:text-xs tracking-widest uppercase text-[#8C8C8C]">
-            HB_Service
-          </span>
+    <div className="flex min-h-screen bg-[#F8F7F5] font-sans">
+      {/* Sidebar Desktop */}
+      <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-[#E8E0D5] fixed inset-y-0 z-30">
+        <div className="h-16 flex items-center gap-3 px-6 border-b border-[#E8E0D5]">
+          <img src="/logo-gold.jpg" alt="Logo" className="w-8 h-8 rounded-full object-cover" />
+          <span className="font-serif text-lg text-[#1A1A1A]">Admin</span>
         </div>
-
-        {/* Tab Navigation */}
-        <div className="flex gap-1 sm:gap-2 mb-6 sm:mb-8 overflow-x-auto pb-2 -mx-3 px-3 sm:mx-0 sm:px-0">
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 font-sans text-xs sm:text-sm tracking-wider uppercase whitespace-nowrap transition-all duration-300 rounded-sm ${
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors text-sm font-medium ${
                 activeTab === tab.id
-                  ? 'bg-[#1A1A1A] text-[#F8F7F5]'
-                  : 'bg-white text-[#8C8C8C] border border-[#E8E0D5] hover:border-[#D4AF37] hover:text-[#1A1A1A]'
+                  ? 'bg-[#1A1A1A] text-white'
+                  : 'text-[#8C8C8C] hover:bg-[#F8F7F5] hover:text-[#1A1A1A]'
               }`}
             >
-              <tab.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <tab.icon className="w-4 h-4" />
               {tab.label}
             </button>
           ))}
+        </nav>
+        <div className="p-4 border-t border-[#E8E0D5]">
+          <button
+            onClick={() => navigate('home')}
+            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-[#8C8C8C] hover:text-[#1A1A1A] transition-colors rounded-md hover:bg-[#F8F7F5]"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Retour au site
+          </button>
         </div>
+      </aside>
 
-        {/* Content */}
-        <AnimatePresence mode="wait">
-          {activeTab === 'analytics' && (
-            <AnalyticsTab
-              analytics={analytics}
-              chartData={chartData}
-              loading={loading}
+      {/* Mobile Sidebar Overlay */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+              onClick={() => setMobileMenuOpen(false)}
             />
-          )}
-          {activeTab === 'products' && (
-            <ProductsTab
-              products={filteredProducts}
-              collections={collections}
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              onRefresh={fetchProducts}
-              showToast={showToast}
-            />
-          )}
-          {activeTab === 'collections' && (
-            <CollectionsTab
-              collections={collections}
-              onRefresh={fetchCollections}
-              showToast={showToast}
-            />
-          )}
-          {activeTab === 'orders' && (
-            <OrdersTab
-              orders={filteredOrders}
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              onRefresh={fetchOrders}
-              showToast={showToast}
-            />
-          )}
-          {activeTab === 'users' && (
-            <UsersTab
-              users={filteredUsers}
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              onRefresh={fetchUsers}
-              showToast={showToast}
-            />
-          )}
-          {activeTab === 'reviews' && (
-            <ReviewsTab
-              reviews={filteredReviews}
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              onRefresh={fetchReviews}
-              showToast={showToast}
-            />
-          )}
-          {activeTab === 'promos' && (
-            <PromoCodesTab
-              promos={filteredPromos}
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              onRefresh={fetchPromos}
-              showToast={showToast}
-            />
-          )}
-        </AnimatePresence>
-      </div>
-    </motion.div>
+            <motion.aside
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed inset-y-0 left-0 w-64 bg-white border-r border-[#E8E0D5] z-50 flex flex-col"
+            >
+              <div className="h-16 flex items-center justify-between px-4 border-b border-[#E8E0D5]">
+                <div className="flex items-center gap-2">
+                  <img src="/logo-gold.jpg" alt="Logo" className="w-8 h-8 rounded-full object-cover" />
+                  <span className="font-serif text-lg text-[#1A1A1A]">Admin</span>
+                </div>
+                <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+              <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      setActiveTab(tab.id);
+                      setMobileMenuOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors text-sm font-medium ${
+                      activeTab === tab.id
+                        ? 'bg-[#1A1A1A] text-white'
+                        : 'text-[#8C8C8C] hover:bg-[#F8F7F5] hover:text-[#1A1A1A]'
+                    }`}
+                  >
+                    <tab.icon className="w-4 h-4" />
+                    {tab.label}
+                  </button>
+                ))}
+              </nav>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Main Content */}
+      <main className="flex-1 lg:pl-64 flex flex-col min-w-0">
+        {/* Topbar */}
+        <header className="h-16 bg-white border-b border-[#E8E0D5] flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-20">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden -ml-2 text-[#1A1A1A]"
+              onClick={() => setMobileMenuOpen(true)}
+            >
+              <Menu className="w-5 h-5" />
+            </Button>
+            <h1 className="font-serif text-xl text-[#1A1A1A] hidden sm:block">
+              {tabs.find(t => t.id === activeTab)?.label}
+            </h1>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-[#8C8C8C] hidden sm:block">Connecté en tant qu'Administrateur</span>
+            <form action="/api/auth/logout" method="POST">
+              <Button type="submit" variant="ghost" size="sm" className="text-[#8C8C8C] hover:text-[#C44536] gap-2">
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Déconnexion</span>
+              </Button>
+            </form>
+          </div>
+        </header>
+
+        {/* Content Area */}
+        <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden">
+          <AnimatePresence mode="wait">
+            {activeTab === 'analytics' && (
+              <AnalyticsTab
+                analytics={analytics}
+                chartData={chartData}
+                loading={loading}
+              />
+            )}
+            {activeTab === 'products' && (
+              <ProductsTab
+                products={filteredProducts}
+                collections={collections}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                onRefresh={fetchProducts}
+                showToast={showToast}
+              />
+            )}
+            {activeTab === 'collections' && (
+              <CollectionsTab
+                collections={collections}
+                onRefresh={fetchCollections}
+                showToast={showToast}
+              />
+            )}
+            {activeTab === 'orders' && (
+              <OrdersTab
+                orders={filteredOrders}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                onRefresh={fetchOrders}
+                showToast={showToast}
+              />
+            )}
+            {activeTab === 'users' && (
+              <UsersTab
+                users={filteredUsers}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                onRefresh={fetchUsers}
+                showToast={showToast}
+              />
+            )}
+            {activeTab === 'reviews' && (
+              <ReviewsTab
+                reviews={filteredReviews}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                onRefresh={fetchReviews}
+                showToast={showToast}
+              />
+            )}
+            {activeTab === 'promos' && (
+              <PromoCodesTab
+                promos={filteredPromos}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                onRefresh={fetchPromos}
+                showToast={showToast}
+              />
+            )}
+          </AnimatePresence>
+        </div>
+      </main>
+    </div>
   );
 }
 
@@ -460,9 +533,9 @@ function AnalyticsTab({ analytics, chartData, loading }: {
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
         {[
-          { label: 'CA Total', value: analytics ? formatPrice(analytics.totalRevenue) : '—', icon: DollarSign },
-          { label: 'Panier Moyen', value: analytics ? formatPrice(Math.round(analytics.aov)) : '—', icon: TrendingUp },
-          { label: 'Commandes', value: analytics?.orderCount.toString() || '—', icon: ShoppingCart },
+          { label: 'CA Total', value: analytics ? formatPrice(analytics.totalRevenue) : '—', icon: DollarSign, trend: '+12%' },
+          { label: 'Panier Moyen', value: analytics ? formatPrice(Math.round(analytics.aov)) : '—', icon: TrendingUp, trend: '+5%' },
+          { label: 'Commandes', value: analytics?.orderCount.toString() || '—', icon: ShoppingCart, trend: '+8%' },
           { label: 'Produits Actifs', value: analytics?.productCount.toString() || '—', icon: Package },
         ].map((card, index) => (
           <motion.div
@@ -470,25 +543,35 @@ function AnalyticsTab({ analytics, chartData, loading }: {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.08 }}
-            className="bg-white p-3 sm:p-6 rounded-sm border border-[#E8E0D5]"
+            className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-[#E8E0D5]/50 hover:shadow-md transition-shadow relative overflow-hidden group"
           >
-            <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
-              <div className="w-7 h-7 sm:w-9 sm:h-9 bg-[#F5F0E8] flex items-center justify-center">
-                <card.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#D4AF37]" />
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+               <card.icon className="w-16 h-16 text-[#D4AF37]" />
+            </div>
+            <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 relative z-10">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#F5F0E8] flex items-center justify-center shadow-inner">
+                <card.icon className="w-4 h-4 sm:w-5 sm:h-5 text-[#D4AF37]" />
               </div>
-              <span className="font-sans text-[9px] sm:text-xs tracking-wider uppercase text-[#8C8C8C]">
+              <span className="font-sans text-[10px] sm:text-xs font-semibold tracking-wider uppercase text-[#8C8C8C]">
                 {card.label}
               </span>
             </div>
-            <p className="font-serif text-base sm:text-2xl text-[#1A1A1A]">
-              {card.value}
-            </p>
+            <div className="flex items-baseline gap-3 relative z-10">
+              <p className="font-serif text-xl sm:text-3xl text-[#1A1A1A] font-medium">
+                {card.value}
+              </p>
+              {card.trend && (
+                <span className="font-sans text-xs font-medium text-[#4A7C59] bg-[#4A7C59]/10 px-2 py-0.5 rounded-full">
+                  {card.trend}
+                </span>
+              )}
+            </div>
           </motion.div>
         ))}
       </div>
 
       {/* Revenue Chart */}
-      <div className="bg-white p-3 sm:p-6 rounded-sm border border-[#E8E0D5]">
+      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-[#E8E0D5]/50">
         <h2 className="font-serif text-sm sm:text-lg text-[#1A1A1A] mb-4 sm:mb-6">
           Chiffre d&apos;Affaires (30 jours)
         </h2>
@@ -530,6 +613,78 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isCreateMode, setIsCreateMode] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+
+  // Bulk selection
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkProcessing, setBulkProcessing] = useState(false);
+
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedIds(products.map(p => p.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleSelectProduct = (id: string) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
+
+  const handleBulkActiveToggle = async (isActive: boolean) => {
+    if (selectedIds.length === 0) return;
+    setBulkProcessing(true);
+    try {
+      await Promise.all(selectedIds.map(id => 
+        apiFetch('/api/products', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, isActive }),
+        })
+      ));
+      showToast(`${selectedIds.length} produits mis à jour`);
+      setSelectedIds([]);
+      onRefresh();
+    } catch {
+      showToast('Erreur lors de la mise à jour massive', 'destructive');
+    } finally {
+      setBulkProcessing(false);
+    }
+  };
+
+  const handleDuplicate = async (product: Product) => {
+    try {
+      const body: Record<string, unknown> = {
+        name: `${product.name} (Copie)`,
+        slug: `${product.slug}-copie-${Date.now()}`,
+        description: product.description,
+        inspiration: product.inspiration,
+        imageUrl: product.imageUrl,
+        galleryUrls: product.galleryUrls,
+        relatedRitualIds: product.relatedRitualIds,
+        isActive: false, // create as inactive by default
+        collectionId: product.collectionId,
+        notesOlfactives: product.notesOlfactives,
+        variants: product.variants.map((v) => ({
+          size: v.size,
+          price: v.price,
+          stock: v.stock,
+          sku: v.sku ? `${v.sku}-COPY` : null,
+        })),
+      };
+
+      const res = await apiFetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) throw new Error('Erreur lors de la duplication');
+      showToast('Produit dupliqué avec succès');
+      onRefresh();
+    } catch {
+      showToast('Erreur lors de la duplication', 'destructive');
+    }
+  };
 
   // Form state
   const [form, setForm] = useState({
@@ -695,8 +850,8 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
       transition={{ duration: 0.3 }}
     >
       {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
-        <div className="relative flex-1">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 justify-between items-start sm:items-center">
+        <div className="relative flex-1 w-full max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8C8C8C]" />
           <Input
             placeholder="Rechercher un produit..."
@@ -705,14 +860,41 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
             className="pl-10 bg-white border-[#E8E0D5] rounded-none font-sans text-sm h-10"
           />
         </div>
-        <Button
-          onClick={openCreate}
-          className="bg-[#1A1A1A] hover:bg-[#1A1A1A]/90 text-[#F8F7F5] rounded-none font-sans text-xs tracking-wider uppercase h-10 px-5"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Nouveau Produit
-        </Button>
+        
+        <div className="flex gap-2 w-full sm:w-auto">
+          {selectedIds.length > 0 && (
+            <Select onValueChange={(val) => handleBulkActiveToggle(val === 'active')}>
+              <SelectTrigger disabled={bulkProcessing} className="bg-white border-[#E8E0D5] rounded-none font-sans text-xs h-10 min-w-[150px]">
+                {bulkProcessing ? 'Traitement...' : `Action pour ${selectedIds.length}`}
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">Activer</SelectItem>
+                <SelectItem value="inactive">Désactiver</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+          <Button
+            onClick={openCreate}
+            className="bg-[#1A1A1A] hover:bg-[#1A1A1A]/90 text-[#F8F7F5] rounded-none font-sans text-xs tracking-wider uppercase h-10 px-5 flex-1 sm:flex-none"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Nouveau
+          </Button>
+        </div>
       </div>
+
+      {/* Select All Bar */}
+      {products.length > 0 && (
+        <div className="flex items-center gap-3 px-4 py-2 mb-2">
+          <input 
+            type="checkbox" 
+            checked={selectedIds.length === products.length && products.length > 0}
+            onChange={handleSelectAll}
+            className="w-4 h-4 rounded-sm border-[#E8E0D5] text-[#1A1A1A] focus:ring-black"
+          />
+          <span className="text-xs text-[#8C8C8C] font-sans uppercase tracking-wider">Tout sélectionner</span>
+        </div>
+      )}
 
       {/* Product Grid */}
       {products.length === 0 ? (
@@ -727,8 +909,18 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
               key={product.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-sm border border-[#E8E0D5] overflow-hidden group hover:border-[#D4AF37] transition-colors"
+              className={`bg-white rounded-md border overflow-hidden group transition-colors relative ${selectedIds.includes(product.id) ? 'border-[#1A1A1A]' : 'border-[#E8E0D5] hover:border-[#D4AF37]'}`}
             >
+              {/* Checkbox overlay */}
+              <div className="absolute top-2 left-2 z-10">
+                <input 
+                  type="checkbox" 
+                  checked={selectedIds.includes(product.id)}
+                  onChange={() => handleSelectProduct(product.id)}
+                  className="w-4 h-4 rounded-sm border-[#E8E0D5] text-[#1A1A1A] focus:ring-black bg-white/80 backdrop-blur-sm"
+                />
+              </div>
+
               {/* Image */}
               <div className="relative h-40 sm:h-48 bg-[#F5F0E8] overflow-hidden">
                 {product.imageUrl ? (
@@ -743,15 +935,22 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
                   </div>
                 )}
                 {/* Status Badge */}
-                <div className="absolute top-2 left-2">
-                  <span className={`inline-block px-2 py-0.5 text-[10px] font-sans tracking-wider uppercase ${
-                    product.isActive ? 'bg-[#4A7C59]/15 text-[#4A7C59]' : 'bg-[#C44536]/15 text-[#C44536]'
+                <div className="absolute top-2 right-2">
+                  <span className={`inline-block px-2 py-0.5 text-[10px] font-sans tracking-wider uppercase bg-white/80 backdrop-blur-sm ${
+                    product.isActive ? 'text-[#4A7C59]' : 'text-[#C44536]'
                   }`}>
                     {product.isActive ? 'Actif' : 'Inactif'}
                   </span>
                 </div>
                 {/* Edit Overlay */}
-                <div className="absolute inset-0 bg-[#1A1A1A]/0 group-hover:bg-[#1A1A1A]/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                <div className="absolute inset-0 bg-[#1A1A1A]/0 group-hover:bg-[#1A1A1A]/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 gap-2">
+                  <Button
+                    onClick={() => handleDuplicate(product)}
+                    className="bg-white text-[#1A1A1A] rounded-none font-sans text-xs tracking-wider uppercase hover:bg-[#E8E0D5] h-9 px-3"
+                    title="Dupliquer"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                  </Button>
                   <Button
                     onClick={() => openEdit(product)}
                     className="bg-white text-[#1A1A1A] rounded-none font-sans text-xs tracking-wider uppercase hover:bg-[#D4AF37] hover:text-[#1A1A1A] h-9 px-4"
@@ -1372,6 +1571,63 @@ function OrdersTab({ orders, searchQuery, setSearchQuery, onRefresh, showToast }
   const [payProvider, setPayProvider] = useState('');
   const [payReference, setPayReference] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  
+  // Bulk selection
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkProcessing, setBulkProcessing] = useState(false);
+
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedIds(orders.map(o => o.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleSelectOrder = (id: string) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
+
+  const handleExportCSV = () => {
+    const headers = ['ID', 'Email', 'Téléphone', 'Total', 'Statut', 'Date'];
+    const rows = orders.map(o => [
+      o.id, 
+      o.guestEmail || '', 
+      o.guestPhone || '', 
+      o.totalAmount.toString(), 
+      statusLabels[o.status] || o.status, 
+      new Date(o.createdAt).toLocaleDateString('fr-FR')
+    ]);
+    const csvContent = [headers, ...rows].map(e => e.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `commandes_hb_service_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleBulkStatusChange = async (newStatus: string) => {
+    if (selectedIds.length === 0) return;
+    setBulkProcessing(true);
+    try {
+      await Promise.all(selectedIds.map(id => 
+        apiFetch('/api/orders', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, status: newStatus }),
+        })
+      ));
+      showToast(`${selectedIds.length} commandes mises à jour`);
+      setSelectedIds([]);
+      onRefresh();
+    } catch {
+      showToast('Erreur lors de la mise à jour massive', 'destructive');
+    } finally {
+      setBulkProcessing(false);
+    }
+  };
 
   const openOrderDetail = (order: Order) => {
     setSelectedOrder(order);
@@ -1429,8 +1685,8 @@ function OrdersTab({ orders, searchQuery, setSearchQuery, onRefresh, showToast }
       transition={{ duration: 0.3 }}
     >
       {/* Toolbar */}
-      <div className="mb-6">
-        <div className="relative max-w-md">
+      <div className="mb-6 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+        <div className="relative w-full max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8C8C8C]" />
           <Input
             placeholder="Rechercher par ID, email ou téléphone..."
@@ -1438,6 +1694,27 @@ function OrdersTab({ orders, searchQuery, setSearchQuery, onRefresh, showToast }
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 bg-white border-[#E8E0D5] rounded-none font-sans text-sm h-10"
           />
+        </div>
+        
+        <div className="flex gap-2 w-full sm:w-auto">
+          {selectedIds.length > 0 && (
+            <Select onValueChange={handleBulkStatusChange}>
+              <SelectTrigger disabled={bulkProcessing} className="bg-white border-[#E8E0D5] rounded-none font-sans text-xs h-10 min-w-[150px]">
+                {bulkProcessing ? 'Traitement...' : `Action pour ${selectedIds.length}`}
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pending">Marquer En attente</SelectItem>
+                <SelectItem value="processing">Marquer En préparation</SelectItem>
+                <SelectItem value="shipped">Marquer Expédiée</SelectItem>
+                <SelectItem value="delivered">Marquer Livrée</SelectItem>
+                <SelectItem value="cancelled">Marquer Annulée</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+          <Button onClick={handleExportCSV} variant="outline" className="bg-white border-[#E8E0D5] rounded-none text-xs h-10 flex-1 sm:flex-none">
+            <Download className="w-4 h-4 mr-2" />
+            Export CSV
+          </Button>
         </div>
       </div>
 
@@ -1449,16 +1726,32 @@ function OrdersTab({ orders, searchQuery, setSearchQuery, onRefresh, showToast }
         </div>
       ) : (
         <div className="space-y-3">
+          <div className="flex items-center gap-3 px-4 py-2">
+            <input 
+              type="checkbox" 
+              checked={selectedIds.length === orders.length && orders.length > 0}
+              onChange={handleSelectAll}
+              className="w-4 h-4 rounded-sm border-[#E8E0D5] text-[#1A1A1A] focus:ring-black"
+            />
+            <span className="text-xs text-[#8C8C8C] font-sans uppercase tracking-wider">Tout sélectionner</span>
+          </div>
           {orders.map((order) => (
             <motion.div
               key={order.id}
               initial={{ opacity: 0, y: 5 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-sm border border-[#E8E0D5] p-3 sm:p-4 hover:border-[#D4AF37] transition-colors cursor-pointer"
-              onClick={() => openOrderDetail(order)}
+              className={`bg-white rounded-md border p-3 sm:p-4 transition-colors ${selectedIds.includes(order.id) ? 'border-[#1A1A1A]' : 'border-[#E8E0D5] hover:border-[#D4AF37]'}`}
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
-                <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-4 flex-1 min-w-0">
+                  <input 
+                    type="checkbox" 
+                    checked={selectedIds.includes(order.id)}
+                    onChange={() => handleSelectOrder(order.id)}
+                    className="w-4 h-4 rounded-sm border-[#E8E0D5] text-[#1A1A1A] focus:ring-black"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                  <div className="flex-1 min-w-0 cursor-pointer" onClick={() => openOrderDetail(order)}>
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-sans text-sm font-medium text-[#1A1A1A]">
                       #{order.id.slice(-8).toUpperCase()}
@@ -1477,8 +1770,9 @@ function OrdersTab({ orders, searchQuery, setSearchQuery, onRefresh, showToast }
                     {' · '}
                     {order.items.length} article{order.items.length !== 1 ? 's' : ''}
                   </p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 cursor-pointer pl-8 sm:pl-0" onClick={() => openOrderDetail(order)}>
                   <span className="font-serif text-base text-[#1A1A1A]">
                     {formatPrice(order.totalAmount)}
                   </span>
