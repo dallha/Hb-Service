@@ -6,7 +6,7 @@ import {
   DollarSign, ShoppingCart, Package, TrendingUp, ChevronLeft,
   Plus, Pencil, Trash2, X, Save, Search, Eye, ChevronDown,
   LayoutGrid, FolderOpen, ClipboardList, BarChart3, Upload,
-  AlertTriangle,
+  AlertTriangle, Users, Shield, ShieldCheck,
 } from 'lucide-react';
 import { useNavigationStore } from '@/lib/store';
 import { formatPrice } from '@/lib/format';
@@ -104,7 +104,16 @@ interface Analytics {
   dailyRevenue: Record<string, number>;
 }
 
-type AdminTab = 'analytics' | 'products' | 'collections' | 'orders';
+interface AdminUser {
+  id: string;
+  email: string;
+  fullName: string | null;
+  phone: string | null;
+  role: 'USER' | 'ADMIN';
+  createdAt: string;
+}
+
+type AdminTab = 'analytics' | 'products' | 'collections' | 'orders' | 'users';
 
 // ─── Status Helpers ─────────────────────────────────────────────
 
@@ -162,6 +171,7 @@ export default function AdminDashboardClient() {
   const [products, setProducts] = useState<Product[]>([]);
   const [collections, setCollections] = useState<Collection[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [users, setUsers] = useState<AdminUser[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const { navigate } = useNavigationStore();
@@ -197,6 +207,13 @@ export default function AdminDashboardClient() {
       .catch(console.error);
   }, []);
 
+  const fetchUsers = useCallback(() => {
+    fetch('/api/users')
+      .then((r) => r.json())
+      .then(setUsers)
+      .catch(console.error);
+  }, []);
+
   useEffect(() => {
     const loadAll = async () => {
       setLoading(true);
@@ -205,11 +222,12 @@ export default function AdminDashboardClient() {
         fetchProducts(),
         fetchCollections(),
         fetchOrders(),
+        fetchUsers(),
       ]);
       setLoading(false);
     };
     loadAll();
-  }, [fetchAnalytics, fetchProducts, fetchCollections, fetchOrders]);
+  }, [fetchAnalytics, fetchProducts, fetchCollections, fetchOrders, fetchUsers]);
 
   // ─── Toast Helper ───────────────────────────────────────────
 
@@ -241,6 +259,11 @@ export default function AdminDashboardClient() {
     (o.guestPhone || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const filteredUsers = users.filter((u) =>
+    u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (u.fullName || '').toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   // ─── Tabs Config ────────────────────────────────────────────
 
   const tabs: { id: AdminTab; label: string; icon: React.ElementType }[] = [
@@ -248,6 +271,7 @@ export default function AdminDashboardClient() {
     { id: 'products', label: 'Produits', icon: Package },
     { id: 'collections', label: 'Collections', icon: FolderOpen },
     { id: 'orders', label: 'Commandes', icon: ClipboardList },
+    { id: 'users', label: 'Équipe', icon: Users },
   ];
 
   return (
@@ -326,6 +350,15 @@ export default function AdminDashboardClient() {
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
               onRefresh={fetchOrders}
+              showToast={showToast}
+            />
+          )}
+          {activeTab === 'users' && (
+            <UsersTab
+              users={filteredUsers}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              onRefresh={fetchUsers}
               showToast={showToast}
             />
           )}
