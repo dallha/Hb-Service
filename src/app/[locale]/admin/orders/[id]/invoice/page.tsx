@@ -2,8 +2,7 @@ import { requireAdmin } from '@/lib/auth-admin';
 import { db as prisma } from '@/lib/db';
 import { notFound } from 'next/navigation';
 import { formatPrice } from '@/lib/format';
-import { Printer } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import InvoiceActions from '@/components/invoice-actions';
 
 export default async function InvoicePage(props: {
   params: Promise<{ id: string; locale: string }>;
@@ -60,24 +59,7 @@ export default async function InvoicePage(props: {
 
       <div className="min-h-screen bg-white text-black p-8 max-w-4xl mx-auto font-sans">
         {/* Actions Button */}
-        <div className="mb-8 flex justify-between items-center print:hidden bg-gray-50 p-4 rounded-md border border-gray-200">
-          <p className="text-sm text-gray-600">Vue d'impression de la facture.</p>
-          <div className="flex gap-4">
-            <button
-              onClick={() => window.close()}
-              className="px-6 h-10 border border-gray-300 rounded-none text-xs uppercase tracking-wider hover:bg-gray-100"
-            >
-              Fermer l'onglet
-            </button>
-            <button
-              onClick={() => window.print()}
-              className="flex items-center px-6 h-10 bg-[#1A1A1A] hover:bg-[#1A1A1A]/90 text-white rounded-none text-xs uppercase tracking-wider"
-            >
-              <Printer className="w-4 h-4 mr-2" />
-              Imprimer
-            </button>
-          </div>
-        </div>
+        <InvoiceActions />
 
         {/* Invoice Content */}
         <div className="print:m-0">
