@@ -34,34 +34,6 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next();
     }
 
-    const authHeader = request.headers.get('authorization');
-    const apiKey = process.env.API_SECRET_KEY;
-
-    if (!apiKey) {
-      if (!publicRoutes.includes(pathname) || !publicMethods.includes(method)) {
-        return NextResponse.json(
-          { error: 'API non configurée. Veuillez définir API_SECRET_KEY.' },
-          { status: 500 }
-        );
-      }
-      return NextResponse.next();
-    }
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { error: 'Authentification requise. Utilisez un token Bearer.' },
-        { status: 401 }
-      );
-    }
-
-    const token = authHeader.slice(7);
-    if (token !== apiKey) {
-      return NextResponse.json(
-        { error: 'Token d\'authentification invalide.' },
-        { status: 401 }
-      );
-    }
-
     return NextResponse.next();
   }
 

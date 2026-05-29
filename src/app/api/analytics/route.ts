@@ -1,7 +1,13 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { requireAdmin } from '@/lib/auth-admin';
 
 export async function GET() {
+  const admin = await requireAdmin();
+  if (!admin) {
+    return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
+  }
+
   try {
     const [
       totalOrders,

@@ -15,7 +15,6 @@ import ProductView from '@/components/product-view';
 import CartDrawer from '@/components/cart-drawer';
 import CheckoutView from '@/components/checkout-view';
 import StorytellingView from '@/components/storytelling-view';
-import DashboardView from '@/components/dashboard-view';
 
 export default function Home() {
   const { currentView } = useNavigationStore();
@@ -91,17 +90,6 @@ export default function Home() {
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             >
               <StorytellingView />
-            </motion.div>
-          )}
-          {currentView === 'dashboard' && (
-            <motion.div
-              key="dashboard"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <DashboardView />
             </motion.div>
           )}
         </AnimatePresence>

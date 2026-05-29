@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { requireAdmin } from '@/lib/auth-admin';
 
 export async function GET(request: Request) {
   try {
@@ -57,6 +58,11 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const admin = await requireAdmin();
+  if (!admin) {
+    return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
+  }
+
   try {
     const body = await request.json();
     const {
@@ -143,6 +149,11 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
+  const admin = await requireAdmin();
+  if (!admin) {
+    return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
+  }
+
   try {
     const body = await request.json();
     const { id, variants, ...data } = body;
@@ -204,6 +215,11 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const admin = await requireAdmin();
+  if (!admin) {
+    return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');

@@ -27,7 +27,7 @@ import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter,
 } from '@/components/ui/sheet';
 import { useToast } from '@/hooks/use-toast';
-import AdminLogin from '@/components/admin-login';
+
 
 // ─── Types ──────────────────────────────────────────────────────
 
@@ -150,56 +150,13 @@ const paymentProviderLabels: Record<string, string> = {
   pending: 'Non défini',
 };
 
-// ─── API Helper with Auth ────────────────────────────────────────
-
-const API_TOKEN = process.env.NEXT_PUBLIC_API_TOKEN;
-
 async function apiFetch(url: string, options: RequestInit = {}) {
-  const headers: Record<string, string> = {
-    ...(options.headers as Record<string, string> || {}),
-  };
-  // Add auth token for mutations (POST, PUT, DELETE)
-  if (API_TOKEN && options.method && options.method !== 'GET') {
-    headers['Authorization'] = `Bearer ${API_TOKEN}`;
-  }
-  return fetch(url, { ...options, headers });
+  return fetch(url, options);
 }
 
 // ─── Main Component ─────────────────────────────────────────────
 
-export default function DashboardView() {
-  const [authenticated, setAuthenticated] = useState<boolean | null>(null);
-
-  // ─── Session Check (must be before any early return) ────────
-
-  useEffect(() => {
-    fetch('/api/auth/check')
-      .then((res) => {
-        if (res.ok) setAuthenticated(true);
-        else setAuthenticated(false);
-      })
-      .catch(() => setAuthenticated(false));
-  }, []);
-
-  // Show login screen while checking or if not authenticated
-  if (authenticated === null) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F8F7F5]">
-        <div className="w-8 h-8 border-2 border-[#D4AF37] border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  if (!authenticated) {
-    return <AdminLogin onLoginSuccess={() => setAuthenticated(true)} />;
-  }
-
-  return <AdminDashboard />;
-}
-
-// ─── Admin Dashboard (separate component so hooks are stable) ──
-
-function AdminDashboard() {
+export default function AdminDashboardClient() {
   const [activeTab, setActiveTab] = useState<AdminTab>('analytics');
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [products, setProducts] = useState<Product[]>([]);

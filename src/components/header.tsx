@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, Menu, X, MessageCircle, Moon, Sun } from 'lucide-react';
 import { useCartStore, useNavigationStore } from '@/lib/store';
+import { useRouter } from 'next/navigation';
 import { useTheme } from '@/hooks/use-theme';
 import { Button } from '@/components/ui/button';
 
@@ -34,13 +35,15 @@ export default function Header() {
     setMobileMenuOpen(false);
   };
 
+  const router = useRouter();
+
   // Secret access: double-click on logo to open admin
   const handleLogoClick = () => {
     const newCount = clickCount + 1;
     setClickCount(newCount);
     if (newCount >= 2) {
       setClickCount(0);
-      handleNav('dashboard');
+      router.push('/admin');
     }
     setTimeout(() => setClickCount(0), 500);
   };

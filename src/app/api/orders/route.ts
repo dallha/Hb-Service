@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { requireAdmin } from '@/lib/auth-admin';
 
 // Valid order statuses
 const VALID_STATUSES = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'] as const;
@@ -9,6 +10,11 @@ const VALID_PAYMENT_STATUSES = ['pending', 'processing', 'completed', 'failed', 
 const VALID_PAYMENT_PROVIDERS = ['stripe', 'wave', 'orange_money', 'cash', 'pending'] as const;
 
 export async function GET() {
+  const admin = await requireAdmin();
+  if (!admin) {
+    return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
+  }
+
   try {
     const orders = await db.order.findMany({
       include: {
@@ -137,6 +143,11 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
+  const admin = await requireAdmin();
+  if (!admin) {
+    return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
+  }
+
   try {
     const body = await request.json();
     const { id, status, paymentStatus, paymentProvider, paymentReference, note } = body;
@@ -220,6 +231,11 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const admin = await requireAdmin();
+  if (!admin) {
+    return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
