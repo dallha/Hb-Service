@@ -1,0 +1,16 @@
+{
+  "Index": {
+    "title": "HB_Service",
+    "subtitle": "Premium Natural Fragrances & Skincare",
+    "shop_now": "Shop now",
+    "discover_collection": "Discover the collection"
+  },
+  "Cart": {
+    "title": "Your Cart",
+    "empty": "Your cart is empty",
+    "continue_shopping": "Continue shopping",
+    "subtotal": "Subtotal",
+    "tax_note": "Taxes and shipping calculated at checkout.",
+    "checkout": "Proceed to checkout"
+  }
+}

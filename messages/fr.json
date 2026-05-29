@@ -1,0 +1,16 @@
+{
+  "Index": {
+    "title": "HB_Service",
+    "subtitle": "Parfums & Soins Naturels Premium",
+    "shop_now": "Acheter maintenant",
+    "discover_collection": "Découvrir la collection"
+  },
+  "Cart": {
+    "title": "Votre Panier",
+    "empty": "Votre panier est vide",
+    "continue_shopping": "Continuer vos achats",
+    "subtotal": "Sous-total",
+    "tax_note": "Taxes et frais de livraison calculés à l'étape suivante.",
+    "checkout": "Procéder au paiement"
+  }
+}
