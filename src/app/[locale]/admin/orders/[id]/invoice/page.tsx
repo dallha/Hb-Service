@@ -51,13 +51,20 @@ export default async function InvoicePage(props: {
           background-color: white !important;
         }
         @media print {
+          html, body, main, #__next, .print\\:m-0 {
+            height: auto !important;
+            min-height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+          }
           @page {
             margin: 1cm;
           }
         }
       `}</style>
 
-      <div className="min-h-screen bg-white text-black p-8 max-w-4xl mx-auto font-sans">
+      <div className="bg-white text-black p-4 sm:p-8 print:p-0 max-w-4xl mx-auto font-sans">
         {/* Actions Button */}
         <InvoiceActions />
 
