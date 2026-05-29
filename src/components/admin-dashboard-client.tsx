@@ -7,6 +7,7 @@ import {
   Plus, Pencil, Trash2, X, Save, Search, Eye, ChevronDown,
   LayoutGrid, FolderOpen, ClipboardList, BarChart3, Upload,
   AlertTriangle, Users, Shield, ShieldCheck, Star, CheckCircle,
+  Ticket,
 } from 'lucide-react';
 import { useNavigationStore } from '@/lib/store';
 import { formatPrice } from '@/lib/format';
@@ -124,7 +125,19 @@ interface AdminReview {
   product: { name: string };
 }
 
-type AdminTab = 'analytics' | 'products' | 'collections' | 'orders' | 'users' | 'reviews';
+interface AdminPromoCode {
+  id: string;
+  code: string;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+  isActive: boolean;
+  usageLimit: number | null;
+  usageCount: number;
+  expiresAt: string | null;
+  createdAt: string;
+}
+
+type AdminTab = 'analytics' | 'products' | 'collections' | 'orders' | 'users' | 'reviews' | 'promos';
 
 // ─── Status Helpers ─────────────────────────────────────────────
 
@@ -184,6 +197,7 @@ export default function AdminDashboardClient() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [reviews, setReviews] = useState<AdminReview[]>([]);
+  const [promos, setPromos] = useState<AdminPromoCode[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const { navigate } = useNavigationStore();
@@ -233,6 +247,13 @@ export default function AdminDashboardClient() {
       .catch(console.error);
   }, []);
 
+  const fetchPromos = useCallback(() => {
+    fetch('/api/promo-codes')
+      .then((r) => r.json())
+      .then(setPromos)
+      .catch(console.error);
+  }, []);
+
   useEffect(() => {
     const loadAll = async () => {
       setLoading(true);
@@ -243,11 +264,12 @@ export default function AdminDashboardClient() {
         fetchOrders(),
         fetchUsers(),
         fetchReviews(),
+        fetchPromos(),
       ]);
       setLoading(false);
     };
     loadAll();
-  }, [fetchAnalytics, fetchProducts, fetchCollections, fetchOrders, fetchUsers, fetchReviews]);
+  }, [fetchAnalytics, fetchProducts, fetchCollections, fetchOrders, fetchUsers, fetchReviews, fetchPromos]);
 
   // ─── Toast Helper ───────────────────────────────────────────
 
@@ -290,6 +312,10 @@ export default function AdminDashboardClient() {
     (r.comment || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const filteredPromos = promos.filter((p) =>
+    p.code.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   // ─── Tabs Config ────────────────────────────────────────────
 
   const tabs: { id: AdminTab; label: string; icon: React.ElementType }[] = [
@@ -299,6 +325,7 @@ export default function AdminDashboardClient() {
     { id: 'orders', label: 'Commandes', icon: ClipboardList },
     { id: 'users', label: 'Équipe', icon: Users },
     { id: 'reviews', label: 'Avis', icon: Star },
+    { id: 'promos', label: 'Codes Promo', icon: Ticket },
   ];
 
   return (
@@ -395,6 +422,15 @@ export default function AdminDashboardClient() {
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
               onRefresh={fetchReviews}
+              showToast={showToast}
+            />
+          )}
+          {activeTab === 'promos' && (
+            <PromoCodesTab
+              promos={filteredPromos}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              onRefresh={fetchPromos}
               showToast={showToast}
             />
           )}
@@ -1787,6 +1823,260 @@ function ReviewsTab({ reviews, searchQuery, setSearchQuery, onRefresh, showToast
                         size="sm"
                         disabled={processing === review.id}
                         onClick={() => handleDelete(review.id)}
+                        className="h-8 px-2 text-[#C44536] hover:bg-[#C44536]/10"
+                        title="Supprimer"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── Promo Codes Tab ─────────────────────────────────────────────
+
+function PromoCodesTab({ promos, searchQuery, setSearchQuery, onRefresh, showToast }: {
+  promos: AdminPromoCode[];
+  searchQuery: string;
+  setSearchQuery: (q: string) => void;
+  onRefresh: () => void;
+  showToast: (msg: string, variant?: 'default' | 'destructive') => void;
+}) {
+  const [processing, setProcessing] = useState<string | null>(null);
+  const [isAdding, setIsAdding] = useState(false);
+  const [newPromo, setNewPromo] = useState({
+    code: '',
+    discountType: 'percentage' as 'percentage' | 'fixed',
+    discountValue: '',
+    usageLimit: '',
+    expiresAt: '',
+  });
+
+  const handleToggleActive = async (promoId: string, currentStatus: boolean) => {
+    setProcessing(promoId);
+    try {
+      const res = await fetch(`/api/promo-codes`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: promoId, isActive: !currentStatus }),
+      });
+      if (!res.ok) throw new Error();
+      showToast(currentStatus ? 'Code désactivé' : 'Code activé');
+      onRefresh();
+    } catch {
+      showToast('Erreur lors de la modification', 'destructive');
+    } finally {
+      setProcessing(null);
+    }
+  };
+
+  const handleDelete = async (promoId: string) => {
+    if (!confirm('Voulez-vous vraiment supprimer ce code promo ?')) return;
+    setProcessing(promoId);
+    try {
+      const res = await fetch(`/api/promo-codes?id=${promoId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error();
+      showToast('Code supprimé');
+      onRefresh();
+    } catch {
+      showToast('Erreur lors de la suppression', 'destructive');
+    } finally {
+      setProcessing(null);
+    }
+  };
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPromo.code || !newPromo.discountValue) return;
+
+    setProcessing('new');
+    try {
+      const res = await fetch('/api/promo-codes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: newPromo.code,
+          discountType: newPromo.discountType,
+          discountValue: Number(newPromo.discountValue),
+          usageLimit: newPromo.usageLimit ? Number(newPromo.usageLimit) : null,
+          expiresAt: newPromo.expiresAt || null,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Erreur création');
+      }
+      showToast('Code promo créé avec succès');
+      setIsAdding(false);
+      setNewPromo({ code: '', discountType: 'percentage', discountValue: '', usageLimit: '', expiresAt: '' });
+      onRefresh();
+    } catch (error: any) {
+      showToast(error.message, 'destructive');
+    } finally {
+      setProcessing(null);
+    }
+  };
+
+  return (
+    <motion.div
+      key="promos"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8C8C8C]" />
+          <Input
+            placeholder="Rechercher un code..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 bg-white border-[#E8E0D5] rounded-none font-sans text-sm h-10"
+          />
+        </div>
+        <Button
+          onClick={() => setIsAdding(true)}
+          className="bg-[#1A1A1A] hover:bg-[#333] text-white font-sans text-xs tracking-widest uppercase rounded-none h-10 px-6 shrink-0"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Nouveau Code
+        </Button>
+      </div>
+
+      {isAdding && (
+        <div className="bg-white p-6 rounded-sm border border-[#E8E0D5] mb-6">
+          <h3 className="font-serif text-lg mb-4">Créer un code promo</h3>
+          <form onSubmit={handleCreate} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Code</label>
+                <Input
+                  required
+                  value={newPromo.code}
+                  onChange={(e) => setNewPromo(prev => ({ ...prev, code: e.target.value.toUpperCase() }))}
+                  placeholder="EX: WELCOME10"
+                  className="rounded-none border-[#E8E0D5]"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Type</label>
+                  <select
+                    value={newPromo.discountType}
+                    onChange={(e) => setNewPromo(prev => ({ ...prev, discountType: e.target.value as any }))}
+                    className="w-full h-10 border border-[#E8E0D5] px-3 text-sm focus:outline-none"
+                  >
+                    <option value="percentage">%</option>
+                    <option value="fixed">FCFA</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Valeur</label>
+                  <Input
+                    required
+                    type="number"
+                    min="1"
+                    value={newPromo.discountValue}
+                    onChange={(e) => setNewPromo(prev => ({ ...prev, discountValue: e.target.value }))}
+                    className="rounded-none border-[#E8E0D5]"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Limite d'utilisation (Optionnel)</label>
+                <Input
+                  type="number"
+                  min="1"
+                  placeholder="Illimité"
+                  value={newPromo.usageLimit}
+                  onChange={(e) => setNewPromo(prev => ({ ...prev, usageLimit: e.target.value }))}
+                  className="rounded-none border-[#E8E0D5]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Date d'expiration (Optionnel)</label>
+                <Input
+                  type="datetime-local"
+                  value={newPromo.expiresAt}
+                  onChange={(e) => setNewPromo(prev => ({ ...prev, expiresAt: e.target.value }))}
+                  className="rounded-none border-[#E8E0D5]"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 pt-2">
+              <Button type="button" variant="ghost" onClick={() => setIsAdding(false)} className="rounded-none text-xs uppercase tracking-widest">
+                Annuler
+              </Button>
+              <Button type="submit" disabled={processing === 'new'} className="bg-[#4A7C59] hover:bg-[#3d6649] text-white rounded-none text-xs uppercase tracking-widest">
+                Enregistrer
+              </Button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      <div className="bg-white rounded-sm border border-[#E8E0D5] overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left font-sans text-sm">
+            <thead className="bg-[#F8F7F5] border-b border-[#E8E0D5]">
+              <tr>
+                <th className="px-4 py-3 font-medium text-[#8C8C8C]">Code</th>
+                <th className="px-4 py-3 font-medium text-[#8C8C8C]">Réduction</th>
+                <th className="px-4 py-3 font-medium text-[#8C8C8C]">Utilisations</th>
+                <th className="px-4 py-3 font-medium text-[#8C8C8C]">Expiration</th>
+                <th className="px-4 py-3 font-medium text-[#8C8C8C]">Statut</th>
+                <th className="px-4 py-3 font-medium text-[#8C8C8C] text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {promos.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-4 py-8 text-center text-[#8C8C8C]">Aucun code promo trouvé</td>
+                </tr>
+              ) : (
+                promos.map((promo) => (
+                  <tr key={promo.id} className="border-b border-[#E8E0D5] last:border-0 hover:bg-[#F8F7F5]/50 transition-colors">
+                    <td className="px-4 py-3 font-medium tracking-wider">{promo.code}</td>
+                    <td className="px-4 py-3">
+                      {promo.discountType === 'percentage' ? `${promo.discountValue}%` : `${promo.discountValue} FCFA`}
+                    </td>
+                    <td className="px-4 py-3">
+                      {promo.usageCount} / {promo.usageLimit || '∞'}
+                    </td>
+                    <td className="px-4 py-3">
+                      {promo.expiresAt ? new Date(promo.expiresAt).toLocaleDateString('fr-FR') : 'Jamais'}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-xs tracking-wider uppercase ${
+                        promo.isActive ? 'bg-[#4A7C59]/15 text-[#4A7C59]' : 'bg-[#C44536]/15 text-[#C44536]'
+                      }`}>
+                        {promo.isActive ? 'Actif' : 'Inactif'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right space-x-2 whitespace-nowrap">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={processing === promo.id}
+                        onClick={() => handleToggleActive(promo.id, promo.isActive)}
+                        className={`h-8 px-2 ${promo.isActive ? 'text-[#8C8C8C] hover:text-[#1A1A1A]' : 'text-[#4A7C59] hover:text-[#2d4d36]'}`}
+                        title={promo.isActive ? 'Désactiver' : 'Activer'}
+                      >
+                        {promo.isActive ? <Eye className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={processing === promo.id}
+                        onClick={() => handleDelete(promo.id)}
                         className="h-8 px-2 text-[#C44536] hover:bg-[#C44536]/10"
                         title="Supprimer"
                       >

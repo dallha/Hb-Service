@@ -19,6 +19,14 @@ export default function CheckoutView() {
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [orderId, setOrderId] = useState('');
 
+  const [promoInput, setPromoInput] = useState('');
+  const [applyingPromo, setApplyingPromo] = useState(false);
+  const [appliedPromo, setAppliedPromo] = useState<{
+    code: string;
+    discountType: 'percentage' | 'fixed';
+    discountValue: number;
+  } | null>(null);
+
   const [form, setForm] = useState({
     email: '',
     phone: '',
@@ -35,6 +43,39 @@ export default function CheckoutView() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const handleApplyPromo = async () => {
+    if (!promoInput.trim()) return;
+    setApplyingPromo(true);
+    try {
+      const res = await fetch('/api/promo-codes/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: promoInput }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setAppliedPromo({
+        code: promoInput.toUpperCase(),
+        discountType: data.discountType,
+        discountValue: data.discountValue,
+      });
+      setPromoInput('');
+      toast.success('Code promo appliqué !');
+    } catch (error: any) {
+      toast.error(error.message || 'Code invalide');
+    } finally {
+      setApplyingPromo(false);
+    }
+  };
+
+  const discountAmount = appliedPromo
+    ? appliedPromo.discountType === 'percentage'
+      ? total * (appliedPromo.discountValue / 100)
+      : appliedPromo.discountValue
+    : 0;
+
+  const finalTotal = Math.max(0, total - discountAmount);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (items.length === 0) return;
@@ -48,6 +89,7 @@ export default function CheckoutView() {
           guestEmail: form.email,
           guestPhone: form.phone,
           note: `${form.firstName} ${form.lastName} — ${form.address}, ${form.city} — Paiement: ${form.paymentMethod}`,
+          promoCode: appliedPromo?.code || undefined,
           items: items.map((item) => ({
             variantId: item.variantId,
             quantity: item.quantity,
@@ -73,7 +115,7 @@ export default function CheckoutView() {
   };
 
   if (orderSuccess) {
-    const waMessage = `Bonjour HB_Service, j'ai passé la commande #${orderId.slice(-8)} d'un montant de ${formatPrice(total)}. Je souhaite confirmer mon achat.`;
+    const waMessage = `Bonjour HB_Service, j'ai passé la commande #${orderId.slice(-8)} d'un montant de ${formatPrice(finalTotal)}. Je souhaite confirmer mon achat.`;
     const waLink = getWhatsAppLink(waMessage);
 
     return (
@@ -364,6 +406,23 @@ export default function CheckoutView() {
                     {formatPrice(total)}
                   </span>
                 </div>
+                {appliedPromo && (
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="font-sans text-sm text-[#4A7C59] flex items-center gap-2">
+                      Code {appliedPromo.code}
+                      <button
+                        type="button"
+                        onClick={() => setAppliedPromo(null)}
+                        className="text-[#C44536] hover:underline text-xs"
+                      >
+                        Retirer
+                      </button>
+                    </span>
+                    <span className="font-sans text-sm text-[#4A7C59]">
+                      -{formatPrice(discountAmount)}
+                    </span>
+                  </div>
+                )}
                 <div className="flex items-center justify-between mt-2">
                   <span className="font-sans text-sm text-[#8C8C8C]">
                     Livraison
@@ -372,12 +431,33 @@ export default function CheckoutView() {
                     Gratuite
                   </span>
                 </div>
+                
+                {/* Promo Input */}
+                {!appliedPromo && (
+                  <div className="mt-4 flex gap-2">
+                    <Input
+                      placeholder="Code promo"
+                      value={promoInput}
+                      onChange={(e) => setPromoInput(e.target.value)}
+                      className="rounded-none border-[#E8E0D5] bg-white text-sm h-10"
+                    />
+                    <Button
+                      type="button"
+                      onClick={handleApplyPromo}
+                      disabled={applyingPromo || !promoInput.trim()}
+                      className="bg-[#1A1A1A] hover:bg-[#333] text-white rounded-none h-10 px-4 text-xs tracking-widest uppercase shrink-0"
+                    >
+                      {applyingPromo ? '...' : 'Appliquer'}
+                    </Button>
+                  </div>
+                )}
+
                 <div className="flex items-center justify-between mt-4 pt-4 border-t border-[#E8E0D5]">
                   <span className="font-serif text-lg text-[#1A1A1A]">
                     Total
                   </span>
                   <span className="font-serif text-xl text-[#1A1A1A]">
-                    {formatPrice(total)}
+                    {formatPrice(finalTotal)}
                   </span>
                 </div>
               </div>

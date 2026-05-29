@@ -171,3 +171,18 @@ model AnalyticsEvent {
   @@index([eventType])
   @@index([createdAt])
 }
+
+model PromoCode {
+  id            String   @id @default(cuid())
+  code          String   @unique
+  discountType  String   // "percentage" | "fixed"
+  discountValue Float
+  isActive      Boolean  @default(true)
+  usageLimit    Int?     // null means unlimited
+  usageCount    Int      @default(0)
+  expiresAt     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([code])
+}

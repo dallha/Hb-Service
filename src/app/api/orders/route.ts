@@ -42,7 +42,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { guestEmail, guestPhone, items, note, paymentProvider } = body;
+    const { guestEmail, guestPhone, items, note, paymentProvider, promoCode } = body;
 
     // Validate required fields
     if (!items || !Array.isArray(items) || items.length === 0) {
@@ -98,13 +98,41 @@ export async function POST(request: Request) {
       });
     }
 
+    // Handle promo code
+    let finalNote = note || '';
+    if (promoCode && typeof promoCode === 'string') {
+      const dbPromo = await db.promoCode.findUnique({ where: { code: promoCode.toUpperCase() } });
+      if (dbPromo && dbPromo.isActive) {
+        let isValid = true;
+        if (dbPromo.expiresAt && new Date() > dbPromo.expiresAt) isValid = false;
+        if (dbPromo.usageLimit !== null && dbPromo.usageCount >= dbPromo.usageLimit) isValid = false;
+
+        if (isValid) {
+          let discount = 0;
+          if (dbPromo.discountType === 'percentage') {
+            discount = totalAmount * (dbPromo.discountValue / 100);
+          } else {
+            discount = dbPromo.discountValue;
+          }
+          totalAmount = Math.max(0, totalAmount - discount);
+          finalNote += `\nCode Promo appliqué : ${dbPromo.code} (-${discount} FCFA)`;
+
+          // Increment usage count
+          await db.promoCode.update({
+            where: { id: dbPromo.id },
+            data: { usageCount: { increment: 1 } },
+          });
+        }
+      }
+    }
+
     // Create order
     const order = await db.order.create({
       data: {
         guestEmail: guestEmail || null,
         guestPhone: guestPhone || null,
         totalAmount,
-        note: note || null,
+        note: finalNote || null,
         items: {
           create: orderItems,
         },
