@@ -7,6 +7,10 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { locales } from "@/i18n";
+import { Header } from '@/components/header';
+import { Footer } from '@/components/footer';
+import { WhatsAppButton } from '@/components/whatsapp-button';
+import { Providers } from './providers';
 import SupabaseAuthListener from "@/components/SupabaseAuthListener";
 
 const inter = Inter({
@@ -71,8 +75,13 @@ export default async function RootLayout(props: {
         className={`${inter.variable} ${playfair.variable} antialiased bg-background text-foreground font-sans`}
       >
         <NextIntlClientProvider messages={messages}>
-          <SupabaseAuthListener />
-          {children}
+          <Header />
+          <main className="flex-1 min-h-screen">
+            <SupabaseAuthListener />
+            {children}
+          </main>
+          <WhatsAppButton />
+          <Footer />
           <Toaster position="top-right" richColors />
         </NextIntlClientProvider>
       </body>
