@@ -67,16 +67,10 @@ export default function Header() {
               onClick={handleLogoClick}
               className="flex items-center gap-1.5 sm:gap-2 group"
             >
-              {/* Logo clair (défaut) / Logo blanc (mode sombre) */}
               <img
-                src="/logo-hb.png"
+                src="/logo-gold.jpg"
                 alt="HB Service"
-                className="h-8 sm:h-10 w-auto object-contain block dark:hidden"
-              />
-              <img
-                src="/logo-hb-white.png"
-                alt="HB Service"
-                className="h-8 sm:h-10 w-auto object-contain hidden dark:block"
+                className="h-10 w-10 sm:h-12 sm:w-12 object-cover rounded-full"
               />
             </button>
 
@@ -98,7 +92,7 @@ export default function Header() {
             <div className="flex items-center gap-1.5 sm:gap-3">
               {/* WhatsApp - visible on mobile too */}
               <a
-                href="https://wa.me/221770000000?text=Bonjour%20HB_Service%2C%20j%27aimerais%20en%20savoir%20plus%20sur%20vos%20produits."
+                href="https://wa.me/212601134545?text=Bonjour%20HB_Service%2C%20j%27aimerais%20en%20savoir%20plus%20sur%20vos%20produits."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-none text-[#4A7C59] hover:bg-[#4A7C59]/10 transition-colors"
@@ -194,7 +188,7 @@ export default function Header() {
                 </motion.button>
               ))}
               <a
-                href="https://wa.me/221770000000?text=Bonjour%20HB_Service%2C%20j%27aimerais%20en%20savoir%20plus%20sur%20vos%20produits."
+                href="https://wa.me/212601134545?text=Bonjour%20HB_Service%2C%20j%27aimerais%20en%20savoir%20plus%20sur%20vos%20produits."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-6 flex items-center gap-3 py-4 text-[#4A7C59] font-sans text-sm"

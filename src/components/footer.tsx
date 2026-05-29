@@ -13,14 +13,9 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <img
-              src="/logo-hb@2x.png"
+              src="/logo-gold.jpg"
               alt="HB Service"
-              className="h-10 w-auto object-contain mb-4 block dark:hidden"
-            />
-            <img
-              src="/logo-hb-white@2x.png"
-              alt="HB Service"
-              className="h-10 w-auto object-contain mb-4 hidden dark:block"
+              className="h-12 w-12 sm:h-14 sm:w-14 object-cover rounded-full mb-6"
             />
             <p className="text-muted-foreground text-sm leading-relaxed mb-4">
               Parfums & Soins Naturels Premium. Des créations olfactives
@@ -28,7 +23,7 @@ export default function Footer() {
             </p>
             <div className="flex items-center gap-4">
               <a
-                href="https://wa.me/221770000000"
+                href="https://wa.me/212601134545"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 flex items-center justify-center border border-muted-foreground/30 hover:border-accent hover:text-accent transition-colors rounded-none"
@@ -111,7 +106,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3 text-sm text-muted-foreground">
                 <Phone className="w-4 h-4 text-accent shrink-0" />
-                +221 77 000 00 00
+                +212 601 13 45 45
               </li>
               <li className="flex items-center gap-3 text-sm text-muted-foreground">
                 <Mail className="w-4 h-4 text-accent shrink-0" />

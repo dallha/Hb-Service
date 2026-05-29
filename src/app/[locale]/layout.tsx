@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     "skincare",
   ],
   icons: {
-    icon: "/logo.png",
+    icon: "/logo-gold.jpg",
   },
   openGraph: {
     title: "HB_Service — Parfums & Soins Naturels Premium",
