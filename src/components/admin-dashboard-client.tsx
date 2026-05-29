@@ -6,7 +6,7 @@ import {
   DollarSign, ShoppingCart, Package, TrendingUp, ChevronLeft,
   Plus, Pencil, Trash2, X, Save, Search, Eye, ChevronDown,
   LayoutGrid, FolderOpen, ClipboardList, BarChart3, Upload,
-  AlertTriangle, Users, Shield, ShieldCheck,
+  AlertTriangle, Users, Shield, ShieldCheck, Star, CheckCircle,
 } from 'lucide-react';
 import { useNavigationStore } from '@/lib/store';
 import { formatPrice } from '@/lib/format';
@@ -113,7 +113,18 @@ interface AdminUser {
   createdAt: string;
 }
 
-type AdminTab = 'analytics' | 'products' | 'collections' | 'orders' | 'users';
+interface AdminReview {
+  id: string;
+  productId: string;
+  userName: string;
+  rating: number;
+  comment: string | null;
+  isVerified: boolean;
+  createdAt: string;
+  product: { name: string };
+}
+
+type AdminTab = 'analytics' | 'products' | 'collections' | 'orders' | 'users' | 'reviews';
 
 // ─── Status Helpers ─────────────────────────────────────────────
 
@@ -172,6 +183,7 @@ export default function AdminDashboardClient() {
   const [collections, setCollections] = useState<Collection[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [users, setUsers] = useState<AdminUser[]>([]);
+  const [reviews, setReviews] = useState<AdminReview[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const { navigate } = useNavigationStore();
@@ -214,6 +226,13 @@ export default function AdminDashboardClient() {
       .catch(console.error);
   }, []);
 
+  const fetchReviews = useCallback(() => {
+    fetch('/api/reviews')
+      .then((r) => r.json())
+      .then(setReviews)
+      .catch(console.error);
+  }, []);
+
   useEffect(() => {
     const loadAll = async () => {
       setLoading(true);
@@ -223,11 +242,12 @@ export default function AdminDashboardClient() {
         fetchCollections(),
         fetchOrders(),
         fetchUsers(),
+        fetchReviews(),
       ]);
       setLoading(false);
     };
     loadAll();
-  }, [fetchAnalytics, fetchProducts, fetchCollections, fetchOrders, fetchUsers]);
+  }, [fetchAnalytics, fetchProducts, fetchCollections, fetchOrders, fetchUsers, fetchReviews]);
 
   // ─── Toast Helper ───────────────────────────────────────────
 
@@ -264,6 +284,12 @@ export default function AdminDashboardClient() {
     (u.fullName || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const filteredReviews = reviews.filter((r) =>
+    r.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    r.product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (r.comment || '').toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   // ─── Tabs Config ────────────────────────────────────────────
 
   const tabs: { id: AdminTab; label: string; icon: React.ElementType }[] = [
@@ -272,6 +298,7 @@ export default function AdminDashboardClient() {
     { id: 'collections', label: 'Collections', icon: FolderOpen },
     { id: 'orders', label: 'Commandes', icon: ClipboardList },
     { id: 'users', label: 'Équipe', icon: Users },
+    { id: 'reviews', label: 'Avis', icon: Star },
   ];
 
   return (
@@ -359,6 +386,15 @@ export default function AdminDashboardClient() {
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
               onRefresh={fetchUsers}
+              showToast={showToast}
+            />
+          )}
+          {activeTab === 'reviews' && (
+            <ReviewsTab
+              reviews={filteredReviews}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              onRefresh={fetchReviews}
               showToast={showToast}
             />
           )}
@@ -1617,5 +1653,153 @@ function LoadingSkeleton() {
         <div className="h-full bg-[#F5F0E8]" />
       </div>
     </div>
+  );
+}
+
+// ─── Reviews Tab ────────────────────────────────────────────────
+
+function ReviewsTab({ reviews, searchQuery, setSearchQuery, onRefresh, showToast }: {
+  reviews: AdminReview[];
+  searchQuery: string;
+  setSearchQuery: (q: string) => void;
+  onRefresh: () => void;
+  showToast: (msg: string, variant?: 'default' | 'destructive') => void;
+}) {
+  const [processing, setProcessing] = useState<string | null>(null);
+
+  const handleToggleVerify = async (reviewId: string, currentStatus: boolean) => {
+    setProcessing(reviewId);
+    try {
+      const res = await fetch(`/api/reviews/${reviewId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isVerified: !currentStatus }),
+      });
+      if (!res.ok) throw new Error('Erreur lors de la modification');
+      showToast(currentStatus ? 'Avis masqué' : 'Avis publié avec succès');
+      onRefresh();
+    } catch (error) {
+      showToast('Erreur lors de la modification', 'destructive');
+    } finally {
+      setProcessing(null);
+    }
+  };
+
+  const handleDelete = async (reviewId: string) => {
+    if (!confirm('Voulez-vous vraiment supprimer cet avis ?')) return;
+    setProcessing(reviewId);
+    try {
+      const res = await fetch(`/api/reviews/${reviewId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Erreur lors de la suppression');
+      showToast('Avis supprimé');
+      onRefresh();
+    } catch (error) {
+      showToast('Erreur lors de la suppression', 'destructive');
+    } finally {
+      setProcessing(null);
+    }
+  };
+
+  return (
+    <motion.div
+      key="reviews"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8C8C8C]" />
+          <Input
+            placeholder="Rechercher par nom, produit ou commentaire..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 bg-white border-[#E8E0D5] rounded-none font-sans text-sm h-10"
+          />
+        </div>
+      </div>
+
+      <div className="bg-white rounded-sm border border-[#E8E0D5] overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left font-sans text-sm">
+            <thead className="bg-[#F8F7F5] border-b border-[#E8E0D5]">
+              <tr>
+                <th className="px-4 py-3 font-medium text-[#8C8C8C]">Date</th>
+                <th className="px-4 py-3 font-medium text-[#8C8C8C]">Produit & Client</th>
+                <th className="px-4 py-3 font-medium text-[#8C8C8C]">Note</th>
+                <th className="px-4 py-3 font-medium text-[#8C8C8C]">Commentaire</th>
+                <th className="px-4 py-3 font-medium text-[#8C8C8C]">Statut</th>
+                <th className="px-4 py-3 font-medium text-[#8C8C8C] text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reviews.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-4 py-8 text-center text-[#8C8C8C]">
+                    Aucun avis trouvé
+                  </td>
+                </tr>
+              ) : (
+                reviews.map((review) => (
+                  <tr key={review.id} className="border-b border-[#E8E0D5] last:border-0 hover:bg-[#F8F7F5]/50 transition-colors">
+                    <td className="px-4 py-3 text-[#8C8C8C]">
+                      {new Date(review.createdAt).toLocaleDateString('fr-FR')}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="font-medium text-[#1A1A1A] truncate max-w-[200px]" title={review.product.name}>
+                        {review.product.name}
+                      </div>
+                      <div className="text-xs text-[#8C8C8C]">{review.userName}</div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex text-[#D4AF37]">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className={`w-3.5 h-3.5 ${i < review.rating ? 'fill-current' : 'text-[#E8E0D5]'}`} />
+                        ))}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="text-[#1A1A1A] max-w-[300px] truncate" title={review.comment || ''}>
+                        {review.comment || <span className="text-[#8C8C8C] italic">Aucun commentaire</span>}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-xs tracking-wider uppercase ${
+                        review.isVerified ? 'bg-[#4A7C59]/15 text-[#4A7C59]' : 'bg-[#C44536]/15 text-[#C44536]'
+                      }`}>
+                        {review.isVerified ? 'Publié' : 'En attente'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right space-x-2 whitespace-nowrap">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={processing === review.id}
+                        onClick={() => handleToggleVerify(review.id, review.isVerified)}
+                        className={`h-8 px-2 ${review.isVerified ? 'text-[#8C8C8C] hover:text-[#1A1A1A]' : 'text-[#4A7C59] hover:text-[#2d4d36]'}`}
+                        title={review.isVerified ? 'Masquer' : 'Publier'}
+                      >
+                        {review.isVerified ? <Eye className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={processing === review.id}
+                        onClick={() => handleDelete(review.id)}
+                        className="h-8 px-2 text-[#C44536] hover:bg-[#C44536]/10"
+                        title="Supprimer"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </motion.div>
   );
 }

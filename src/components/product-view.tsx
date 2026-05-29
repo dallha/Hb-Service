@@ -39,7 +39,7 @@ interface Product {
   variants: Variant[];
   averageRating: number;
   reviewCount: number;
-  reviews: { userName: string; rating: number; comment: string }[];
+  reviews: { userName: string; rating: number; comment: string | null; createdAt: string }[];
 }
 
 export default function ProductView() {
@@ -51,6 +51,9 @@ export default function ProductView() {
   const [quantity, setQuantity] = useState(1);
   const { navigate, selectedProductId } = useNavigationStore();
   const { addItem, openCart } = useCartStore();
+
+  const [reviewForm, setReviewForm] = useState({ userName: '', rating: 5, comment: '' });
+  const [submittingReview, setSubmittingReview] = useState(false);
 
   const loading = selectedProductId !== fetchedId;
 
@@ -142,6 +145,31 @@ export default function ProductView() {
 
   const waMessage = `Bonjour HB_Service, je suis intéressé(e) par le produit ${product.name} (${variant?.size}) — ${formatPrice(variant?.price || 0)}. Pouvez-vous m'en dire plus ?`;
   const waLink = getWhatsAppLink(waMessage);
+
+  const submitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewForm.userName.trim()) return toast.error('Votre nom est requis');
+    setSubmittingReview(true);
+    try {
+      const res = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productId: product.id,
+          userName: reviewForm.userName,
+          rating: reviewForm.rating,
+          comment: reviewForm.comment,
+        }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success('Votre avis a été soumis et est en attente de modération');
+      setReviewForm({ userName: '', rating: 5, comment: '' });
+    } catch {
+      toast.error('Erreur lors de la soumission de l\'avis');
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
 
   return (
     <motion.div
@@ -412,6 +440,88 @@ export default function ProductView() {
             </div>
           </div>
         )}
+        {/* Reviews Section */}
+        <div className="mt-16 lg:mt-24 border-t border-border pt-16">
+          <h2 className="font-serif text-2xl sm:text-3xl text-foreground mb-2">Avis Clients</h2>
+          <div className="w-12 h-[1px] bg-accent mb-8" />
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24">
+            {/* Reviews List */}
+            <div>
+              {product.reviews && product.reviews.length > 0 ? (
+                <div className="space-y-8">
+                  {product.reviews.map((r, i) => (
+                    <div key={i} className="border-b border-border pb-8 last:border-0">
+                      <div className="flex items-center justify-between mb-3">
+                        <p className="font-serif text-lg text-foreground">{r.userName}</p>
+                        <p className="font-sans text-xs text-muted-foreground">
+                          {new Date(r.createdAt).toLocaleDateString('fr-FR')}
+                        </p>
+                      </div>
+                      <div className="flex text-[#D4AF37] mb-3">
+                        {[...Array(5)].map((_, idx) => (
+                          <Star key={idx} className={`w-4 h-4 ${idx < r.rating ? 'fill-current' : 'text-[#E8E0D5]'}`} />
+                        ))}
+                      </div>
+                      {r.comment && (
+                        <p className="font-sans text-sm text-muted-foreground leading-relaxed italic">
+                          "{r.comment}"
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="font-sans text-sm text-muted-foreground italic">Aucun avis pour l'instant. Soyez le premier à donner votre avis !</p>
+              )}
+            </div>
+
+            {/* Write a Review */}
+            <div className="bg-muted p-6 sm:p-8 rounded-sm">
+              <h3 className="font-serif text-xl text-foreground mb-6">Laisser un avis</h3>
+              <form onSubmit={submitReview} className="space-y-4">
+                <div>
+                  <label className="block font-sans text-xs tracking-widest uppercase text-muted-foreground mb-2">Votre note</label>
+                  <div className="flex gap-1 cursor-pointer">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        onClick={() => setReviewForm(prev => ({ ...prev, rating: star }))}
+                        className={`w-6 h-6 transition-colors ${star <= reviewForm.rating ? 'fill-[#D4AF37] text-[#D4AF37]' : 'text-muted-foreground'}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="block font-sans text-xs tracking-widest uppercase text-muted-foreground mb-2">Votre nom</label>
+                  <input
+                    type="text"
+                    required
+                    value={reviewForm.userName}
+                    onChange={(e) => setReviewForm(prev => ({ ...prev, userName: e.target.value }))}
+                    className="w-full bg-background border border-border p-3 font-sans text-sm text-foreground focus:outline-none focus:border-accent"
+                  />
+                </div>
+                <div>
+                  <label className="block font-sans text-xs tracking-widest uppercase text-muted-foreground mb-2">Votre avis (optionnel)</label>
+                  <textarea
+                    rows={4}
+                    value={reviewForm.comment}
+                    onChange={(e) => setReviewForm(prev => ({ ...prev, comment: e.target.value }))}
+                    className="w-full bg-background border border-border p-3 font-sans text-sm text-foreground focus:outline-none focus:border-accent resize-none"
+                  ></textarea>
+                </div>
+                <Button
+                  type="submit"
+                  disabled={submittingReview}
+                  className="w-full bg-[#1A1A1A] hover:bg-[#333] text-white font-sans text-xs tracking-widest uppercase py-4 rounded-none border-none mt-2"
+                >
+                  {submittingReview ? 'Envoi en cours...' : 'Envoyer mon avis'}
+                </Button>
+              </form>
+            </div>
+          </div>
+        </div>
       </div>
     </motion.div>
   );
