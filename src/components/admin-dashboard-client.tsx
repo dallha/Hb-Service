@@ -7,7 +7,7 @@ import {
   Plus, Pencil, Trash2, X, Save, Search, Eye, ChevronDown,
   LayoutGrid, FolderOpen, ClipboardList, BarChart3, Upload,
   AlertTriangle, Users, Shield, ShieldCheck, Star, CheckCircle,
-  Ticket, Menu, LogOut, Download, Copy, Printer,
+  Ticket, Menu, LogOut, Download, Copy, Printer, FileText,
 } from 'lucide-react';
 import { useNavigationStore } from '@/lib/store';
 import { formatPrice } from '@/lib/format';
@@ -137,7 +137,7 @@ interface AdminPromoCode {
   createdAt: string;
 }
 
-type AdminTab = 'analytics' | 'products' | 'collections' | 'orders' | 'users' | 'reviews' | 'promos';
+type AdminTab = 'analytics' | 'products' | 'collections' | 'orders' | 'invoices' | 'users' | 'reviews' | 'promos';
 
 // ─── Status Helpers ─────────────────────────────────────────────
 
@@ -324,6 +324,7 @@ export default function AdminDashboardClient() {
     { id: 'products', label: 'Produits', icon: Package },
     { id: 'collections', label: 'Collections', icon: FolderOpen },
     { id: 'orders', label: 'Commandes', icon: ClipboardList },
+    { id: 'invoices', label: 'Factures', icon: FileText },
     { id: 'users', label: 'Équipe', icon: Users },
     { id: 'reviews', label: 'Avis', icon: Star },
     { id: 'promos', label: 'Codes Promo', icon: Ticket },
@@ -477,6 +478,13 @@ export default function AdminDashboardClient() {
                 setSearchQuery={setSearchQuery}
                 onRefresh={fetchOrders}
                 showToast={showToast}
+              />
+            )}
+            {activeTab === 'invoices' && (
+              <InvoicesTab
+                orders={filteredOrders}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
               />
             )}
             {activeTab === 'users' && (
@@ -1552,6 +1560,83 @@ function CollectionsTab({ collections, onRefresh, showToast }: {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </motion.div>
+  );
+}
+
+// ─── Invoices Tab ────────────────────────────────────────────────
+
+function InvoicesTab({ orders, searchQuery, setSearchQuery }: {
+  orders: Order[];
+  searchQuery: string;
+  setSearchQuery: (q: string) => void;
+}) {
+  const handlePrint = (orderId: string) => {
+    const locale = window.location.pathname.split('/')[1] || 'fr';
+    window.open(`/${locale}/admin/orders/${orderId}/invoice`, '_blank');
+  };
+
+  return (
+    <motion.div
+      key="invoices"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="relative w-full max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8C8C8C]" />
+          <Input
+            placeholder="Rechercher par ID de commande, email..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 bg-white border-[#E8E0D5] rounded-none font-sans text-sm h-10"
+          />
+        </div>
+      </div>
+
+      {orders.length === 0 ? (
+        <div className="bg-white rounded-sm border border-[#E8E0D5] p-12 text-center">
+          <FileText className="w-12 h-12 text-[#E8E0D5] mx-auto mb-4" />
+          <p className="font-sans text-sm text-[#8C8C8C]">Aucune facture trouvée</p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-md border border-[#E8E0D5] overflow-hidden">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-[#F8F7F5] border-b border-[#E8E0D5]">
+                <th className="py-3 px-4 font-sans text-[10px] tracking-wider uppercase text-[#8C8C8C]">N° Facture</th>
+                <th className="py-3 px-4 font-sans text-[10px] tracking-wider uppercase text-[#8C8C8C]">Date</th>
+                <th className="py-3 px-4 font-sans text-[10px] tracking-wider uppercase text-[#8C8C8C]">Client</th>
+                <th className="py-3 px-4 font-sans text-[10px] tracking-wider uppercase text-[#8C8C8C] text-right">Montant</th>
+                <th className="py-3 px-4 font-sans text-[10px] tracking-wider uppercase text-[#8C8C8C] text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#E8E0D5]">
+              {orders.map(order => (
+                <tr key={order.id} className="hover:bg-[#F8F7F5]/50 transition-colors">
+                  <td className="py-3 px-4 font-sans text-sm text-[#1A1A1A] font-medium">#{order.id.slice(-8).toUpperCase()}</td>
+                  <td className="py-3 px-4 font-sans text-sm text-[#8C8C8C]">{new Date(order.createdAt).toLocaleDateString('fr-FR')}</td>
+                  <td className="py-3 px-4 font-sans text-sm text-[#1A1A1A]">{order.guestEmail || order.guestPhone || 'Inconnu'}</td>
+                  <td className="py-3 px-4 font-sans text-sm text-[#1A1A1A] font-medium text-right">{formatPrice(order.totalAmount)}</td>
+                  <td className="py-3 px-4 text-center">
+                    <Button
+                      onClick={() => handlePrint(order.id)}
+                      variant="outline"
+                      size="sm"
+                      className="border-[#E8E0D5] hover:bg-[#1A1A1A] hover:text-white transition-colors"
+                    >
+                      <Printer className="w-3.5 h-3.5 mr-2" />
+                      Imprimer
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </motion.div>
   );
 }
