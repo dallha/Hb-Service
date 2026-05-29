@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Check, MessageCircle } from 'lucide-react';
 import Image from 'next/image';
@@ -26,6 +26,34 @@ export default function CheckoutView() {
     discountType: 'percentage' | 'fixed';
     discountValue: number;
   } | null>(null);
+
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
+  const [fetchingAddresses, setFetchingAddresses] = useState(true);
+
+  // Fetch addresses on mount
+  useEffect(() => {
+    fetch('/api/account/addresses')
+      .then(res => res.ok ? res.json() : [])
+      .then(data => {
+        if (Array.isArray(data)) {
+          setSavedAddresses(data);
+          // Auto-fill form if default address exists
+          const defaultAddr = data.find(a => a.isDefault) || data[0];
+          if (defaultAddr) {
+            setForm(prev => ({
+              ...prev,
+              firstName: defaultAddr.firstName || prev.firstName,
+              lastName: defaultAddr.lastName || prev.lastName,
+              address: defaultAddr.street || prev.address,
+              city: defaultAddr.city || prev.city,
+              phone: defaultAddr.phone || prev.phone,
+            }));
+          }
+        }
+      })
+      .catch(() => {})
+      .finally(() => setFetchingAddresses(false));
+  }, []);
 
   const [form, setForm] = useState({
     email: '',
@@ -253,9 +281,36 @@ export default function CheckoutView() {
 
             {/* Delivery */}
             <div>
-              <h2 className="font-serif text-xl text-[#1A1A1A] mb-4">
-                Livraison
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-serif text-xl text-[#1A1A1A]">Livraison</h2>
+                {savedAddresses.length > 0 && (
+                  <select 
+                    onChange={(e) => {
+                      const addr = savedAddresses.find(a => a.id === e.target.value);
+                      if (addr) {
+                        setForm(prev => ({
+                          ...prev,
+                          firstName: addr.firstName,
+                          lastName: addr.lastName,
+                          address: addr.street,
+                          city: addr.city,
+                          phone: addr.phone || prev.phone,
+                        }));
+                        toast.success('Adresse appliquée');
+                      }
+                    }}
+                    className="font-sans text-xs border border-[#E8E0D5] p-2 bg-transparent focus:outline-none focus:border-[#D4AF37]"
+                  >
+                    <option value="">Sélectionner une adresse sauvée...</option>
+                    {savedAddresses.map(addr => (
+                      <option key={addr.id} value={addr.id}>
+                        {addr.street}, {addr.city}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+              
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="font-sans text-xs tracking-wider uppercase text-[#8C8C8C] block mb-2">
