@@ -1,0 +1,203 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-playfair);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* HB_Service Luxury Brand Colors */
+  --color-bg-luxe: #F8F7F5;
+  --color-text-luxe: #1A1A1A;
+  --color-gold: #D4AF37;
+  --color-gold-light: #E8D5A0;
+  --color-gold-dark: #B8962E;
+  --color-surface-luxe: #E8E0D5;
+  --color-stone: #8C8C8C;
+  --color-cream: #F5F0E8;
+  --color-success-luxe: #4A7C59;
+  --color-error-luxe: #C44536;
+}
+
+:root {
+  --radius: 0.125rem;
+  /* HB_Service Luxury Palette — Blanc cassé primary */
+  --background: #F8F7F5;
+  --foreground: #1A1A1A;
+  --card: #FFFFFF;
+  --card-foreground: #1A1A1A;
+  --popover: #FFFFFF;
+  --popover-foreground: #1A1A1A;
+  --primary: #1A1A1A;
+  --primary-foreground: #F8F7F5;
+  --secondary: #E8E0D5;
+  --secondary-foreground: #1A1A1A;
+  --muted: #F5F0E8;
+  --muted-foreground: #8C8C8C;
+  --accent: #D4AF37;
+  --accent-foreground: #1A1A1A;
+  --destructive: #C44536;
+  --border: #E8E0D5;
+  --input: #E8E0D5;
+  --ring: #D4AF37;
+  --chart-1: #D4AF37;
+  --chart-2: #1A1A1A;
+  --chart-3: #8C8C8C;
+  --chart-4: #E8E0D5;
+  --chart-5: #4A7C59;
+  --sidebar: #F8F7F5;
+  --sidebar-foreground: #1A1A1A;
+  --sidebar-primary: #D4AF37;
+  --sidebar-primary-foreground: #1A1A1A;
+  --sidebar-accent: #E8E0D5;
+  --sidebar-accent-foreground: #1A1A1A;
+  --sidebar-border: #E8E0D5;
+  --sidebar-ring: #D4AF37;
+}
+
+.dark {
+  --background: #1A1A1A;
+  --foreground: #F8F7F5;
+  --card: #2A2A2A;
+  --card-foreground: #F8F7F5;
+  --popover: #2A2A2A;
+  --popover-foreground: #F8F7F5;
+  --primary: #F8F7F5;
+  --primary-foreground: #1A1A1A;
+  --secondary: #3A3A3A;
+  --secondary-foreground: #F8F7F5;
+  --muted: #2A2A2A;
+  --muted-foreground: #8C8C8C;
+  --accent: #D4AF37;
+  --accent-foreground: #1A1A1A;
+  --destructive: #C44536;
+  --border: #3A3A3A;
+  --input: #3A3A3A;
+  --ring: #D4AF37;
+  --chart-1: #D4AF37;
+  --chart-2: #F8F7F5;
+  --chart-3: #8C8C8C;
+  --chart-4: #3A3A3A;
+  --chart-5: #4A7C59;
+  --sidebar: #2A2A2A;
+  --sidebar-foreground: #F8F7F5;
+  --sidebar-primary: #D4AF37;
+  --sidebar-primary-foreground: #1A1A1A;
+  --sidebar-accent: #3A3A3A;
+  --sidebar-accent-foreground: #F8F7F5;
+  --sidebar-border: #3A3A3A;
+  --sidebar-ring: #D4AF37;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* ─── Luxury Scrollbar ────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F8F7F5;
+}
+::-webkit-scrollbar-thumb {
+  background: #D4AF37;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #B8962E;
+}
+
+/* ─── Luxury Selection ────────────────────────────────────── */
+::selection {
+  background: #D4AF37;
+  color: #1A1A1A;
+}
+
+/* ─── Smooth Focus Rings ──────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid #D4AF37;
+  outline-offset: 2px;
+}
+
+/* ─── Custom Animations ───────────────────────────────────── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, #E8E0D5 25%, #F5F0E8 50%, #E8E0D5 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ─── Reduced Motion ──────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
