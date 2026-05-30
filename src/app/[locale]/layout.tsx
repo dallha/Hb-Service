@@ -12,6 +12,7 @@ import { WhatsAppButton } from '@/components/whatsapp-button';
 import { Providers } from './providers';
 import SupabaseAuthListener from "@/components/SupabaseAuthListener";
 import { getSettings } from "@/lib/settings";
+import MarketingPixels from "@/components/marketing-pixels";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -70,6 +71,7 @@ export default async function RootLayout(props: {
             <WhatsAppButton settings={settings} />
             <Footer settings={settings} />
             <Toaster position="top-right" richColors />
+            <MarketingPixels settings={settings} />
           </Providers>
         </NextIntlClientProvider>
       </body>

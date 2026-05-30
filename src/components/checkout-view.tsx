@@ -131,6 +131,31 @@ export default function CheckoutView() {
       }
 
       const order = await res.json();
+
+      // If online payment selected (card/wave/orange_money) → redirect to Stripe or PayTech
+      if (form.paymentMethod === 'card' || form.paymentMethod === 'wave' || form.paymentMethod === 'orange_money') {
+        const paymentMethod = form.paymentMethod === 'card' ? 'stripe' : 'paytech';
+        
+        const payRes = await fetch('/api/payments/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderId: order.id,
+            method: paymentMethod,
+          }),
+        });
+
+        if (!payRes.ok) {
+          const payErr = await payRes.json();
+          throw new Error(payErr.error || 'Erreur lors de l\'initialisation du paiement');
+        }
+
+        const payData = await payRes.json() as { url: string };
+        clearCart();
+        window.location.href = payData.url;
+        return;
+      }
+
       setOrderId(order.id);
       setOrderSuccess(true);
       clearCart();

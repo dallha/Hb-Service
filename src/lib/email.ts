@@ -5,7 +5,9 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 
 // Remplacez cette adresse par l'adresse vérifiée sur votre compte Resend
 // ex: contact@hb-service.com
-const DEFAULT_FROM = 'HB_Service <onboarding@resend.dev>';
+const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+const fromName = process.env.RESEND_FROM_NAME || 'HB_Service';
+const DEFAULT_FROM = `${fromName} <${fromEmail}>`;
 
 export async function sendEmail({
   to,

@@ -68,6 +68,11 @@ export const DEFAULT_SETTINGS: SiteSettingsMap = {
   // SEO
   seo_title: "HB_Service — Parfums & Soins Naturels Premium",
   seo_description: "Découvrez des créations olfactives d'exception, nées du savoir-faire africain et de la pureté des ingrédients naturels. Parfums premium et soins naturels.",
+
+  // Marketing & Pixels
+  facebook_pixel_id: "",
+  tiktok_pixel_id: "",
+  google_analytics_id: "",
 };
 
 // Fetch all settings from DB, merged with defaults

@@ -2994,6 +2994,7 @@ function SettingsTab({ showToast }: { showToast: (msg: string, v?: 'default' | '
     { id: 'story', label: '✨ Notre Histoire' },
     { id: 'reassurance', label: '🛡️ Réassurance' },
     { id: 'seo', label: '🔍 SEO' },
+    { id: 'marketing', label: '📊 Marketing & Pixels' },
   ];
 
   const Field = ({ label, k, placeholder, textarea }: { label: string; k: string; placeholder?: string; textarea?: boolean }) => (
@@ -3140,6 +3141,16 @@ function SettingsTab({ showToast }: { showToast: (msg: string, v?: 'default' | '
           <>
             <Field label="Titre du site (balise title)" k="seo_title" placeholder="HB_Service — Parfums & Soins Naturels Premium" />
             <Field label="Meta description" k="seo_description" textarea placeholder="Découvrez des créations olfactives d'exception..." />
+          </>
+        )}
+
+        {/* Marketing & Pixels */}
+        {activeSection === 'marketing' && (
+          <>
+            <p className="text-xs text-[#8C8C8C] bg-[#F8F7F5] p-3 rounded-sm">Saisissez vos identifiants de suivi publicitaire et d'analyse. Laissez vide pour désactiver le suivi.</p>
+            <Field label="ID du Pixel Facebook" k="facebook_pixel_id" placeholder="ex: 1234567890" />
+            <Field label="ID du Pixel TikTok" k="tiktok_pixel_id" placeholder="ex: C1234567890" />
+            <Field label="ID de suivi Google Analytics (GA4)" k="google_analytics_id" placeholder="ex: G-A1B2C3D4E5" />
           </>
         )}
 
