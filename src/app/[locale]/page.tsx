@@ -3,8 +3,6 @@
 import { useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigationStore } from '@/lib/store';
-import Header from '@/components/header';
-import Footer from '@/components/footer';
 import HeroSection from '@/components/hero-section';
 import CollectionsSection from '@/components/collections-section';
 import StorytellingSection from '@/components/storytelling-section';
@@ -28,7 +26,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Header />
       <CartDrawer />
 
       <main className="flex-1 pt-14 sm:pt-0">
@@ -94,8 +91,6 @@ export default function Home() {
           )}
         </AnimatePresence>
       </main>
-
-      <Footer />
     </div>
   );
 }
