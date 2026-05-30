@@ -58,5 +58,28 @@ Fini le texte écrit en dur ! Vous pouvez maintenant modifier l'intégralité de
 - **Réassurance & Confiance** : Ajustez les chiffres clés (ex: "2 500+ Clients Satisfaits"), la note moyenne et les 3 blocs d'avantages clients (Livraison, Paiement à la livraison, Support client).
 - **SEO & Référencement** : Modifiez à la volée le titre de la page (balise title) et la description méta de la boutique pour optimiser votre visibilité sur Google.
 
+## 📧 E-mails réels (Resend) & Nom de Domaine
+Le système d'e-mails transactionnels (confirmation de commande, suivi d'expédition) est désormais entièrement dynamisé :
+- **Expéditeur Personnalisable** : Plus aucune adresse générique. Les variables d'environnement `RESEND_FROM_EMAIL` (ex: `contact@hb-service.com`) et `RESEND_FROM_NAME` (ex: `HB_Service`) permettent d'envoyer vos e-mails sous votre propre identité de marque dès que votre compte Resend est configuré.
+- **Simulation locale intégrée** : En développement (lorsque les variables ne sont pas définies), le système simule l'envoi de façon transparente dans les logs pour garantir la fluidité de la plateforme.
+
+## 💳 Paiements en Ligne (Stripe & PayTech)
+Vous disposez maintenant d'un flux d'encaissement direct et entièrement automatisé en ligne :
+- **Interface de Choix de Paiement** : Lors du passage à la caisse (Checkout), le client peut choisir entre le **Paiement à la livraison**, la **Carte Bancaire (Stripe)** ou le **Mobile Money (Wave / Orange Money via PayTech)**.
+- **Création de Session Sécurisée** : L'API `/api/payments/create` génère à la volée une session de paiement unique et redirige le client vers le portail de son choix (Stripe Checkout pour les cartes, ou PayTech pour Wave/OM).
+- **Webhooks IPN Automatisés** : Les routes `/api/payments/stripe/webhook` et `/api/payments/paytech/webhook` captent les confirmations de paiement asynchrones. Dès qu'un client paie en ligne :
+  1. La commande passe automatiquement au statut **Confirmée**.
+  2. Le statut de paiement passe à **Complété** avec la méthode et la référence unique de transaction enregistrées.
+  3. Le **stock des variantes est automatiquement décrémenté** en base de données pour éviter tout sur-achat.
+  4. Un **e-mail professionnel récapitulatif** est expédié instantanément au client via Resend.
+
+## 📊 Suivi Marketing & Analyse (Facebook, TikTok & Google Analytics)
+Pour optimiser vos ventes et piloter vos campagnes de publicité :
+- **Nouvel Onglet "Marketing & Pixels"** : Dans le panneau d'administration des paramètres, vous pouvez saisir en 1 clic vos identifiants publicitaires :
+  - **ID Pixel Facebook**
+  - **ID Pixel TikTok**
+  - **ID Google Analytics (GA4)**
+- **Injection Dynamique** : Le composant global `<MarketingPixels />` se charge d'injecter proprement et de manière asynchrone les scripts de tracking correspondants sur l'ensemble de votre boutique. Si un champ est laissé vide, aucun script n'est chargé, préservant ainsi la performance et le temps de chargement du site.
+
 > [!TIP]
-> Toutes ces améliorations visent à simplifier votre flux de travail et à donner un aspect premium à l'arrière-boutique de votre plateforme. Testez les différentes sections dans l'onglet Paramètres pour voir à quel point il est facile de personnaliser votre image de marque !
+> Pour commencer à encaisser en ligne et suivre vos publicités, définissez simplement les clés d'API (Stripe, PayTech, Resend) et vos IDs de Pixels dans vos variables d'environnement Vercel et vos paramètres d'administration. Tout est configuré pour s'activer automatiquement sans nécessiter aucun changement de code !
