@@ -4,6 +4,9 @@ import { notFound } from 'next/navigation';
 import { formatPrice } from '@/lib/format';
 import InvoiceActions from '@/components/invoice-actions';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function InvoicePage(props: {
   params: Promise<{ id: string; locale: string }>;
 }) {
@@ -110,8 +113,8 @@ export default async function InvoicePage(props: {
               {order.items.map((item: any, index: number) => (
                 <tr key={index} className="border-b border-gray-200">
                   <td className="py-4">
-                    <p className="font-bold text-gray-800">{item.variant.product.name}</p>
-                    <p className="text-sm text-gray-500">Format: {item.variant.size}</p>
+                    <p className="font-bold text-gray-800">{item.variant?.product?.name || 'Produit non disponible'}</p>
+                    <p className="text-sm text-gray-500">Format: {item.variant?.size || 'N/A'}</p>
                   </td>
                   <td className="py-4 text-right text-gray-800">{item.quantity}</td>
                   <td className="py-4 text-right text-gray-800">{formatPrice(item.unitPrice)}</td>
