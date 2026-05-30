@@ -76,3 +76,30 @@ Stage Summary:
 - All 3 entities (Products, Collections, Orders) support full CRUD
 - Admin accessible via Settings icon in navbar or mobile menu
 - Mobile responsive with sheet-based editors instead of modals on small screens
+
+---
+Task ID: custom-sprint-features
+Agent: Antigravity AI Agent
+Task: Custom Sprint — Dynamic Content Settings, MFA, Blog Journal, A4 printable invoices, bulk actions, and Resend email system
+
+Work Log:
+- Added `SiteSettings` model to `schema.prisma` for a fully dynamic, database-backed site settings mapping.
+- Implemented `/api/settings` GET and PUT endpoints for robust admin controls over layout preferences, texts, images, contacts, and meta descriptions.
+- Created `src/lib/settings.ts` with comprehensive luxury defaults (`DEFAULT_SETTINGS`) and server-side fetching utilities (`getSettings`).
+- Refactored `layout.tsx` to read site settings from the server and inject them as props into components like Header, Footer, and the WhatsApp floating button.
+- Refactored `page.tsx` into a server component that fetches settings and renders a dynamic client wrapper `HomeClient`.
+- Implemented highly structured dynamic prop support in the frontend components: Hero, Footer, Collections, Storytelling, Reassurance, Header, and WhatsApp button.
+- Built an extensive "Paramètres du Site" control panel in `admin-dashboard-client.tsx` featuring 6 tabs: Accueil (Hero), Contact, Réseaux Sociaux, Notre Histoire, Réassurance, and SEO.
+- Configured a secure Multi-Factor Authentication (MFA) system using Supabase Auth with Google Authenticator / Authy, accessible on the `/account` profile page.
+- Designed a dynamic "Le Journal" SEO blog system, fully equipped with a dedicated administration manager and client-side view at `/fr/journal`.
+- Engineered custom CSS and A4-printing layout parameters to print perfectly polished, single-page invoices with header/footer UI hidden automatically.
+- Integrated automated transactional e-mail notifications using Resend API to dispatch confirmations on checkout and shipping updates.
+- Added product activation toggles and order status editing tools supporting both singular operations and group actions (Bulk select checkboxes).
+- Pushed database migrations to production PostgreSQL database via Prisma client generation and validated the global production compilation (`npm run build`).
+
+Stage Summary:
+- Zero hardcoded content: 100% of visible layout titles, descriptions, phone numbers, and images are now fully editable from the dashboard.
+- Double layer of security implemented with full MFA support for administrative and client profiles.
+- Automated email integrations, advanced bulk controls, CSV exports, and printable invoice layouts fully functional.
+- Build compiles perfectly, pushed and deployed seamlessly to production on Vercel.
+
