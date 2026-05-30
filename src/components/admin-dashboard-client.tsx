@@ -312,36 +312,40 @@ export default function AdminDashboardClient() {
 
   // ─── Filtered Data ──────────────────────────────────────────
 
-  const filteredProducts = products.filter((p) =>
+  const filteredProducts = React.useMemo(() => products.filter((p) =>
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.slug.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+    (p.slug || '').toLowerCase().includes(searchQuery.toLowerCase())
+  ), [products, searchQuery]);
 
-  const filteredOrders = orders.filter((o) =>
+  const filteredCollections = React.useMemo(() => collections.filter((c) =>
+    c.name.toLowerCase().includes(searchQuery.toLowerCase())
+  ), [collections, searchQuery]);
+
+  const filteredOrders = React.useMemo(() => orders.filter((o) =>
     o.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (o.guestEmail || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
     (o.guestPhone || '').toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  ), [orders, searchQuery]);
 
-  const filteredUsers = users.filter((u) =>
+  const filteredUsers = React.useMemo(() => users.filter((u) =>
     u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (u.fullName || '').toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  ), [users, searchQuery]);
 
-  const filteredReviews = reviews.filter((r) =>
+  const filteredReviews = React.useMemo(() => reviews.filter((r) =>
     r.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     r.product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (r.comment || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredPromos = promos.filter((p) =>
+  const filteredPromos = React.useMemo(() => promos.filter((p) =>
     p.code.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  ), [promos, searchQuery]);
 
-  const filteredPosts = posts.filter((p) =>
+  const filteredPosts = React.useMemo(() => posts.filter((p) =>
     p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.slug.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  ), [posts, searchQuery]);
 
   // ─── Tabs Config ────────────────────────────────────────────
 
@@ -390,7 +394,7 @@ export default function AdminDashboardClient() {
             Ma Sécurité (MFA)
           </button>
           <button
-            onClick={() => navigate('home')}
+            onClick={() => window.location.href = '/'}
             className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-[#8C8C8C] hover:text-[#1A1A1A] transition-colors rounded-md hover:bg-[#F8F7F5]"
           >
             <ChevronLeft className="w-4 h-4" />
