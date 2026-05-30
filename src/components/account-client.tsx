@@ -24,6 +24,14 @@ export default function AccountClient({ user, initialOrders, initialAddresses }:
     phone: '',
   });
 
+  // Profile Edit State
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    fullName: user.fullName || '',
+    phone: user.phone || '',
+  });
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+
   // MFA State
   const [mfaStatus, setMfaStatus] = useState<'loading' | 'enabled' | 'disabled'>('loading');
   const [qrCode, setQrCode] = useState<string | null>(null);
@@ -46,6 +54,16 @@ export default function AccountClient({ user, initialOrders, initialAddresses }:
   }, [activeTab]);
 
   const handleEnableMfa = async () => {
+    // Check if there's already an unverified factor and delete it first
+    const { data: factors } = await supabase.auth.mfa.listFactors();
+    if (factors && factors.totp) {
+      for (const factor of factors.totp) {
+        if (factor.status === 'unverified') {
+          await supabase.auth.mfa.unenroll({ factorId: factor.id });
+        }
+      }
+    }
+
     const { data, error } = await supabase.auth.mfa.enroll({ factorType: 'totp' });
     if (error) { toast.error(error.message); return; }
     setQrCode(data.totp.qr_code);
@@ -68,8 +86,30 @@ export default function AccountClient({ user, initialOrders, initialAddresses }:
     } else { 
       toast.success("Authentification à deux facteurs activée avec succès !"); 
       setMfaStatus('enabled'); 
-      setQrCode(null); 
+      setQrCode(null);
       setMfaVerifyCode('');
+      setFactorId(null);
+    }
+  };
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingProfile(true);
+    try {
+      const res = await fetch('/api/account/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(profileForm),
+      });
+      if (!res.ok) throw new Error();
+      toast.success('Profil mis à jour');
+      setIsEditingProfile(false);
+      // Update local state (assuming user is passed as prop, we just force a refresh to update the parent server component)
+      window.location.reload();
+    } catch (err) {
+      toast.error('Erreur lors de la mise à jour du profil');
+    } finally {
+      setIsSavingProfile(false);
     }
   };
 
@@ -415,7 +455,7 @@ export default function AccountClient({ user, initialOrders, initialAddresses }:
                               <p className="text-sm text-gray-600">
                                 1. Scannez ce QR Code avec une application d'authentification comme Google Authenticator, Authy ou Microsoft Authenticator.
                               </p>
-                              <div className="bg-white p-4 w-fit mx-auto border border-gray-200" dangerouslySetInnerHTML={{ __html: qrCode }} />
+                              <div className="bg-white p-4 w-fit mx-auto border border-gray-200 [&>svg]:w-48 [&>svg]:h-48" dangerouslySetInnerHTML={{ __html: qrCode }} />
                               <p className="text-sm text-gray-600">
                                 2. Entrez le code à 6 chiffres généré par l'application pour valider l'activation.
                               </p>

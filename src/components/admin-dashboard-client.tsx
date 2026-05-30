@@ -445,6 +445,27 @@ export default function AdminDashboardClient() {
                   </button>
                 ))}
               </nav>
+              <div className="p-4 border-t border-[#E8E0D5] space-y-1">
+                <button
+                  onClick={() => {
+                    window.location.href = '/account';
+                  }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-[#8C8C8C] hover:text-[#1A1A1A] transition-colors rounded-md hover:bg-[#F8F7F5]"
+                >
+                  <Shield className="w-4 h-4" />
+                  Ma Sécurité (MFA)
+                </button>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    window.location.href = '/';
+                  }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-[#8C8C8C] hover:text-[#1A1A1A] transition-colors rounded-md hover:bg-[#F8F7F5]"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Retour au site
+                </button>
+              </div>
             </motion.aside>
           </>
         )}

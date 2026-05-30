@@ -26,7 +26,8 @@ export default function Header() {
   const totalItems = getTotalItems();
   const router = useRouter();
   const pathname = usePathname();
-  const isSubpage = pathname?.includes('/journal') || pathname?.includes('/admin');
+  const isRootPath = pathname === '/' || pathname === '/fr' || pathname === '/en';
+  const isSubpage = !isRootPath;
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -43,10 +44,9 @@ export default function Header() {
       return;
     }
     
+    navigate(view as any);
     if (isSubpage) {
-      router.push('/');
-    } else {
-      navigate(view as any);
+      router.push('/fr');
     }
     setMobileMenuOpen(false);
   };
@@ -59,7 +59,10 @@ export default function Header() {
       setClickCount(0);
       router.push('/admin');
     } else if (isSubpage && newCount === 1) {
-      router.push('/');
+      navigate('home');
+      router.push('/fr');
+    } else if (!isSubpage && newCount === 1) {
+      navigate('home');
     }
     setTimeout(() => setClickCount(0), 500);
   };
