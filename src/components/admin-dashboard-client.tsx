@@ -393,13 +393,13 @@ export default function AdminDashboardClient() {
             <Shield className="w-4 h-4" />
             Ma Sécurité (MFA)
           </button>
-          <button
-            onClick={() => window.location.href = '/'}
+          <a
+            href="/fr"
             className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-[#8C8C8C] hover:text-[#1A1A1A] transition-colors rounded-md hover:bg-[#F8F7F5]"
           >
             <ChevronLeft className="w-4 h-4" />
             Retour au site
-          </button>
+          </a>
         </div>
       </aside>
 
@@ -459,16 +459,13 @@ export default function AdminDashboardClient() {
                   <Shield className="w-4 h-4" />
                   Ma Sécurité (MFA)
                 </button>
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    window.location.href = '/';
-                  }}
+                <a
+                  href="/fr"
                   className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-[#8C8C8C] hover:text-[#1A1A1A] transition-colors rounded-md hover:bg-[#F8F7F5]"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   Retour au site
-                </button>
+                </a>
               </div>
             </motion.aside>
           </>
