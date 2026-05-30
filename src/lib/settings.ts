@@ -33,16 +33,16 @@ export const DEFAULT_SETTINGS: SiteSettingsMap = {
   // Storytelling Section (homepage preview)
   story_1_title: "Notre Histoire",
   story_1_text: "Née de la passion d'un créateur africain, HB_Service puise son inspiration dans les paysages et les traditions du continent. Chaque fragrance raconte une histoire — celle des couchers de soleil sur le Sahel, des marchés d'épices de la Médina, des roses sauvages après la pluie.",
-  story_1_image: "/images/brand/savoir-faire.png",
+  story_1_image: "/images/brand/histoire.jpg",
   story_2_title: "Notre Savoir-Faire",
   story_2_text: "Nos parfumeurs artisanaux combinent des siècles de tradition olfactive avec une expertise contemporaine. Chaque flacon est le fruit d'un travail minutieux, où les ingrédients les plus nobles sont sélectionnés avec soin pour créer des compositions d'une élégance intemporelle.",
-  story_2_image: "/images/brand/savoir-faire.png",
+  story_2_image: "/images/brand/histoire.jpg",
   story_3_title: "Nos Engagements",
   story_3_text: "Nous croyons en une beauté responsable. Nos ingrédients sont sourcés éthiquement, nos formulations sont libres de parabènes et de sulfates, et nos packagings sont pensés pour minimiser notre impact environnemental. Le luxe peut être conscient.",
-  story_3_image: "/images/brand/savoir-faire.png",
+  story_3_image: "/images/brand/histoire.jpg",
   story_4_title: "Nos Ingrédients",
   story_4_text: "De l'oud du Cambodge à la rose de Damas, chaque ingrédient est sélectionné pour sa pureté et son caractère unique. Nous travaillons directement avec des producteurs locaux pour garantir une traçabilité totale et une qualité irréprochable.",
-  story_4_image: "/images/brand/savoir-faire.png",
+  story_4_image: "/images/brand/histoire.jpg",
   story_cta_label: "En savoir plus",
 
   // Storytelling Page hero
