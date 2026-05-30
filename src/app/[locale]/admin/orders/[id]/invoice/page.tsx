@@ -73,16 +73,16 @@ export default async function InvoicePage(props: {
 
         {/* Invoice Content */}
         <div className="print:m-0">
-          <div className="flex justify-between items-start mb-12 border-b border-gray-200 pb-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start gap-8 sm:gap-0 mb-8 sm:mb-12 border-b border-gray-200 pb-8">
             <div>
-              <img src="/logo-gold.jpg" alt="HB Service" className="w-20 h-20 rounded-full mb-4 object-cover" />
-              <h1 className="font-serif text-3xl font-bold text-[#1A1A1A] mb-1">HB_Service</h1>
-              <p className="text-gray-500 text-sm">Parfums de Luxe & Cosmétiques</p>
-              <p className="text-gray-500 text-sm">contact@hb-service.com</p>
-              <p className="text-gray-500 text-sm">+212 601 13 45 45</p>
+              <img src="/logo-gold.jpg" alt="HB Service" className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mb-4 object-cover" />
+              <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#1A1A1A] mb-1">HB_Service</h1>
+              <p className="text-gray-500 text-xs sm:text-sm">Parfums de Luxe & Cosmétiques</p>
+              <p className="text-gray-500 text-xs sm:text-sm">contact@hb-service.com</p>
+              <p className="text-gray-500 text-xs sm:text-sm">+212 601 13 45 45</p>
             </div>
-            <div className="text-right">
-              <h2 className="font-serif text-4xl text-gray-200 uppercase tracking-widest mb-4">Facture</h2>
+            <div className="text-left sm:text-right w-full sm:w-auto">
+              <h2 className="font-serif text-3xl sm:text-4xl text-gray-200 uppercase tracking-widest mb-4">Facture</h2>
               <p className="text-sm"><span className="font-bold text-gray-700">Facture N° :</span> {order.id.slice(-8).toUpperCase()}</p>
               <p className="text-sm"><span className="font-bold text-gray-700">Date :</span> {new Date(order.createdAt).toLocaleDateString('fr-FR')}</p>
               {order.payment && (
@@ -100,43 +100,45 @@ export default async function InvoicePage(props: {
             </p>
           </div>
 
-          <table className="w-full mb-12 text-left border-collapse">
-            <thead>
-              <tr className="border-b-2 border-gray-800">
-                <th className="py-3 font-bold text-sm uppercase tracking-wider text-gray-800">Description</th>
-                <th className="py-3 font-bold text-sm uppercase tracking-wider text-gray-800 text-right">Qté</th>
-                <th className="py-3 font-bold text-sm uppercase tracking-wider text-gray-800 text-right">Prix Unitaire</th>
-                <th className="py-3 font-bold text-sm uppercase tracking-wider text-gray-800 text-right">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {order.items.map((item: any, index: number) => (
-                <tr key={index} className="border-b border-gray-200">
-                  <td className="py-4">
-                    <p className="font-bold text-gray-800">{item.variant?.product?.name || 'Produit non disponible'}</p>
-                    <p className="text-sm text-gray-500">Format: {item.variant?.size || 'N/A'}</p>
-                  </td>
-                  <td className="py-4 text-right text-gray-800">{item.quantity}</td>
-                  <td className="py-4 text-right text-gray-800">{formatPrice(item.unitPrice)}</td>
-                  <td className="py-4 text-right text-gray-800 font-bold">{formatPrice(item.unitPrice * item.quantity)}</td>
+          <div className="overflow-x-auto mb-8 sm:mb-12">
+            <table className="w-full text-left border-collapse min-w-[500px]">
+              <thead>
+                <tr className="border-b-2 border-gray-800">
+                  <th className="py-3 font-bold text-xs sm:text-sm uppercase tracking-wider text-gray-800">Description</th>
+                  <th className="py-3 font-bold text-xs sm:text-sm uppercase tracking-wider text-gray-800 text-right">Qté</th>
+                  <th className="py-3 font-bold text-xs sm:text-sm uppercase tracking-wider text-gray-800 text-right">Prix Unitaire</th>
+                  <th className="py-3 font-bold text-xs sm:text-sm uppercase tracking-wider text-gray-800 text-right">Total</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {order.items.map((item: any, index: number) => (
+                  <tr key={index} className="border-b border-gray-200">
+                    <td className="py-4">
+                      <p className="font-bold text-sm sm:text-base text-gray-800">{item.variant?.product?.name || 'Produit non disponible'}</p>
+                      <p className="text-xs sm:text-sm text-gray-500">Format: {item.variant?.size || 'N/A'}</p>
+                    </td>
+                    <td className="py-4 text-sm sm:text-base text-right text-gray-800">{item.quantity}</td>
+                    <td className="py-4 text-sm sm:text-base text-right text-gray-800">{formatPrice(item.unitPrice)}</td>
+                    <td className="py-4 text-sm sm:text-base text-right text-gray-800 font-bold">{formatPrice(item.unitPrice * item.quantity)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           <div className="flex justify-end">
-            <div className="w-1/2">
+            <div className="w-full sm:w-1/2">
               <div className="flex justify-between py-2 border-b border-gray-200">
-                <span className="text-gray-600">Sous-total</span>
-                <span className="text-gray-800">{formatPrice(order.totalAmount)}</span>
+                <span className="text-gray-600 text-sm sm:text-base">Sous-total</span>
+                <span className="text-gray-800 text-sm sm:text-base">{formatPrice(order.totalAmount)}</span>
               </div>
               <div className="flex justify-between py-2 border-b border-gray-200">
-                <span className="text-gray-600">Livraison</span>
-                <span className="text-gray-800">Inclus</span>
+                <span className="text-gray-600 text-sm sm:text-base">Livraison</span>
+                <span className="text-gray-800 text-sm sm:text-base">Inclus</span>
               </div>
               <div className="flex justify-between py-4 mt-2">
-                <span className="font-serif text-2xl font-bold text-[#1A1A1A]">Total</span>
-                <span className="font-serif text-2xl font-bold text-[#1A1A1A]">{formatPrice(order.totalAmount)}</span>
+                <span className="font-serif text-xl sm:text-2xl font-bold text-[#1A1A1A]">Total</span>
+                <span className="font-serif text-xl sm:text-2xl font-bold text-[#1A1A1A]">{formatPrice(order.totalAmount)}</span>
               </div>
             </div>
           </div>
