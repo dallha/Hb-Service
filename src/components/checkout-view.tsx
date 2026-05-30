@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 
-type PaymentMethod = 'card' | 'wave' | 'orange_money' | 'cash';
+type PaymentMethod = 'card' | 'wave' | 'orange_money' | 'cash' | 'paypal';
 
 export default function CheckoutView() {
   const { items, getTotalPrice, clearCart } = useCartStore();
@@ -132,9 +132,13 @@ export default function CheckoutView() {
 
       const order = await res.json();
 
-      // If online payment selected (card/wave/orange_money) → redirect to Stripe or PayTech
-      if (form.paymentMethod === 'card' || form.paymentMethod === 'wave' || form.paymentMethod === 'orange_money') {
-        const paymentMethod = form.paymentMethod === 'card' ? 'stripe' : 'paytech';
+      // If online payment selected (card/wave/orange_money/paypal) → redirect to Stripe, PayTech or PayPal
+      if (form.paymentMethod === 'card' || form.paymentMethod === 'wave' || form.paymentMethod === 'orange_money' || form.paymentMethod === 'paypal') {
+        const paymentMethod = form.paymentMethod === 'card'
+          ? 'stripe'
+          : form.paymentMethod === 'paypal'
+            ? 'paypal'
+            : 'paytech';
         
         const payRes = await fetch('/api/payments/create', {
           method: 'POST',
@@ -399,6 +403,7 @@ export default function CheckoutView() {
                   { id: 'wave' as PaymentMethod, label: 'Wave', desc: 'Paiement mobile' },
                   { id: 'orange_money' as PaymentMethod, label: 'Orange Money', desc: 'Paiement mobile' },
                   { id: 'card' as PaymentMethod, label: 'Carte bancaire', desc: 'Visa, Mastercard' },
+                  { id: 'paypal' as PaymentMethod, label: 'PayPal (Euros)', desc: 'Paiement international' },
                 ].map((method) => (
                   <button
                     key={method.id}
