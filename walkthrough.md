@@ -63,11 +63,13 @@ Le système d'e-mails transactionnels (confirmation de commande, suivi d'expédi
 - **Expéditeur Personnalisable** : Plus aucune adresse générique. Les variables d'environnement `RESEND_FROM_EMAIL` (ex: `contact@hb-service.com`) et `RESEND_FROM_NAME` (ex: `HB_Service`) permettent d'envoyer vos e-mails sous votre propre identité de marque dès que votre compte Resend est configuré.
 - **Simulation locale intégrée** : En développement (lorsque les variables ne sont pas définies), le système simule l'envoi de façon transparente dans les logs pour garantir la fluidité de la plateforme.
 
-## 💳 Paiements en Ligne (Stripe & PayTech)
-Vous disposez maintenant d'un flux d'encaissement direct et entièrement automatisé en ligne :
-- **Interface de Choix de Paiement** : Lors du passage à la caisse (Checkout), le client peut choisir entre le **Paiement à la livraison**, la **Carte Bancaire (Stripe)** ou le **Mobile Money (Wave / Orange Money via PayTech)**.
-- **Création de Session Sécurisée** : L'API `/api/payments/create` génère à la volée une session de paiement unique et redirige le client vers le portail de son choix (Stripe Checkout pour les cartes, ou PayTech pour Wave/OM).
-- **Webhooks IPN Automatisés** : Les routes `/api/payments/stripe/webhook` et `/api/payments/paytech/webhook` captent les confirmations de paiement asynchrones. Dès qu'un client paie en ligne :
+## 💳 Paiements en Ligne (Stripe, PayTech & PayPal)
+Vous disposez maintenant d'un flux d'encaissement direct, sécurisé et entièrement automatisé en ligne :
+- **Interface de Choix de Paiement** : Lors du passage à la caisse (Checkout), le client peut choisir entre le **Paiement à la livraison**, la **Carte Bancaire (Stripe)**, le **Mobile Money (Wave / Orange Money via PayTech)** ou **PayPal (Euros)**.
+- **Création de Session Sécurisée** : L'API `/api/payments/create` génère à la volée une session de paiement unique et redirige le client vers le portail de son choix (Stripe Checkout pour les cartes, PayTech pour Wave/OM, ou PayPal Checkout pour le paiement international).
+- **Parité Euro Fixe (XOF ➔ EUR)** : PayPal ne supportant pas directement le Franc CFA (XOF), le système convertit automatiquement le prix en Euros (EUR) en appliquant le taux de parité fixe de la zone CFA : `EUR = XOF / 655.957`. C'est transparent et professionnel pour vos clients internationaux.
+- **Capture PayPal & Redirection Sécurisée** : Lorsque le client valide son paiement, PayPal le redirige vers notre API serveur `/api/payments/paypal/return`. Le serveur capture les fonds de manière 100% sécurisée sur l'API PayPal, confirme la commande en base de données, décrémente les stocks de variantes de produits, envoie l'e-mail de succès, et redirige proprement le client sur l'interface de réussite du site.
+- **Webhooks & Traitement Automatisés** : Les routes de webhooks (Stripe et PayTech) et la route de capture PayPal traitent les validations de paiement. Dès qu'un client paie en ligne :
   1. La commande passe automatiquement au statut **Confirmée**.
   2. Le statut de paiement passe à **Complété** avec la méthode et la référence unique de transaction enregistrées.
   3. Le **stock des variantes est automatiquement décrémenté** en base de données pour éviter tout sur-achat.
