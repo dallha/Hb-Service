@@ -34,6 +34,8 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  if (pathname?.includes('/admin')) return null;
+
   const handleNav = (view: string) => {
     if (view === 'journal') {
       router.push('/fr/journal');

@@ -2,9 +2,13 @@
 
 import { MessageCircle, Instagram, Facebook, Mail, MapPin, Phone } from 'lucide-react';
 import { useNavigationStore } from '@/lib/store';
+import { usePathname } from 'next/navigation';
 
 export default function Footer() {
   const { navigate } = useNavigationStore();
+  const pathname = usePathname();
+
+  if (pathname?.includes('/admin')) return null;
 
   return (
     <footer className="bg-card text-card-foreground mt-auto">

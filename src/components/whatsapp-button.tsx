@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 
 export function WhatsAppButton() {
   const [isVisible, setIsVisible] = useState(false);
@@ -11,6 +12,9 @@ export function WhatsAppButton() {
     const timer = setTimeout(() => setIsVisible(true), 1500);
     return () => clearTimeout(timer);
   }, []);
+
+  const pathname = usePathname();
+  if (pathname?.includes('/admin')) return null;
 
   // WhatsApp number
   const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '212601134545';
