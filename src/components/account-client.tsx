@@ -1,14 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, Package, User as UserIcon, MapPin, ChevronRight, Plus, Trash2, Edit2 } from 'lucide-react';
+import { LogOut, Package, User as UserIcon, MapPin, ChevronRight, Plus, Trash2, Shield } from 'lucide-react';
 import { formatPrice } from '@/lib/format';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { createClient } from '@/lib/supabase/client';
 
-type AccountTab = 'orders' | 'addresses' | 'profile';
+type AccountTab = 'orders' | 'addresses' | 'profile' | 'security';
 
 export default function AccountClient({ user, initialOrders, initialAddresses }: any) {
   const [activeTab, setActiveTab] = useState<AccountTab>('orders');
@@ -22,6 +23,67 @@ export default function AccountClient({ user, initialOrders, initialAddresses }:
     city: '',
     phone: '',
   });
+
+  // MFA State
+  const [mfaStatus, setMfaStatus] = useState<'loading' | 'enabled' | 'disabled'>('loading');
+  const [qrCode, setQrCode] = useState<string | null>(null);
+  const [factorId, setFactorId] = useState<string | null>(null);
+  const [mfaVerifyCode, setMfaVerifyCode] = useState('');
+  const supabase = createClient();
+
+  useEffect(() => {
+    if (activeTab === 'security') {
+      const checkMfa = async () => {
+        const { data, error } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+        if (!error && (data?.currentLevel === 'aal2' || data?.nextLevel === 'aal2')) {
+          setMfaStatus('enabled');
+        } else {
+          setMfaStatus('disabled');
+        }
+      };
+      checkMfa();
+    }
+  }, [activeTab]);
+
+  const handleEnableMfa = async () => {
+    const { data, error } = await supabase.auth.mfa.enroll({ factorType: 'totp' });
+    if (error) { toast.error(error.message); return; }
+    setQrCode(data.totp.qr_code);
+    setFactorId(data.id);
+  };
+
+  const handleVerifyMfa = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!factorId) return;
+    const { data: challenge, error: challengeError } = await supabase.auth.mfa.challenge({ factorId });
+    if (challengeError) { toast.error(challengeError.message); return; }
+
+    const { error } = await supabase.auth.mfa.verify({
+      factorId,
+      challengeId: challenge.id,
+      code: mfaVerifyCode
+    });
+    if (error) { 
+      toast.error("Code incorrect. Veuillez réessayer."); 
+    } else { 
+      toast.success("Authentification à deux facteurs activée avec succès !"); 
+      setMfaStatus('enabled'); 
+      setQrCode(null); 
+      setMfaVerifyCode('');
+    }
+  };
+
+  const handleDisableMfa = async () => {
+    if (!confirm("Voulez-vous vraiment désactiver la double authentification ? Votre compte sera moins sécurisé.")) return;
+    const { data: factors } = await supabase.auth.mfa.listFactors();
+    if (factors && factors.totp) {
+      for (const factor of factors.totp) {
+        await supabase.auth.mfa.unenroll({ factorId: factor.id });
+      }
+      setMfaStatus('disabled');
+      toast.success("Double authentification désactivée.");
+    }
+  };
 
   const handleAddAddress = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,10 +162,17 @@ export default function AccountClient({ user, initialOrders, initialAddresses }:
               </button>
               <button
                 onClick={() => setActiveTab('profile')}
-                className={`p-5 flex items-center gap-3 text-left transition-colors ${activeTab === 'profile' ? 'bg-[#FDFCFB] text-[#D4AF37]' : 'hover:bg-[#F8F7F5] text-[#1A1A1A]'}`}
+                className={`p-5 flex items-center gap-3 text-left transition-colors border-b border-[#E8E0D5] ${activeTab === 'profile' ? 'bg-[#FDFCFB] text-[#D4AF37]' : 'hover:bg-[#F8F7F5] text-[#1A1A1A]'}`}
               >
                 <UserIcon className="h-5 w-5" />
                 <span className="font-serif text-lg">Mon Profil</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('security')}
+                className={`p-5 flex items-center gap-3 text-left transition-colors ${activeTab === 'security' ? 'bg-[#FDFCFB] text-[#D4AF37]' : 'hover:bg-[#F8F7F5] text-[#1A1A1A]'}`}
+              >
+                <Shield className="h-5 w-5" />
+                <span className="font-serif text-lg">Sécurité (MFA)</span>
               </button>
             </div>
           </div>
@@ -293,6 +362,88 @@ export default function AccountClient({ user, initialOrders, initialAddresses }:
                       <p className="text-[10px] tracking-widest uppercase text-[#8C8C8C] mb-1">Téléphone</p>
                       <p className="text-[#1A1A1A] font-medium">{user.phone || 'Non renseigné'}</p>
                     </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* SECURITY TAB */}
+              {activeTab === 'security' && (
+                <motion.div
+                  key="security"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="bg-white border border-[#E8E0D5] overflow-hidden"
+                >
+                  <div className="p-6 sm:p-8 border-b border-[#E8E0D5] bg-[#FDFCFB]">
+                    <h3 className="font-serif text-xl text-[#1A1A1A]">Sécurité & Double Authentification</h3>
+                  </div>
+                  <div className="p-6 sm:p-8 space-y-6">
+                    {mfaStatus === 'loading' ? (
+                      <p className="text-gray-500">Chargement des paramètres de sécurité...</p>
+                    ) : mfaStatus === 'enabled' ? (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3 text-green-600 bg-green-50 p-4 rounded-md border border-green-200">
+                          <Shield className="w-5 h-5" />
+                          <p className="font-medium">La double authentification (MFA) est activée pour votre compte.</p>
+                        </div>
+                        <p className="text-sm text-gray-600">Votre compte est hautement sécurisé. Lors de chaque connexion, un code de votre application d'authentification vous sera demandé.</p>
+                        <Button 
+                          variant="destructive" 
+                          onClick={handleDisableMfa}
+                          className="mt-4"
+                        >
+                          Désactiver la double authentification
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-6">
+                        {!qrCode ? (
+                          <div className="space-y-4">
+                            <p className="text-[#1A1A1A]">La double authentification (MFA) ajoute une couche de sécurité supplémentaire à votre compte en demandant un code en plus de votre mot de passe.</p>
+                            <Button 
+                              onClick={handleEnableMfa}
+                              className="bg-[#1A1A1A] hover:bg-[#333] text-white rounded-none h-10 px-6 text-xs tracking-widest uppercase"
+                            >
+                              Activer la double authentification
+                            </Button>
+                          </div>
+                        ) : (
+                          <form onSubmit={handleVerifyMfa} className="space-y-6 max-w-md border border-[#E8E0D5] p-6 bg-[#F8F7F5]">
+                            <h4 className="font-serif text-lg text-[#1A1A1A]">Configuration MFA</h4>
+                            <div className="space-y-4">
+                              <p className="text-sm text-gray-600">
+                                1. Scannez ce QR Code avec une application d'authentification comme Google Authenticator, Authy ou Microsoft Authenticator.
+                              </p>
+                              <div className="bg-white p-4 w-fit mx-auto border border-gray-200" dangerouslySetInnerHTML={{ __html: qrCode }} />
+                              <p className="text-sm text-gray-600">
+                                2. Entrez le code à 6 chiffres généré par l'application pour valider l'activation.
+                              </p>
+                              <div>
+                                <Input
+                                  placeholder="Code à 6 chiffres"
+                                  required
+                                  value={mfaVerifyCode}
+                                  onChange={(e) => setMfaVerifyCode(e.target.value)}
+                                  className="rounded-none border-[#E8E0D5] text-center text-xl tracking-widest"
+                                  maxLength={6}
+                                />
+                              </div>
+                              <Button type="submit" className="w-full bg-[#4A7C59] hover:bg-[#3d6649] text-white rounded-none text-xs tracking-widest uppercase mt-4">
+                                Valider et Activer
+                              </Button>
+                              <button 
+                                type="button" 
+                                onClick={() => setQrCode(null)} 
+                                className="w-full text-center text-xs text-gray-500 mt-2 hover:text-gray-700"
+                              >
+                                Annuler
+                              </button>
+                            </div>
+                          </form>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               )}
