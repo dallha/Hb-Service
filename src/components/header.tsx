@@ -16,7 +16,10 @@ const navLinks = [
   { label: 'Journal', view: 'journal' as const },
 ];
 
-export default function Header() {
+import type { SiteSettingsMap } from '@/lib/settings';
+
+export default function Header({ settings = {} }: { settings?: SiteSettingsMap }) {
+  const logoUrl = settings.logo_url || '/logo-gold.jpg';
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [clickCount, setClickCount] = useState(0);
@@ -87,7 +90,7 @@ export default function Header() {
               className="flex items-center gap-1.5 sm:gap-2 group"
             >
               <img
-                src="/logo-gold.jpg"
+                src={logoUrl}
                 alt="HB Service"
                 className="h-10 w-10 sm:h-12 sm:w-12 object-cover rounded-full"
               />

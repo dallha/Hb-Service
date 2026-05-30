@@ -200,3 +200,9 @@ model Post {
 
   @@index([slug])
 }
+
+model SiteSettings {
+  key       String   @id
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+}

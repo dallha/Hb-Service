@@ -7,7 +7,7 @@ import {
   Plus, Pencil, Trash2, X, Save, Search, Eye, ChevronDown,
   LayoutGrid, FolderOpen, ClipboardList, BarChart3, Upload,
   AlertTriangle, Users, Shield, ShieldCheck, Star, CheckCircle,
-  Ticket, Menu, LogOut, Download, Copy, Printer, FileText, BookOpen,
+  Ticket, Menu, LogOut, Download, Copy, Printer, FileText, BookOpen, Settings,
 } from 'lucide-react';
 import { useNavigationStore } from '@/lib/store';
 import { formatPrice } from '@/lib/format';
@@ -149,7 +149,7 @@ interface AdminPost {
   updatedAt: string;
 }
 
-type AdminTab = 'analytics' | 'products' | 'collections' | 'orders' | 'invoices' | 'users' | 'reviews' | 'promos' | 'posts';
+type AdminTab = 'analytics' | 'products' | 'collections' | 'orders' | 'invoices' | 'users' | 'reviews' | 'promos' | 'posts' | 'settings';
 
 // ─── Status Helpers ─────────────────────────────────────────────
 
@@ -359,6 +359,7 @@ export default function AdminDashboardClient() {
     { id: 'reviews', label: 'Avis', icon: Star },
     { id: 'promos', label: 'Codes Promo', icon: Ticket },
     { id: 'posts', label: 'Journal', icon: BookOpen },
+    { id: 'settings', label: 'Paramètres', icon: Settings },
   ];
 
   return (
@@ -578,6 +579,9 @@ export default function AdminDashboardClient() {
                 onRefresh={fetchPosts}
                 showToast={showToast}
               />
+            )}
+            {activeTab === 'settings' && (
+              <SettingsTab showToast={showToast} />
             )}
           </AnimatePresence>
         </div>
@@ -2945,6 +2949,207 @@ function PostsTab({ posts, searchQuery, setSearchQuery, onRefresh, showToast }: 
           </SheetFooter>
         </SheetContent>
       </Sheet>
+    </motion.div>
+  );
+}
+
+// ─── Settings Tab ─────────────────────────────────────────────────
+
+function SettingsTab({ showToast }: { showToast: (msg: string, v?: 'default' | 'destructive') => void }) {
+  const [activeSection, setActiveSection] = useState('hero');
+  const [settings, setSettings] = useState<Record<string, string>>({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/settings')
+      .then((r) => r.json())
+      .then((data) => { setSettings(data); setIsLoading(false); })
+      .catch(() => setIsLoading(false));
+  }, []);
+
+  const set = (key: string, value: string) => setSettings((prev) => ({ ...prev, [key]: value }));
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settings),
+      });
+      if (!res.ok) throw new Error();
+      showToast('Paramètres sauvegardés !');
+    } catch {
+      showToast('Erreur lors de la sauvegarde', 'destructive');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const sections = [
+    { id: 'hero', label: '🏠 Accueil (Hero)' },
+    { id: 'contact', label: '📞 Contact' },
+    { id: 'social', label: '🌐 Réseaux Sociaux' },
+    { id: 'story', label: '✨ Notre Histoire' },
+    { id: 'reassurance', label: '🛡️ Réassurance' },
+    { id: 'seo', label: '🔍 SEO' },
+  ];
+
+  const Field = ({ label, k, placeholder, textarea }: { label: string; k: string; placeholder?: string; textarea?: boolean }) => (
+    <div className="space-y-1.5">
+      <label className="text-xs font-medium text-[#8C8C8C] uppercase tracking-wider">{label}</label>
+      {textarea ? (
+        <Textarea
+          value={settings[k] || ''}
+          onChange={(e) => set(k, e.target.value)}
+          placeholder={placeholder}
+          className="bg-white border-[#E8E0D5] rounded-none font-sans text-sm min-h-[100px]"
+        />
+      ) : (
+        <Input
+          value={settings[k] || ''}
+          onChange={(e) => set(k, e.target.value)}
+          placeholder={placeholder}
+          className="bg-white border-[#E8E0D5] rounded-none font-sans text-sm h-10"
+        />
+      )}
+    </div>
+  );
+
+  if (isLoading) return <div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-2 border-[#D4AF37] border-t-transparent rounded-full animate-spin" /></div>;
+
+  return (
+    <motion.div key="settings" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="font-serif text-2xl text-[#1A1A1A]">Paramètres du Site</h2>
+        <Button onClick={handleSave} disabled={isSaving} className="bg-[#1A1A1A] hover:bg-[#1A1A1A]/90 text-white rounded-none font-sans text-xs uppercase tracking-wider h-10 px-6">
+          <Save className="w-4 h-4 mr-2" />
+          {isSaving ? 'Sauvegarde...' : 'Sauvegarder tout'}
+        </Button>
+      </div>
+
+      {/* Section Nav */}
+      <div className="flex flex-wrap gap-2 mb-8 border-b border-[#E8E0D5] pb-4">
+        {sections.map((s) => (
+          <button
+            key={s.id}
+            onClick={() => setActiveSection(s.id)}
+            className={`px-4 py-2 text-sm font-medium rounded-sm transition-colors ${activeSection === s.id ? 'bg-[#1A1A1A] text-white' : 'bg-white border border-[#E8E0D5] text-[#8C8C8C] hover:text-[#1A1A1A]'}`}
+          >
+            {s.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="space-y-6 max-w-2xl">
+        {/* Hero */}
+        {activeSection === 'hero' && (
+          <>
+            <Field label="Logo (URL de l'image)" k="logo_url" placeholder="/logo-gold.jpg" />
+            <Field label="Titre ligne 1" k="hero_title" placeholder="L'Art du Parfum," />
+            <Field label="Titre ligne 2 (accent doré)" k="hero_title_accent" placeholder="l'Essence du Naturel" />
+            <Field label="Sous-titre" k="hero_subtitle" textarea placeholder="Décrivez votre marque..." />
+            <Field label="Bouton principal (CTA)" k="hero_cta_primary" placeholder="Acheter maintenant" />
+            <Field label="Bouton secondaire" k="hero_cta_secondary" placeholder="Découvrir la collection" />
+            <Field label="Image de fond Hero (URL)" k="hero_image_url" placeholder="/images/hero/hero-main.png" />
+          </>
+        )}
+
+        {/* Contact */}
+        {activeSection === 'contact' && (
+          <>
+            <Field label="Numéro WhatsApp (sans +)" k="whatsapp_number" placeholder="221778757474" />
+            <Field label="Message WhatsApp pré-rempli" k="whatsapp_message" textarea placeholder="Bonjour ! J'aimerais..." />
+            <Field label="Téléphone principal" k="phone_primary" placeholder="+221 77 875 74 74 (WhatsApp)" />
+            <Field label="Téléphone de secours" k="phone_backup" placeholder="+212 601 13 45 45" />
+            <Field label="Email" k="email" placeholder="contact@hb-service.com" />
+            <Field label="Adresse" k="address" placeholder="Dakar, Sénégal" />
+            <Field label="Tagline de la marque (footer)" k="brand_tagline" textarea placeholder="Parfums & Soins Naturels Premium..." />
+            <Field label="Texte copyright" k="copyright_text" placeholder="HB_Service. Tous droits réservés." />
+          </>
+        )}
+
+        {/* Social */}
+        {activeSection === 'social' && (
+          <>
+            <Field label="Lien Instagram" k="instagram_url" placeholder="https://instagram.com/hb_service" />
+            <Field label="Lien Facebook" k="facebook_url" placeholder="https://facebook.com/hb_service" />
+            <Field label="Lien TikTok" k="tiktok_url" placeholder="https://tiktok.com/@hb_service" />
+          </>
+        )}
+
+        {/* Storytelling */}
+        {activeSection === 'story' && (
+          <>
+            <p className="text-xs text-[#8C8C8C] bg-[#F8F7F5] p-3 rounded-sm">Ces textes apparaissent dans la section "Notre Histoire" de l'accueil et sur la page complète Notre Histoire.</p>
+            <Field label="Bouton CTA 'Notre Histoire'" k="story_cta_label" placeholder="En savoir plus" />
+            <div className="border-t border-[#E8E0D5] pt-4"><p className="font-medium text-sm mb-4">Bloc 1</p>
+              <Field label="Titre" k="story_1_title" placeholder="Notre Histoire" />
+              <Field label="Texte" k="story_1_text" textarea placeholder="Née de la passion..." />
+              <Field label="Image (URL)" k="story_1_image" placeholder="/images/brand/savoir-faire.png" />
+            </div>
+            <div className="border-t border-[#E8E0D5] pt-4"><p className="font-medium text-sm mb-4">Bloc 2</p>
+              <Field label="Titre" k="story_2_title" placeholder="Notre Savoir-Faire" />
+              <Field label="Texte" k="story_2_text" textarea placeholder="Nos parfumeurs..." />
+              <Field label="Image (URL)" k="story_2_image" placeholder="/images/brand/savoir-faire.png" />
+            </div>
+            <div className="border-t border-[#E8E0D5] pt-4"><p className="font-medium text-sm mb-4">Bloc 3</p>
+              <Field label="Titre" k="story_3_title" placeholder="Nos Engagements" />
+              <Field label="Texte" k="story_3_text" textarea placeholder="Nous croyons..." />
+              <Field label="Image (URL)" k="story_3_image" placeholder="/images/brand/savoir-faire.png" />
+            </div>
+            <div className="border-t border-[#E8E0D5] pt-4"><p className="font-medium text-sm mb-4">Bloc 4 (page Notre Histoire)</p>
+              <Field label="Titre" k="story_4_title" placeholder="Nos Ingrédients" />
+              <Field label="Texte" k="story_4_text" textarea placeholder="De l'oud du Cambodge..." />
+              <Field label="Image (URL)" k="story_4_image" placeholder="/images/brand/savoir-faire.png" />
+            </div>
+            <div className="border-t border-[#E8E0D5] pt-4"><p className="font-medium text-sm mb-4">Page Notre Histoire — Hero</p>
+              <Field label="Titre" k="storytelling_hero_title" placeholder="Notre Histoire," />
+              <Field label="Titre accent (doré)" k="storytelling_hero_title_accent" placeholder="Notre Passion" />
+              <Field label="Sous-titre" k="storytelling_hero_subtitle" textarea placeholder="Depuis sa création..." />
+              <Field label="Valeurs (séparées par des virgules)" k="storytelling_values" placeholder="Qualité,Authenticité,Élégance,Confiance" />
+            </div>
+          </>
+        )}
+
+        {/* Reassurance */}
+        {activeSection === 'reassurance' && (
+          <>
+            <Field label="Chiffre clé (ex: '2 500+ Clients Satisfaits')" k="reassurance_headline" placeholder="2 500+ Clients Satisfaits" />
+            <Field label="Sous-texte rating" k="reassurance_rating" placeholder="Note moyenne de 4.8/5 basée sur les avis clients" />
+            <div className="border-t border-[#E8E0D5] pt-4"><p className="font-medium text-sm mb-4">Bloc 1</p>
+              <Field label="Titre" k="reassurance_1_label" placeholder="Livraison Rapide" />
+              <Field label="Description" k="reassurance_1_desc" placeholder="Sous 48h à Dakar" />
+            </div>
+            <div className="border-t border-[#E8E0D5] pt-4"><p className="font-medium text-sm mb-4">Bloc 2</p>
+              <Field label="Titre" k="reassurance_2_label" placeholder="Paiement à la Livraison" />
+              <Field label="Description" k="reassurance_2_desc" placeholder="Zéro risque" />
+            </div>
+            <div className="border-t border-[#E8E0D5] pt-4"><p className="font-medium text-sm mb-4">Bloc 3</p>
+              <Field label="Titre" k="reassurance_3_label" placeholder="Support WhatsApp" />
+              <Field label="Description" k="reassurance_3_desc" placeholder="Conseil personnalisé" />
+            </div>
+            <Field label="Titre de la section Collections" k="collections_section_title" placeholder="Nos Collections" />
+            <Field label="Label bouton collection" k="collections_cta_label" placeholder="Explorer" />
+          </>
+        )}
+
+        {/* SEO */}
+        {activeSection === 'seo' && (
+          <>
+            <Field label="Titre du site (balise title)" k="seo_title" placeholder="HB_Service — Parfums & Soins Naturels Premium" />
+            <Field label="Meta description" k="seo_description" textarea placeholder="Découvrez des créations olfactives d'exception..." />
+          </>
+        )}
+
+        <div className="pt-6 border-t border-[#E8E0D5]">
+          <Button onClick={handleSave} disabled={isSaving} className="bg-[#1A1A1A] hover:bg-[#1A1A1A]/90 text-white rounded-none font-sans text-xs uppercase tracking-wider h-10 px-6">
+            <Save className="w-4 h-4 mr-2" />
+            {isSaving ? 'Sauvegarde...' : 'Sauvegarder'}
+          </Button>
+        </div>
+      </div>
     </motion.div>
   );
 }

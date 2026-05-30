@@ -2,23 +2,27 @@
 
 import { motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
-import Image from 'next/image';
 import { useNavigationStore } from '@/lib/store';
 import { Button } from '@/components/ui/button';
+import type { SiteSettingsMap } from '@/lib/settings';
 
-export default function HeroSection() {
+export default function HeroSection({ settings = {} }: { settings?: SiteSettingsMap }) {
   const { navigate } = useNavigationStore();
+
+  const heroImage = settings.hero_image_url || '/images/hero/hero-main.png';
+  const title = settings.hero_title || "L'Art du Parfum,";
+  const titleAccent = settings.hero_title_accent || "l'Essence du Naturel";
+  const subtitle = settings.hero_subtitle || "Découvrez des créations olfactives d'exception, nées du savoir-faire africain et de la pureté des ingrédients naturels.";
+  const ctaPrimary = settings.hero_cta_primary || 'Acheter maintenant';
+  const ctaSecondary = settings.hero_cta_secondary || 'Découvrir la collection';
 
   return (
     <section className="relative h-screen min-h-[500px] sm:min-h-[600px] max-h-[1000px] flex items-center justify-center overflow-hidden">
       {/* Background Image */}
-      <Image
-        src="/images/hero/hero-main.png"
+      <img
+        src={heroImage}
         alt="HB_Service — Parfums & Soins Naturels Premium"
-        fill
-        className="object-cover"
-        priority
-        sizes="100vw"
+        className="absolute inset-0 w-full h-full object-cover"
       />
 
       {/* Dark Overlay */}
@@ -32,9 +36,9 @@ export default function HeroSection() {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
           className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl text-white leading-tight mb-4 sm:mb-6"
         >
-          L&apos;Art du Parfum,
+          {title}
           <br />
-          <span className="text-[#D4AF37]">l&apos;Essence du Naturel</span>
+          <span className="text-[#D4AF37]">{titleAccent}</span>
         </motion.h1>
 
         <motion.p
@@ -43,8 +47,7 @@ export default function HeroSection() {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.4 }}
           className="font-sans text-sm sm:text-base md:text-lg text-white/80 max-w-2xl mx-auto mb-6 sm:mb-10 leading-relaxed"
         >
-          Découvrez des créations olfactives d&apos;exception, nées du savoir-faire
-          africain et de la pureté des ingrédients naturels.
+          {subtitle}
         </motion.p>
 
         <motion.div
@@ -57,14 +60,14 @@ export default function HeroSection() {
             onClick={() => navigate('shop')}
             className="w-full sm:w-auto bg-[#D4AF37] hover:bg-[#B8962E] text-[#1A1A1A] font-sans text-xs sm:text-sm tracking-widest uppercase px-6 sm:px-8 py-3.5 sm:py-4 h-auto rounded-none border-none"
           >
-            Acheter maintenant
+            {ctaPrimary}
           </Button>
           <Button
             onClick={() => navigate('shop', { collectionSlug: 'signature' })}
             variant="outline"
             className="w-full sm:w-auto border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#1A1A1A] font-sans text-xs sm:text-sm tracking-widest uppercase px-6 sm:px-8 py-3.5 sm:py-4 h-auto rounded-none bg-transparent"
           >
-            Découvrir la collection
+            {ctaSecondary}
           </Button>
         </motion.div>
       </div>

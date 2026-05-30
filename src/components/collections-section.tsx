@@ -15,9 +15,13 @@ interface Collection {
   sortOrder: number;
 }
 
-export default function CollectionsSection() {
+import type { SiteSettingsMap } from '@/lib/settings';
+
+export default function CollectionsSection({ settings = {} }: { settings?: SiteSettingsMap }) {
   const [collections, setCollections] = useState<Collection[]>([]);
   const { navigate } = useNavigationStore();
+  const sectionTitle = settings.collections_section_title || 'Nos Collections';
+  const ctaLabel = settings.collections_cta_label || 'Explorer';
 
   useEffect(() => {
     fetch('/api/collections')
@@ -40,7 +44,7 @@ export default function CollectionsSection() {
           className="text-center mb-12 lg:mb-16"
         >
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-foreground mb-4">
-            Nos Collections
+            {sectionTitle}
           </h2>
           <div className="w-16 h-[1px] bg-[#D4AF37] mx-auto" />
         </motion.div>
@@ -83,7 +87,7 @@ export default function CollectionsSection() {
                     {collection.description}
                   </p>
                   <span className="inline-block font-sans text-xs tracking-widest uppercase text-[#D4AF37] border-b border-[#D4AF37] pb-0.5">
-                    Explorer
+                    {ctaLabel}
                   </span>
                 </div>
               </div>

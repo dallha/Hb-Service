@@ -3,12 +3,24 @@
 import { MessageCircle, Instagram, Facebook, Mail, MapPin, Phone } from 'lucide-react';
 import { useNavigationStore } from '@/lib/store';
 import { usePathname } from 'next/navigation';
+import type { SiteSettingsMap } from '@/lib/settings';
 
-export default function Footer() {
+export default function Footer({ settings = {} }: { settings?: SiteSettingsMap }) {
   const { navigate } = useNavigationStore();
   const pathname = usePathname();
 
   if (pathname?.includes('/admin')) return null;
+
+  const logoUrl = settings.logo_url || '/logo-gold.jpg';
+  const tagline = settings.brand_tagline || "Parfums & Soins Naturels Premium. Des créations olfactives d'exception, nées du savoir-faire africain.";
+  const whatsappNumber = settings.whatsapp_number || '221778757474';
+  const phonePrimary = settings.phone_primary || '+221 77 875 74 74 (WhatsApp)';
+  const phoneBackup = settings.phone_backup || '+212 601 13 45 45';
+  const email = settings.email || 'contact@hb-service.com';
+  const address = settings.address || 'Dakar, Sénégal';
+  const instagramUrl = settings.instagram_url || '#';
+  const facebookUrl = settings.facebook_url || '#';
+  const copyright = settings.copyright_text || 'HB_Service. Tous droits réservés.';
 
   return (
     <footer className="bg-card text-card-foreground mt-auto">
@@ -17,17 +29,16 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <img
-              src="/logo-gold.jpg"
+              src={logoUrl}
               alt="HB Service"
               className="h-12 w-12 sm:h-14 sm:w-14 object-cover rounded-full mb-6"
             />
             <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-              Parfums & Soins Naturels Premium. Des créations olfactives
-              d&apos;exception, nées du savoir-faire africain.
+              {tagline}
             </p>
             <div className="flex items-center gap-4">
               <a
-                href="https://wa.me/212601134545"
+                href={`https://wa.me/${whatsappNumber}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 flex items-center justify-center border border-muted-foreground/30 hover:border-accent hover:text-accent transition-colors rounded-none"
@@ -36,14 +47,18 @@ export default function Footer() {
                 <MessageCircle className="w-4 h-4" />
               </a>
               <a
-                href="#"
+                href={instagramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-9 h-9 flex items-center justify-center border border-muted-foreground/30 hover:border-accent hover:text-accent transition-colors rounded-none"
                 aria-label="Instagram"
               >
                 <Instagram className="w-4 h-4" />
               </a>
               <a
-                href="#"
+                href={facebookUrl}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-9 h-9 flex items-center justify-center border border-muted-foreground/30 hover:border-accent hover:text-accent transition-colors rounded-none"
                 aria-label="Facebook"
               >
@@ -54,9 +69,7 @@ export default function Footer() {
 
           {/* Navigation */}
           <div>
-            <h4 className="font-sans text-xs tracking-widest uppercase text-accent mb-6">
-              Navigation
-            </h4>
+            <h4 className="font-sans text-xs tracking-widest uppercase text-accent mb-6">Navigation</h4>
             <ul className="space-y-3">
               {[
                 { label: 'Accueil', view: 'home' as const },
@@ -77,9 +90,7 @@ export default function Footer() {
 
           {/* Collections */}
           <div>
-            <h4 className="font-sans text-xs tracking-widest uppercase text-accent mb-6">
-              Collections
-            </h4>
+            <h4 className="font-sans text-xs tracking-widest uppercase text-accent mb-6">Collections</h4>
             <ul className="space-y-3">
               {[
                 { label: 'Collection Signature', slug: 'signature' },
@@ -100,26 +111,24 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="font-sans text-xs tracking-widest uppercase text-accent mb-6">
-              Contact
-            </h4>
+            <h4 className="font-sans text-xs tracking-widest uppercase text-accent mb-6">Contact</h4>
             <ul className="space-y-3">
               <li className="flex items-center gap-3 text-sm text-muted-foreground">
                 <MapPin className="w-4 h-4 text-accent shrink-0" />
-                Dakar, Sénégal
+                {address}
               </li>
               <li className="flex flex-col gap-1 text-sm text-muted-foreground">
                 <div className="flex items-center gap-3">
                   <Phone className="w-4 h-4 text-accent shrink-0" />
-                  +221 77 875 74 74 (WhatsApp)
+                  {phonePrimary}
                 </div>
-                <div className="pl-7 text-xs opacity-80">
-                  Secours: +212 601 13 45 45
-                </div>
+                {phoneBackup && (
+                  <div className="pl-7 text-xs opacity-80">Secours: {phoneBackup}</div>
+                )}
               </li>
               <li className="flex items-center gap-3 text-sm text-muted-foreground">
                 <Mail className="w-4 h-4 text-accent shrink-0" />
-                contact@hb-service.com
+                {email}
               </li>
             </ul>
           </div>
@@ -128,7 +137,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-muted-foreground/20 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} HB_Service. Tous droits réservés.
+            &copy; {new Date().getFullYear()} {copyright}
           </p>
         </div>
       </div>

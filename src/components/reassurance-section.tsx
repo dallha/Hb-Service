@@ -3,23 +3,15 @@
 import { motion } from 'framer-motion';
 import { Truck, Shield, MessageCircle, Star } from 'lucide-react';
 
-export default function ReassuranceSection() {
+import type { SiteSettingsMap } from '@/lib/settings';
+
+export default function ReassuranceSection({ settings = {} }: { settings?: SiteSettingsMap }) {
+  const headline = settings.reassurance_headline || '2 500+ Clients Satisfaits';
+  const rating = settings.reassurance_rating || 'Note moyenne de 4.8/5 basée sur les avis clients';
   const reassuranceItems = [
-    {
-      icon: Truck,
-      label: 'Livraison Rapide',
-      desc: 'Sous 48h à Dakar',
-    },
-    {
-      icon: Shield,
-      label: 'Paiement à la Livraison',
-      desc: 'Zéro risque',
-    },
-    {
-      icon: MessageCircle,
-      label: 'Support WhatsApp',
-      desc: 'Conseil personnalisé',
-    },
+    { icon: Truck, label: settings.reassurance_1_label || 'Livraison Rapide', desc: settings.reassurance_1_desc || 'Sous 48h à Dakar' },
+    { icon: Shield, label: settings.reassurance_2_label || 'Paiement à la Livraison', desc: settings.reassurance_2_desc || 'Zéro risque' },
+    { icon: MessageCircle, label: settings.reassurance_3_label || 'Support WhatsApp', desc: settings.reassurance_3_desc || 'Conseil personnalisé' },
   ];
 
   return (
@@ -34,7 +26,7 @@ export default function ReassuranceSection() {
           className="text-center mb-12"
         >
           <p className="font-serif text-3xl sm:text-4xl text-foreground mb-2">
-            2 500+ Clients Satisfaits
+            {headline}
           </p>
           <div className="flex items-center justify-center gap-1 mt-3">
             {[1, 2, 3, 4, 5].map((i) => (
@@ -45,7 +37,7 @@ export default function ReassuranceSection() {
             ))}
           </div>
           <p className="font-sans text-sm text-muted-foreground mt-2">
-            Note moyenne de 4.8/5 basée sur les avis clients
+            {rating}
           </p>
         </motion.div>
 
