@@ -336,7 +336,7 @@ export default function AdminDashboardClient() {
     r.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     r.product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (r.comment || '').toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  ), [reviews, searchQuery]);
 
   const filteredPromos = React.useMemo(() => promos.filter((p) =>
     p.code.toLowerCase().includes(searchQuery.toLowerCase())
