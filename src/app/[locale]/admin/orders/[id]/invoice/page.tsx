@@ -79,7 +79,7 @@ export default async function InvoicePage(props: {
               <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#1A1A1A] mb-1">HB_Service</h1>
               <p className="text-gray-500 text-xs sm:text-sm">Parfums de Luxe & Cosmétiques</p>
               <p className="text-gray-500 text-xs sm:text-sm">contact@hb-service.com</p>
-              <p className="text-gray-500 text-xs sm:text-sm">+212 601 13 45 45</p>
+              <p className="text-gray-500 text-xs sm:text-sm">+221 77 875 74 74</p>
             </div>
             <div className="text-left sm:text-right w-full sm:w-auto">
               <h2 className="font-serif text-3xl sm:text-4xl text-gray-200 uppercase tracking-widest mb-4">Facture</h2>
@@ -145,7 +145,7 @@ export default async function InvoicePage(props: {
 
           <div className="mt-20 pt-8 border-t border-gray-200 text-center text-sm text-gray-500">
             <p className="mb-1">Merci pour votre confiance !</p>
-            <p>Pour toute question concernant cette facture, veuillez contacter notre support sur WhatsApp au +212 601 13 45 45.</p>
+            <p>Pour toute question concernant cette facture, veuillez contacter notre support sur WhatsApp au +221 77 875 74 74 (Secours: +212 601 13 45 45).</p>
           </div>
         </div>
       </div>

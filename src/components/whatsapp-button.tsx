@@ -17,7 +17,7 @@ export function WhatsAppButton() {
   if (pathname?.includes('/admin')) return null;
 
   // WhatsApp number
-  const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '212601134545';
+  const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '221778757474';
   const defaultMessage = encodeURIComponent("Bonjour ! J'aimerais avoir plus d'informations sur vos parfums.");
 
   return (

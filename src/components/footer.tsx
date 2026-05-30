@@ -108,9 +108,14 @@ export default function Footer() {
                 <MapPin className="w-4 h-4 text-accent shrink-0" />
                 Dakar, Sénégal
               </li>
-              <li className="flex items-center gap-3 text-sm text-muted-foreground">
-                <Phone className="w-4 h-4 text-accent shrink-0" />
-                +212 601 13 45 45
+              <li className="flex flex-col gap-1 text-sm text-muted-foreground">
+                <div className="flex items-center gap-3">
+                  <Phone className="w-4 h-4 text-accent shrink-0" />
+                  +221 77 875 74 74 (WhatsApp)
+                </div>
+                <div className="pl-7 text-xs opacity-80">
+                  Secours: +212 601 13 45 45
+                </div>
               </li>
               <li className="flex items-center gap-3 text-sm text-muted-foreground">
                 <Mail className="w-4 h-4 text-accent shrink-0" />

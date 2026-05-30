@@ -65,7 +65,7 @@ export const OrderConfirmationEmail = ({
           </Section>
 
           <Text style={footer}>
-            Si vous avez des questions, n'hésitez pas à nous contacter sur WhatsApp au +212 601 13 45 45.
+            Si vous avez des questions, n'hésitez pas à nous contacter sur WhatsApp au +221 77 875 74 74.
             <br />
             L'équipe HB_Service
           </Text>
