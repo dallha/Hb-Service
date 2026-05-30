@@ -73,3 +73,38 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: 'Failed to update user' }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request) {
+  const admin = await requireAdmin();
+  if (!admin) {
+    return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
+  }
+
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: 'ID required' }, { status: 400 });
+    }
+
+    if (admin.id === id) {
+      return NextResponse.json(
+        { error: 'Vous ne pouvez pas supprimer votre propre compte administrateur' },
+        { status: 400 }
+      );
+    }
+
+    // Since we use Supabase Auth, deleting from Prisma doesn't delete from Supabase Auth automatically.
+    // However, keeping Prisma clean is the goal here. The user won't be able to login if we also delete them from Supabase, but we don't have the service_role key to delete from Auth.
+    // So we just delete from Prisma Database.
+    await db.user.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('User delete error:', error);
+    return NextResponse.json({ error: 'Failed to delete user' }, { status: 500 });
+  }
+}

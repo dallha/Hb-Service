@@ -2538,16 +2538,19 @@ function UsersTab({ users, searchQuery, setSearchQuery, onRefresh, showToast }: 
   const handleToggleRole = async (userId: string, currentRole: string) => {
     setProcessing(userId);
     try {
-      const res = await fetch(`/api/users/role`, {
+      const res = await fetch(`/api/users`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, role: currentRole === 'ADMIN' ? 'USER' : 'ADMIN' }),
+        body: JSON.stringify({ id: userId, role: currentRole === 'ADMIN' ? 'USER' : 'ADMIN' }),
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Erreur inconnue');
+      }
       showToast('Rôle mis à jour');
       onRefresh();
-    } catch {
-      showToast('Erreur lors de la mise à jour', 'destructive');
+    } catch (error: any) {
+      showToast(error.message || 'Erreur lors de la mise à jour', 'destructive');
     } finally {
       setProcessing(null);
     }
@@ -2615,6 +2618,32 @@ function UsersTab({ users, searchQuery, setSearchQuery, onRefresh, showToast }: 
                         title={user.role === 'ADMIN' ? 'Retirer les droits Admin' : 'Donner les droits Admin'}
                       >
                         {user.role === 'ADMIN' ? 'Rétrograder' : 'Promouvoir'}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={processing === user.id}
+                        onClick={async () => {
+                          if (!confirm('Voulez-vous vraiment supprimer cet utilisateur ? Cette action est irréversible.')) return;
+                          setProcessing(user.id);
+                          try {
+                            const res = await fetch(`/api/users?id=${user.id}`, { method: 'DELETE' });
+                            if (!res.ok) {
+                              const err = await res.json();
+                              throw new Error(err.error || 'Erreur inconnue');
+                            }
+                            showToast('Utilisateur supprimé');
+                            onRefresh();
+                          } catch (e: any) {
+                            showToast(e.message || 'Erreur lors de la suppression', 'destructive');
+                          } finally {
+                            setProcessing(null);
+                          }
+                        }}
+                        className="h-8 w-8 p-0 text-[#8C8C8C] hover:text-[#C44536] hover:bg-[#C44536]/10"
+                        title="Supprimer l'utilisateur"
+                      >
+                        <Trash2 className="w-4 h-4" />
                       </Button>
                     </td>
                   </tr>

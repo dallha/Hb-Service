@@ -75,6 +75,9 @@ export default function LoginPage() {
       setIsLoading(false);
       toast.info('Veuillez entrer votre code à 6 chiffres (MFA)');
     } else {
+      // Sync user with Prisma just in case they don't exist
+      await fetch('/api/users/sync-me', { method: 'POST' }).catch(() => {});
+      
       toast.success('Connexion réussie !');
       router.push(redirectTo);
       router.refresh();
@@ -95,6 +98,9 @@ export default function LoginPage() {
       toast.error("Code incorrect. Veuillez réessayer.");
       setIsLoading(false);
     } else {
+      // Sync user with Prisma just in case they don't exist
+      await fetch('/api/users/sync-me', { method: 'POST' }).catch(() => {});
+
       toast.success('Authentification MFA réussie !');
       router.push(redirectTo);
       router.refresh();
