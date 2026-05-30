@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, Menu, X, MessageCircle, Moon, Sun } from 'lucide-react';
 import { useCartStore, useNavigationStore } from '@/lib/store';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useTheme } from '@/hooks/use-theme';
 import { Button } from '@/components/ui/button';
 
@@ -13,6 +13,7 @@ const navLinks = [
   { label: 'Boutique', view: 'shop' as const },
   { label: 'Collections', view: 'shop' as const, params: {} },
   { label: 'Notre Histoire', view: 'storytelling' as const },
+  { label: 'Journal', view: 'journal' as const },
 ];
 
 export default function Header() {
@@ -23,6 +24,9 @@ export default function Header() {
   const { navigate } = useNavigationStore();
   const { isDark, toggle, mounted } = useTheme();
   const totalItems = getTotalItems();
+  const router = useRouter();
+  const pathname = usePathname();
+  const isSubpage = pathname?.includes('/journal') || pathname?.includes('/admin');
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -30,12 +34,20 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleNav = (view: 'home' | 'shop' | 'storytelling' | 'dashboard') => {
-    navigate(view);
+  const handleNav = (view: string) => {
+    if (view === 'journal') {
+      router.push('/fr/journal');
+      setMobileMenuOpen(false);
+      return;
+    }
+    
+    if (isSubpage) {
+      router.push('/');
+    } else {
+      navigate(view as any);
+    }
     setMobileMenuOpen(false);
   };
-
-  const router = useRouter();
 
   // Secret access: double-click on logo to open admin
   const handleLogoClick = () => {
@@ -44,6 +56,8 @@ export default function Header() {
     if (newCount >= 2) {
       setClickCount(0);
       router.push('/admin');
+    } else if (isSubpage && newCount === 1) {
+      router.push('/');
     }
     setTimeout(() => setClickCount(0), 500);
   };

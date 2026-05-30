@@ -7,7 +7,7 @@ import {
   Plus, Pencil, Trash2, X, Save, Search, Eye, ChevronDown,
   LayoutGrid, FolderOpen, ClipboardList, BarChart3, Upload,
   AlertTriangle, Users, Shield, ShieldCheck, Star, CheckCircle,
-  Ticket, Menu, LogOut, Download, Copy, Printer, FileText,
+  Ticket, Menu, LogOut, Download, Copy, Printer, FileText, BookOpen,
 } from 'lucide-react';
 import { useNavigationStore } from '@/lib/store';
 import { formatPrice } from '@/lib/format';
@@ -137,7 +137,19 @@ interface AdminPromoCode {
   createdAt: string;
 }
 
-type AdminTab = 'analytics' | 'products' | 'collections' | 'orders' | 'invoices' | 'users' | 'reviews' | 'promos';
+interface AdminPost {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt: string | null;
+  coverImage: string | null;
+  published: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+type AdminTab = 'analytics' | 'products' | 'collections' | 'orders' | 'invoices' | 'users' | 'reviews' | 'promos' | 'posts';
 
 // ─── Status Helpers ─────────────────────────────────────────────
 
@@ -199,6 +211,7 @@ export default function AdminDashboardClient() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [reviews, setReviews] = useState<AdminReview[]>([]);
   const [promos, setPromos] = useState<AdminPromoCode[]>([]);
+  const [posts, setPosts] = useState<AdminPost[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const { navigate } = useNavigationStore();
@@ -255,6 +268,13 @@ export default function AdminDashboardClient() {
       .catch(console.error);
   }, []);
 
+  const fetchPosts = useCallback(() => {
+    fetch('/api/posts')
+      .then((r) => r.json())
+      .then(setPosts)
+      .catch(console.error);
+  }, []);
+
   useEffect(() => {
     const loadAll = async () => {
       setLoading(true);
@@ -266,11 +286,12 @@ export default function AdminDashboardClient() {
         fetchUsers(),
         fetchReviews(),
         fetchPromos(),
+        fetchPosts(),
       ]);
       setLoading(false);
     };
     loadAll();
-  }, [fetchAnalytics, fetchProducts, fetchCollections, fetchOrders, fetchUsers, fetchReviews, fetchPromos]);
+  }, [fetchAnalytics, fetchProducts, fetchCollections, fetchOrders, fetchUsers, fetchReviews, fetchPromos, fetchPosts]);
 
   // ─── Toast Helper ───────────────────────────────────────────
 
@@ -317,6 +338,11 @@ export default function AdminDashboardClient() {
     p.code.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const filteredPosts = posts.filter((p) =>
+    p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    p.slug.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   // ─── Tabs Config ────────────────────────────────────────────
 
   const tabs: { id: AdminTab; label: string; icon: React.ElementType }[] = [
@@ -328,6 +354,7 @@ export default function AdminDashboardClient() {
     { id: 'users', label: 'Équipe', icon: Users },
     { id: 'reviews', label: 'Avis', icon: Star },
     { id: 'promos', label: 'Codes Promo', icon: Ticket },
+    { id: 'posts', label: 'Journal', icon: BookOpen },
   ];
 
   return (
@@ -511,6 +538,15 @@ export default function AdminDashboardClient() {
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
                 onRefresh={fetchPromos}
+                showToast={showToast}
+              />
+            )}
+            {activeTab === 'posts' && (
+              <PostsTab
+                posts={filteredPosts}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                onRefresh={fetchPosts}
                 showToast={showToast}
               />
             )}
@@ -2592,4 +2628,265 @@ function UsersTab({ users, searchQuery, setSearchQuery, onRefresh, showToast }: 
   );
 }
 
+// ─── Posts Tab ──────────────────────────────────────────────────
 
+function PostsTab({ posts, searchQuery, setSearchQuery, onRefresh, showToast }: {
+  posts: AdminPost[];
+  searchQuery: string;
+  setSearchQuery: (q: string) => void;
+  onRefresh: () => void;
+  showToast: any;
+}) {
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [editingPost, setEditingPost] = useState<AdminPost | null>(null);
+  const [formData, setFormData] = useState<Partial<AdminPost>>({
+    title: '',
+    slug: '',
+    content: '',
+    excerpt: '',
+    coverImage: '',
+    published: false,
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const resetForm = () => {
+    setFormData({
+      title: '',
+      slug: '',
+      content: '',
+      excerpt: '',
+      coverImage: '',
+      published: false,
+    });
+    setEditingPost(null);
+  };
+
+  const handleEdit = (post: AdminPost) => {
+    setEditingPost(post);
+    setFormData({
+      title: post.title,
+      slug: post.slug,
+      content: post.content,
+      excerpt: post.excerpt,
+      coverImage: post.coverImage,
+      published: post.published,
+    });
+    setIsSheetOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) return;
+    try {
+      const res = await fetch(`/api/posts/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        showToast('Succès', 'Article supprimé', 'success');
+        onRefresh();
+      } else {
+        showToast('Erreur', 'Échec de la suppression', 'error');
+      }
+    } catch (e) {
+      showToast('Erreur', 'Erreur réseau', 'error');
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!formData.title || !formData.slug || !formData.content) {
+      showToast('Erreur', 'Titre, slug et contenu requis', 'error');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const url = editingPost ? `/api/posts/${editingPost.id}` : '/api/posts';
+      const method = editingPost ? 'PUT' : 'POST';
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (res.ok) {
+        showToast('Succès', editingPost ? 'Article modifié' : 'Article créé', 'success');
+        setIsSheetOpen(false);
+        resetForm();
+        onRefresh();
+      } else {
+        const error = await res.json();
+        showToast('Erreur', error.error || 'Échec de la sauvegarde', 'error');
+      }
+    } catch (e) {
+      showToast('Erreur', 'Erreur réseau', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const generateSlug = (title: string) => {
+    return title.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
+  };
+
+  return (
+    <motion.div
+      key="posts"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="relative w-full max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8C8C8C]" />
+          <Input
+            placeholder="Rechercher un article..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 bg-white border-[#E8E0D5] rounded-none font-sans text-sm h-10"
+          />
+        </div>
+        <Button
+          onClick={() => { resetForm(); setIsSheetOpen(true); }}
+          className="bg-[#1A1A1A] hover:bg-[#1A1A1A]/90 text-white rounded-none w-full sm:w-auto h-10 px-6 font-sans text-xs uppercase tracking-wider"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Nouvel Article
+        </Button>
+      </div>
+
+      <div className="bg-white rounded-md border border-[#E8E0D5] overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-[#F8F7F5] border-b border-[#E8E0D5]">
+                <th className="py-3 px-4 font-sans text-[10px] tracking-wider uppercase text-[#8C8C8C] w-16">Image</th>
+                <th className="py-3 px-4 font-sans text-[10px] tracking-wider uppercase text-[#8C8C8C]">Titre</th>
+                <th className="py-3 px-4 font-sans text-[10px] tracking-wider uppercase text-[#8C8C8C]">Date</th>
+                <th className="py-3 px-4 font-sans text-[10px] tracking-wider uppercase text-[#8C8C8C]">Statut</th>
+                <th className="py-3 px-4 font-sans text-[10px] tracking-wider uppercase text-[#8C8C8C] text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#E8E0D5]">
+              {posts.map(post => (
+                <tr key={post.id} className="hover:bg-[#F8F7F5]/50 transition-colors">
+                  <td className="py-3 px-4">
+                    {post.coverImage ? (
+                      <img src={post.coverImage} alt={post.title} className="w-10 h-10 object-cover rounded-sm border border-[#E8E0D5]" />
+                    ) : (
+                      <div className="w-10 h-10 bg-gray-100 rounded-sm border border-[#E8E0D5] flex items-center justify-center">
+                        <BookOpen className="w-4 h-4 text-gray-400" />
+                      </div>
+                    )}
+                  </td>
+                  <td className="py-3 px-4 font-sans text-sm text-[#1A1A1A] font-medium">{post.title}</td>
+                  <td className="py-3 px-4 font-sans text-sm text-[#8C8C8C]">{new Date(post.createdAt).toLocaleDateString('fr-FR')}</td>
+                  <td className="py-3 px-4">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${post.published ? 'bg-[#4A7C59]/10 text-[#4A7C59]' : 'bg-[#D4A037]/10 text-[#D4A037]'}`}>
+                      {post.published ? 'Publié' : 'Brouillon'}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button variant="ghost" size="sm" onClick={() => handleEdit(post)} className="h-8 w-8 p-0 text-[#8C8C8C] hover:text-[#1A1A1A]">
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => handleDelete(post.id)} className="h-8 w-8 p-0 text-[#8C8C8C] hover:text-[#C44536]">
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+        <SheetContent className="w-full sm:max-w-2xl bg-white border-l border-[#E8E0D5] p-0 font-sans" style={{ maxWidth: '800px' }}>
+          <SheetHeader className="p-6 border-b border-[#E8E0D5]">
+            <SheetTitle className="font-serif text-2xl text-[#1A1A1A]">
+              {editingPost ? 'Modifier l\'article' : 'Nouvel article'}
+            </SheetTitle>
+          </SheetHeader>
+          
+          <div className="p-6 space-y-6 overflow-y-auto h-[calc(100vh-140px)]">
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-[#8C8C8C] uppercase tracking-wider mb-2">Titre</label>
+                <Input
+                  value={formData.title}
+                  onChange={(e) => {
+                    const newTitle = e.target.value;
+                    setFormData({
+                      ...formData,
+                      title: newTitle,
+                      slug: editingPost ? formData.slug : generateSlug(newTitle)
+                    });
+                  }}
+                  className="rounded-none border-[#E8E0D5] focus:border-[#1A1A1A]"
+                  placeholder="Les bienfaits du bois de Oud..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-[#8C8C8C] uppercase tracking-wider mb-2">Slug (URL)</label>
+                <Input
+                  value={formData.slug}
+                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                  className="rounded-none border-[#E8E0D5] focus:border-[#1A1A1A]"
+                  placeholder="les-bienfaits-du-bois-de-oud"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-[#8C8C8C] uppercase tracking-wider mb-2">Image de couverture (URL)</label>
+                <Input
+                  value={formData.coverImage || ''}
+                  onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
+                  className="rounded-none border-[#E8E0D5] focus:border-[#1A1A1A]"
+                  placeholder="https://..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-[#8C8C8C] uppercase tracking-wider mb-2">Extrait (Résumé court)</label>
+                <Textarea
+                  value={formData.excerpt || ''}
+                  onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
+                  className="rounded-none border-[#E8E0D5] focus:border-[#1A1A1A] resize-none h-20"
+                  placeholder="Découvrez pourquoi le bois de Oud est considéré comme l'or noir de la parfumerie..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-[#8C8C8C] uppercase tracking-wider mb-2">Contenu (Texte simple ou Markdown)</label>
+                <Textarea
+                  value={formData.content || ''}
+                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                  className="rounded-none border-[#E8E0D5] focus:border-[#1A1A1A] min-h-[300px] font-mono text-sm"
+                  placeholder="Un parfum millénaire..."
+                />
+              </div>
+
+              <div className="flex items-center justify-between p-4 border border-[#E8E0D5] bg-[#F8F7F5]/50">
+                <span className="text-sm font-medium text-[#1A1A1A]">Publier l'article en ligne</span>
+                <Switch
+                  checked={formData.published}
+                  onCheckedChange={(c) => setFormData({ ...formData, published: c })}
+                />
+              </div>
+            </div>
+          </div>
+
+          <SheetFooter className="p-6 border-t border-[#E8E0D5] bg-white absolute bottom-0 w-full">
+            <Button
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="w-full bg-[#1A1A1A] hover:bg-[#1A1A1A]/90 text-white rounded-none h-12 font-sans text-xs uppercase tracking-wider"
+            >
+              {isSubmitting ? 'Sauvegarde...' : 'Sauvegarder l\'article'}
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+    </motion.div>
+  );
+}
