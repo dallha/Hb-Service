@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/auth-admin';
+import { sendEmail } from '@/lib/email';
+import OrderConfirmationEmail from '@/emails/OrderConfirmation';
+import OrderStatusUpdateEmail from '@/emails/OrderStatusUpdate';
 
 // Valid order statuses
 const VALID_STATUSES = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'] as const;
@@ -163,6 +166,27 @@ export async function POST(request: Request) {
       },
     });
 
+    // Envoyer l'email de confirmation
+    if (order.guestEmail) {
+      const emailElement = OrderConfirmationEmail({
+        orderId: order.id,
+        totalAmount: order.totalAmount,
+        items: order.items.map((item: any) => ({
+          name: item.variant.product.name,
+          size: item.variant.size,
+          quantity: item.quantity,
+          unitPrice: item.variant.price,
+        })),
+      });
+
+      // L'envoi est asynchrone mais on n'attend pas forcément le résultat pour renvoyer la réponse 201
+      sendEmail({
+        to: order.guestEmail,
+        subject: `Confirmation de votre commande #${order.id.slice(-8).toUpperCase()}`,
+        react: emailElement as React.ReactElement,
+      }).catch(err => console.error('Erreur silencieuse envoi email:', err));
+    }
+
     return NextResponse.json(order, { status: 201 });
   } catch (error) {
     console.error('Order creation error:', error);
@@ -250,6 +274,20 @@ export async function PUT(request: Request) {
         payment: true,
       },
     });
+
+    // Envoyer l'e-mail de mise à jour de statut si le statut a changé
+    if (status && updatedOrder?.guestEmail) {
+      const emailElement = OrderStatusUpdateEmail({
+        orderId: updatedOrder.id,
+        status: status,
+      });
+
+      sendEmail({
+        to: updatedOrder.guestEmail,
+        subject: `Mise à jour de votre commande #${updatedOrder.id.slice(-8).toUpperCase()}`,
+        react: emailElement as React.ReactElement,
+      }).catch(err => console.error('Erreur silencieuse envoi email:', err));
+    }
 
     return NextResponse.json(updatedOrder);
   } catch (error) {
