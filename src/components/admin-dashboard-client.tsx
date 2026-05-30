@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   DollarSign, ShoppingCart, Package, TrendingUp, ChevronLeft,
@@ -312,37 +312,37 @@ export default function AdminDashboardClient() {
 
   // ─── Filtered Data ──────────────────────────────────────────
 
-  const filteredProducts = React.useMemo(() => products.filter((p) =>
+  const filteredProducts = useMemo(() => products.filter((p) =>
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (p.slug || '').toLowerCase().includes(searchQuery.toLowerCase())
   ), [products, searchQuery]);
 
-  const filteredCollections = React.useMemo(() => collections.filter((c) =>
+  const filteredCollections = useMemo(() => collections.filter((c) =>
     c.name.toLowerCase().includes(searchQuery.toLowerCase())
   ), [collections, searchQuery]);
 
-  const filteredOrders = React.useMemo(() => orders.filter((o) =>
+  const filteredOrders = useMemo(() => orders.filter((o) =>
     o.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (o.guestEmail || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
     (o.guestPhone || '').toLowerCase().includes(searchQuery.toLowerCase())
   ), [orders, searchQuery]);
 
-  const filteredUsers = React.useMemo(() => users.filter((u) =>
+  const filteredUsers = useMemo(() => users.filter((u) =>
     u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (u.fullName || '').toLowerCase().includes(searchQuery.toLowerCase())
   ), [users, searchQuery]);
 
-  const filteredReviews = React.useMemo(() => reviews.filter((r) =>
+  const filteredReviews = useMemo(() => reviews.filter((r) =>
     r.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     r.product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (r.comment || '').toLowerCase().includes(searchQuery.toLowerCase())
   ), [reviews, searchQuery]);
 
-  const filteredPromos = React.useMemo(() => promos.filter((p) =>
+  const filteredPromos = useMemo(() => promos.filter((p) =>
     p.code.toLowerCase().includes(searchQuery.toLowerCase())
   ), [promos, searchQuery]);
 
-  const filteredPosts = React.useMemo(() => posts.filter((p) =>
+  const filteredPosts = useMemo(() => posts.filter((p) =>
     p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.slug.toLowerCase().includes(searchQuery.toLowerCase())
   ), [posts, searchQuery]);
