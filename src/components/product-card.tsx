@@ -14,7 +14,7 @@ interface ProductCardProps {
     slug: string;
     imageUrl: string | null;
     collection: { name: string; slug: string };
-    variants: { id: string; size: string; price: number; stock: number }[];
+    variants: { id: string; size: string; price: number; compareAtPrice?: number | null; stock: number }[];
     averageRating: number;
     reviewCount: number;
   };
@@ -24,8 +24,15 @@ interface ProductCardProps {
 export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const { navigate } = useNavigationStore();
   const { addItem, openCart } = useCartStore();
+  
+  // Find variant with the minimum price
+  const cheapestVariant = product.variants.reduce((prev, curr) => 
+    (!prev || curr.price < prev.price) ? curr : prev
+  , product.variants[0]);
+
+  const minPrice = cheapestVariant ? cheapestVariant.price : 0;
+  const compareAtPrice = cheapestVariant ? cheapestVariant.compareAtPrice : null;
   const firstVariant = product.variants[0];
-  const minPrice = Math.min(...product.variants.map((v) => v.price));
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -107,8 +114,13 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             </>
           )}
         </div>
-        <p className="font-sans text-xs sm:text-sm text-foreground font-medium">
-          À partir de {formatPrice(minPrice)}
+        <p className="font-sans text-xs sm:text-sm text-foreground font-medium flex items-center gap-2">
+          <span>À partir de {formatPrice(minPrice)}</span>
+          {compareAtPrice && compareAtPrice > minPrice && (
+            <span className="text-muted-foreground line-through text-[10px] sm:text-xs font-normal">
+              {formatPrice(compareAtPrice)}
+            </span>
+          )}
         </p>
       </div>
     </motion.div>

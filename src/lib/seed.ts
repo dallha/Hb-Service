@@ -64,8 +64,8 @@ export async function seedDatabase() {
       isActive: true,
       variants: {
         create: [
-          { size: '50ml', price: 35000, stock: 25, sku: 'SGO-50' },
-          { size: '100ml', price: 55000, stock: 15, sku: 'SGO-100' },
+          { size: '50ml', price: 35000, compareAtPrice: 42000, stock: 25, sku: 'SGO-50' },
+          { size: '100ml', price: 55000, compareAtPrice: 65000, stock: 15, sku: 'SGO-100' },
         ],
       },
     },
@@ -91,7 +91,7 @@ export async function seedDatabase() {
       isActive: true,
       variants: {
         create: [
-          { size: '50ml', price: 45000, stock: 20, sku: 'ONI-50' },
+          { size: '50ml', price: 45000, compareAtPrice: 52000, stock: 20, sku: 'ONI-50' },
           { size: '100ml', price: 75000, stock: 10, sku: 'ONI-100' },
         ],
       },
@@ -118,7 +118,7 @@ export async function seedDatabase() {
       isActive: true,
       variants: {
         create: [
-          { size: '50ml', price: 32000, stock: 30, sku: 'RDS-50' },
+          { size: '50ml', price: 32000, compareAtPrice: 38000, stock: 30, sku: 'RDS-50' },
           { size: '100ml', price: 50000, stock: 18, sku: 'RDS-100' },
         ],
       },
@@ -190,7 +190,7 @@ export async function seedDatabase() {
       isActive: true,
       variants: {
         create: [
-          { size: '30ml', price: 22000, stock: 35, sku: 'ESV-30' },
+          { size: '30ml', price: 22000, compareAtPrice: 28000, stock: 35, sku: 'ESV-30' },
         ],
       },
     },

@@ -47,6 +47,7 @@ interface ProductVariant {
   id: string;
   size: string;
   price: number;
+  compareAtPrice: number | null;
   stock: number;
   sku: string | null;
 }
@@ -768,8 +769,8 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
     name: '', slug: '', description: '', notesOlfactives: '', inspiration: '',
     imageUrl: '', galleryUrls: '', relatedRitualIds: '', collectionId: '', isActive: true,
   });
-  const [formVariants, setFormVariants] = useState<{ size: string; price: number; stock: number; sku: string }[]>([
-    { size: '50ml', price: 0, stock: 0, sku: '' },
+  const [formVariants, setFormVariants] = useState<{ size: string; price: number; compareAtPrice: number | string; stock: number; sku: string }[]>([
+    { size: '50ml', price: 0, compareAtPrice: '', stock: 0, sku: '' },
   ]);
 
   const openCreate = () => {
@@ -779,7 +780,7 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
       name: '', slug: '', description: '', notesOlfactives: '', inspiration: '',
       imageUrl: '', galleryUrls: '', relatedRitualIds: '', collectionId: collections[0]?.id || '', isActive: true,
     });
-    setFormVariants([{ size: '50ml', price: 0, stock: 0, sku: '' }]);
+    setFormVariants([{ size: '50ml', price: 0, compareAtPrice: '', stock: 0, sku: '' }]);
   };
 
   const openEdit = (product: Product) => {
@@ -808,8 +809,8 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
     });
     setFormVariants(
       product.variants.length > 0
-        ? product.variants.map((v) => ({ size: v.size, price: v.price, stock: v.stock, sku: v.sku || '' }))
-        : [{ size: '50ml', price: 0, stock: 0, sku: '' }]
+        ? product.variants.map((v) => ({ size: v.size, price: v.price, compareAtPrice: v.compareAtPrice !== null && v.compareAtPrice !== undefined ? v.compareAtPrice : '', stock: v.stock, sku: v.sku || '' }))
+        : [{ size: '50ml', price: 0, compareAtPrice: '', stock: 0, sku: '' }]
     );
   };
 
@@ -838,6 +839,7 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
       variants: formVariants.filter((v) => v.size && v.price > 0).map((v) => ({
         size: v.size,
         price: v.price,
+        compareAtPrice: v.compareAtPrice !== '' ? Number(v.compareAtPrice) : null,
         stock: v.stock,
         sku: v.sku || null,
       })),
@@ -905,7 +907,7 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
   };
 
   const addVariant = () => {
-    setFormVariants([...formVariants, { size: '', price: 0, stock: 0, sku: '' }]);
+    setFormVariants([...formVariants, { size: '', price: 0, compareAtPrice: '', stock: 0, sku: '' }]);
   };
 
   const removeVariant = (index: number) => {
@@ -1216,7 +1218,7 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
               <div className="space-y-3">
                 {formVariants.map((variant, index) => (
                   <div key={index} className="grid grid-cols-12 gap-2 items-end bg-white p-3 border border-[#E8E0D5]">
-                    <div className="col-span-3">
+                    <div className="col-span-2">
                       <label className="block font-sans text-[9px] tracking-wider uppercase text-[#8C8C8C] mb-1">Taille</label>
                       <Input
                         value={variant.size}
@@ -1225,7 +1227,7 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
                         placeholder="50ml"
                       />
                     </div>
-                    <div className="col-span-3">
+                    <div className="col-span-2">
                       <label className="block font-sans text-[9px] tracking-wider uppercase text-[#8C8C8C] mb-1">Prix FCFA</label>
                       <Input
                         type="number"
@@ -1233,6 +1235,16 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
                         onChange={(e) => updateVariant(index, 'price', Number(e.target.value))}
                         className="border-[#E8E0D5] rounded-none font-sans text-sm h-8"
                         placeholder="35000"
+                      />
+                    </div>
+                    <div className="col-span-3">
+                      <label className="block font-sans text-[9px] tracking-wider uppercase text-[#8C8C8C] mb-1">Prix barré</label>
+                      <Input
+                        type="number"
+                        value={variant.compareAtPrice || ''}
+                        onChange={(e) => updateVariant(index, 'compareAtPrice', e.target.value !== '' ? Number(e.target.value) : '')}
+                        className="border-[#E8E0D5] rounded-none font-sans text-sm h-8"
+                        placeholder="Ex: 45000"
                       />
                     </div>
                     <div className="col-span-2">
@@ -1245,7 +1257,7 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
                         placeholder="25"
                       />
                     </div>
-                    <div className="col-span-3">
+                    <div className="col-span-2">
                       <label className="block font-sans text-[9px] tracking-wider uppercase text-[#8C8C8C] mb-1">SKU</label>
                       <Input
                         value={variant.sku}

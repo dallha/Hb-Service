@@ -107,6 +107,12 @@ export async function POST(request: Request) {
         if (typeof v.price !== 'number' || v.price <= 0) {
           return NextResponse.json({ error: 'Le prix doit être un nombre positif' }, { status: 400 });
         }
+        if (v.compareAtPrice !== undefined && v.compareAtPrice !== null && v.compareAtPrice !== '') {
+          const cap = Number(v.compareAtPrice);
+          if (isNaN(cap) || cap <= 0) {
+            return NextResponse.json({ error: 'Le prix barré doit être un nombre positif' }, { status: 400 });
+          }
+        }
         if (typeof v.stock !== 'number' || v.stock < 0) {
           return NextResponse.json({ error: 'Le stock doit être un nombre positif ou nul' }, { status: 400 });
         }
@@ -132,7 +138,13 @@ export async function POST(request: Request) {
         isActive: isActive !== undefined ? isActive : true,
         collectionId,
         variants: {
-          create: variants || [],
+          create: (variants || []).map((v: any) => ({
+            size: v.size,
+            price: Number(v.price),
+            compareAtPrice: v.compareAtPrice && v.compareAtPrice !== '' ? Number(v.compareAtPrice) : null,
+            stock: Number(v.stock),
+            sku: v.sku || null,
+          })),
         },
       },
       include: {
@@ -176,16 +188,26 @@ export async function PUT(request: Request) {
         if (typeof v.price !== 'number' || v.price <= 0) {
           return NextResponse.json({ error: 'Le prix doit être un nombre positif' }, { status: 400 });
         }
+        if (v.compareAtPrice !== undefined && v.compareAtPrice !== null && v.compareAtPrice !== '') {
+          const cap = Number(v.compareAtPrice);
+          if (isNaN(cap) || cap <= 0) {
+            return NextResponse.json({ error: 'Le prix barré doit être un nombre positif' }, { status: 400 });
+          }
+        }
         if (typeof v.stock !== 'number' || v.stock < 0) {
           return NextResponse.json({ error: 'Le stock doit être un nombre positif ou nul' }, { status: 400 });
         }
       }
-
+ 
       // Delete existing variants and recreate
       await db.productVariant.deleteMany({ where: { productId: id } });
       await db.productVariant.createMany({
-        data: variants.map((v: { size: string; price: number; stock: number; sku?: string }) => ({
-          ...v,
+        data: variants.map((v: any) => ({
+          size: v.size,
+          price: Number(v.price),
+          compareAtPrice: v.compareAtPrice && v.compareAtPrice !== '' ? Number(v.compareAtPrice) : null,
+          stock: Number(v.stock),
+          sku: v.sku || null,
           productId: id,
         })),
       });

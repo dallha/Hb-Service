@@ -88,12 +88,13 @@ model Product {
 }
 
 model ProductVariant {
-  id        String  @id @default(cuid())
-  productId String
-  size      String  // e.g. "50ml", "100ml", "200ml"
-  price     Float   // Price in FCFA
-  stock     Int     @default(0)
-  sku       String? @unique
+  id             String  @id @default(cuid())
+  productId      String
+  size           String  // e.g. "50ml", "100ml", "200ml"
+  price          Float   // Price in FCFA
+  compareAtPrice Float?  // Optional crossed-out price in FCFA
+  stock          Int     @default(0)
+  sku            String? @unique
 
   product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
   orderItems OrderItem[]

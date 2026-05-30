@@ -22,6 +22,7 @@ interface Variant {
   id: string;
   size: string;
   price: number;
+  compareAtPrice?: number | null;
   stock: number;
 }
 
@@ -305,9 +306,16 @@ export default function ProductView() {
 
             {/* Price & Stock */}
             <div className="mb-6">
-              <p className="font-serif text-2xl text-foreground mb-1">
-                {formatPrice(variant?.price || 0)}
-              </p>
+              <div className="flex items-baseline gap-3 mb-1">
+                <p className="font-serif text-2xl text-foreground">
+                  {formatPrice(variant?.price || 0)}
+                </p>
+                {variant?.compareAtPrice && variant.compareAtPrice > variant.price && (
+                  <p className="font-sans text-base text-muted-foreground line-through">
+                    {formatPrice(variant.compareAtPrice)}
+                  </p>
+                )}
+              </div>
               <p className={`font-sans text-xs ${stockColor}`}>{stockText}</p>
             </div>
 
