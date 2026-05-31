@@ -30,12 +30,18 @@ interface Product {
   id: string;
   name: string;
   slug: string;
+  brand: string | null;
   description: string | null;
   notesOlfactives: string | null;
   inspiration: string | null;
   imageUrl: string | null;
   galleryUrls: string | null;
   relatedRitualIds: string | null;
+  gender: string | null;
+  isNew: boolean;
+  sourcePage: number | null;
+  arabicName: string | null;
+  lineEquivalent: string | null;
   collection: { name: string; slug: string };
   variants: Variant[];
   averageRating: number;
@@ -114,21 +120,33 @@ export default function ProductView() {
       )
     : [];
 
+  const isQuoteOnly = !variant || variant.price <= 0;
+
   const stockColor =
-    variant && variant.stock > 10
+    isQuoteOnly
+      ? 'text-muted-foreground'
+      : variant && variant.stock > 10
       ? 'text-[#4A7C59]'
       : variant && variant.stock > 0
       ? 'text-[#D4A037]'
       : 'text-[#C44536]';
 
   const stockText =
-    variant && variant.stock > 10
+    isQuoteOnly
+      ? 'Référence catalogue'
+      : variant && variant.stock > 10
       ? 'En stock'
       : variant && variant.stock > 0
       ? `Plus que ${variant.stock} en stock`
       : 'Rupture de stock';
+  const waMessage = `Bonjour HB_Service, je suis intéressé(e) par le produit ${product.name} (${variant?.size || 'Catalogue'}) — ${formatPrice(variant?.price || 0)}. Pouvez-vous m'en dire plus ?`;
+  const waLink = getWhatsAppLink(waMessage);
 
   const handleAddToCart = () => {
+    if (isQuoteOnly) {
+      window.open(waLink, '_blank', 'noopener,noreferrer');
+      return;
+    }
     if (!variant) return;
     addItem({
       variantId: variant.id,
@@ -143,9 +161,6 @@ export default function ProductView() {
     toast.success(`${product.name} (${variant.size}) ajouté au panier`);
     openCart();
   };
-
-  const waMessage = `Bonjour HB_Service, je suis intéressé(e) par le produit ${product.name} (${variant?.size}) — ${formatPrice(variant?.price || 0)}. Pouvez-vous m'en dire plus ?`;
-  const waLink = getWhatsAppLink(waMessage);
 
   const submitReview = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -251,12 +266,34 @@ export default function ProductView() {
 
           {/* Product Info */}
           <div>
+            {product.brand && (
+              <p className="font-sans text-[10px] tracking-widest uppercase text-[#D4AF37] mb-2">
+                {product.brand}
+              </p>
+            )}
             <p className="font-sans text-[10px] tracking-widest uppercase text-accent mb-2">
               {product.collection.name}
             </p>
             <h1 className="font-serif text-3xl sm:text-4xl text-foreground mb-4">
               {product.name}
             </h1>
+            <div className="flex items-center gap-2 flex-wrap mb-4">
+              {product.gender && (
+                <span className="inline-flex items-center rounded-none border border-border px-2 py-1 text-[10px] uppercase tracking-widest text-muted-foreground">
+                  {product.gender}
+                </span>
+              )}
+              {product.isNew && (
+                <span className="inline-flex items-center rounded-none border border-[#D4AF37] px-2 py-1 text-[10px] uppercase tracking-widest text-[#D4AF37]">
+                  New
+                </span>
+              )}
+              {product.sourcePage && (
+                <span className="inline-flex items-center rounded-none border border-border px-2 py-1 text-[10px] uppercase tracking-widest text-muted-foreground">
+                  Page {product.sourcePage}
+                </span>
+              )}
+            </div>
 
             {/* Rating */}
             <div className="flex items-center gap-2 mb-6">
@@ -345,11 +382,11 @@ export default function ProductView() {
               </div>
               <Button
                 onClick={handleAddToCart}
-                disabled={!variant || variant.stock === 0}
+                disabled={isQuoteOnly ? false : !variant || variant.stock === 0}
                 className="flex-1 bg-[#D4AF37] hover:bg-[#B8962E] text-[#1A1A1A] font-sans text-xs sm:text-sm tracking-widest uppercase py-3.5 sm:py-4 h-auto rounded-none border-none min-h-[44px] sm:min-h-0"
               >
                 <ShoppingBag className="w-4 h-4 mr-1.5 sm:mr-2" />
-                Ajouter au panier
+                {isQuoteOnly ? 'Demander sur WhatsApp' : 'Ajouter au panier'}
               </Button>
             </div>
 
@@ -358,10 +395,10 @@ export default function ProductView() {
               <Button
                 variant="outline"
                 onClick={handleAddToCart}
-                disabled={!variant || variant.stock === 0}
+                disabled={isQuoteOnly ? false : !variant || variant.stock === 0}
                 className="flex-1 border-foreground text-foreground hover:bg-foreground hover:text-background font-sans text-[10px] sm:text-xs tracking-widest uppercase rounded-none min-h-[44px] sm:min-h-0"
               >
-                Achat rapide
+                {isQuoteOnly ? 'Demander un devis' : 'Achat rapide'}
               </Button>
               <a
                 href={waLink}

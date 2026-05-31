@@ -11,6 +11,7 @@ interface Product {
   id: string;
   name: string;
   slug: string;
+  brand: string | null;
   imageUrl: string | null;
   collection: { name: string; slug: string };
   variants: { id: string; size: string; price: number; stock: number }[];
@@ -20,19 +21,28 @@ interface Product {
 
 type SortOption = 'relevance' | 'price-asc' | 'price-desc' | 'newest';
 
-const collectionFilters = [
-  { slug: '', label: 'Toutes' },
-  { slug: 'signature', label: 'Signature' },
-  { slug: 'heritage', label: 'Héritage' },
-  { slug: 'botanique', label: 'Botanique' },
-];
+interface CollectionFilter {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 export default function ShopView() {
   const { navigate, selectedCollectionSlug } = useNavigationStore();
   const [products, setProducts] = useState<Product[]>([]);
+  const [collections, setCollections] = useState<CollectionFilter[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingCollections, setLoadingCollections] = useState(true);
   const [activeFilter, setActiveFilter] = useState(selectedCollectionSlug || '');
   const [sortBy, setSortBy] = useState<SortOption>('relevance');
+
+  useEffect(() => {
+    fetch('/api/collections')
+      .then((r) => r.json())
+      .then((data) => setCollections(data))
+      .catch(() => setCollections([]))
+      .finally(() => setLoadingCollections(false));
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -68,7 +78,7 @@ export default function ShopView() {
     }
   }, [products, sortBy]);
 
-  const activeCollection = collectionFilters.find(
+  const activeCollection = collections.find(
     (c) => c.slug === activeFilter
   );
 
@@ -89,7 +99,7 @@ export default function ShopView() {
             <>
               <ChevronRight className="w-3 h-3" />
               <span className="text-foreground">
-                {activeCollection.label}
+                {activeCollection.name}
               </span>
             </>
           )}
@@ -99,7 +109,7 @@ export default function ShopView() {
         <div className="mb-8">
           <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-foreground mb-2">
             {activeCollection && activeCollection.slug
-              ? `Collection ${activeCollection.label}`
+              ? `Collection ${activeCollection.name}`
               : 'Boutique'}
           </h1>
           <p className="font-sans text-sm text-muted-foreground">
@@ -111,7 +121,17 @@ export default function ShopView() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 pb-6 border-b border-border">
           {/* Collection Filters */}
           <div className="flex items-center gap-2 flex-wrap">
-            {collectionFilters.map((filter) => (
+            <button
+              onClick={() => setActiveFilter('')}
+              className={`font-sans text-xs tracking-wider uppercase px-4 py-2 rounded-none transition-all duration-200 ${
+                activeFilter === ''
+                  ? 'bg-foreground text-background'
+                  : 'bg-muted text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Toutes
+            </button>
+            {!loadingCollections && collections.map((filter) => (
               <button
                 key={filter.slug}
                 onClick={() => setActiveFilter(filter.slug)}
@@ -121,7 +141,7 @@ export default function ShopView() {
                     : 'bg-muted text-muted-foreground hover:text-foreground'
                 }`}
               >
-                {filter.label}
+                {filter.name}
               </button>
             ))}
           </div>

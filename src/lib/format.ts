@@ -3,6 +3,7 @@
  * e.g. 35000 → "35 000 FCFA"
  */
 export function formatPrice(price: number): string {
+  if (price <= 0) return 'Sur demande';
   return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' FCFA';
 }
 

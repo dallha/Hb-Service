@@ -66,6 +66,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const {
+      brand,
       name,
       slug,
       description,
@@ -74,6 +75,12 @@ export async function POST(request: Request) {
       imageUrl,
       galleryUrls,
       relatedRitualIds,
+      gender,
+      isNew,
+      sourcePage,
+      arabicName,
+      lineEquivalent,
+      catalogOrder,
       isActive,
       collectionId,
       variants,
@@ -104,8 +111,8 @@ export async function POST(request: Request) {
         if (!v.size || typeof v.size !== 'string') {
           return NextResponse.json({ error: 'Chaque variante doit avoir une taille' }, { status: 400 });
         }
-        if (typeof v.price !== 'number' || v.price <= 0) {
-          return NextResponse.json({ error: 'Le prix doit être un nombre positif' }, { status: 400 });
+        if (typeof v.price !== 'number' || v.price < 0) {
+          return NextResponse.json({ error: 'Le prix doit être un nombre positif ou nul' }, { status: 400 });
         }
         if (v.compareAtPrice !== undefined && v.compareAtPrice !== null && v.compareAtPrice !== '') {
           const cap = Number(v.compareAtPrice);
@@ -129,12 +136,19 @@ export async function POST(request: Request) {
       data: {
         name: name.trim(),
         slug: slug.trim(),
+        brand: brand || null,
         description: description || null,
         notesOlfactives: notesOlfactives || null,
         inspiration: inspiration || null,
         imageUrl: imageUrl || null,
         galleryUrls: galleryUrls || null,
         relatedRitualIds: relatedRitualIds || null,
+        gender: gender || null,
+        isNew: typeof isNew === 'boolean' ? isNew : false,
+        sourcePage: typeof sourcePage === 'number' ? sourcePage : null,
+        arabicName: arabicName || null,
+        lineEquivalent: lineEquivalent || null,
+        catalogOrder: typeof catalogOrder === 'number' ? catalogOrder : null,
         isActive: isActive !== undefined ? isActive : true,
         collectionId,
         variants: {
@@ -185,8 +199,8 @@ export async function PUT(request: Request) {
         if (!v.size || typeof v.size !== 'string') {
           return NextResponse.json({ error: 'Chaque variante doit avoir une taille' }, { status: 400 });
         }
-        if (typeof v.price !== 'number' || v.price <= 0) {
-          return NextResponse.json({ error: 'Le prix doit être un nombre positif' }, { status: 400 });
+        if (typeof v.price !== 'number' || v.price < 0) {
+          return NextResponse.json({ error: 'Le prix doit être un nombre positif ou nul' }, { status: 400 });
         }
         if (v.compareAtPrice !== undefined && v.compareAtPrice !== null && v.compareAtPrice !== '') {
           const cap = Number(v.compareAtPrice);
@@ -216,7 +230,18 @@ export async function PUT(request: Request) {
     const product = await db.product.update({
       where: { id },
       data: {
+        ...(data.brand !== undefined ? { brand: data.brand || null } : {}),
         ...data,
+        ...(data.gender !== undefined ? { gender: data.gender || null } : {}),
+        ...(data.isNew !== undefined ? { isNew: Boolean(data.isNew) } : {}),
+        ...(data.sourcePage !== undefined
+          ? { sourcePage: data.sourcePage === null ? null : Number(data.sourcePage) }
+          : {}),
+        ...(data.arabicName !== undefined ? { arabicName: data.arabicName || null } : {}),
+        ...(data.lineEquivalent !== undefined ? { lineEquivalent: data.lineEquivalent || null } : {}),
+        ...(data.catalogOrder !== undefined
+          ? { catalogOrder: data.catalogOrder === null ? null : Number(data.catalogOrder) }
+          : {}),
         notesOlfactives: data.notesOlfactives || undefined,
         inspiration: data.inspiration || undefined,
         imageUrl: data.imageUrl || undefined,

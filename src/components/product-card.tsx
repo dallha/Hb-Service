@@ -12,6 +12,9 @@ interface ProductCardProps {
     id: string;
     name: string;
     slug: string;
+    brand?: string | null;
+    gender?: string | null;
+    isNew?: boolean;
     imageUrl: string | null;
     collection: { name: string; slug: string };
     variants: { id: string; size: string; price: number; compareAtPrice?: number | null; stock: number }[];
@@ -33,10 +36,14 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const minPrice = cheapestVariant ? cheapestVariant.price : 0;
   const compareAtPrice = cheapestVariant ? cheapestVariant.compareAtPrice : null;
   const firstVariant = product.variants[0];
+  const canAddToCart = Boolean(firstVariant && firstVariant.price > 0);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!firstVariant) return;
+    if (!firstVariant || !canAddToCart) {
+      navigate('product', { productId: product.id });
+      return;
+    }
     addItem({
       variantId: firstVariant.id,
       productId: product.id,
@@ -83,18 +90,40 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 bg-foreground text-background font-sans text-[10px] sm:text-xs tracking-widest uppercase py-2.5 sm:py-3 flex items-center justify-center gap-1.5 sm:gap-2 opacity-80 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-none hover:bg-accent hover:text-accent-foreground min-h-[40px] sm:min-h-0"
         >
           <ShoppingBag className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-          Ajouter
+          {canAddToCart ? 'Ajouter' : 'Détails'}
         </motion.button>
       </div>
 
       {/* Info */}
       <div className="px-0.5">
+        {product.brand && (
+          <p className="font-sans text-[9px] sm:text-[10px] tracking-widest uppercase text-muted-foreground mb-0.5 sm:mb-1">
+            {product.brand}
+          </p>
+        )}
         <p className="font-sans text-[9px] sm:text-[10px] tracking-widest uppercase text-accent mb-0.5 sm:mb-1">
           {product.collection.name}
         </p>
         <h3 className="font-serif text-sm sm:text-lg text-foreground mb-1 line-clamp-1">
           {product.name}
         </h3>
+        <div className="flex items-center gap-2 mb-1 flex-wrap">
+          {product.collection.slug === 'catalogue-2026' && (
+            <span className="inline-flex items-center rounded-none border border-[#D4AF37] px-1.5 py-0.5 text-[9px] uppercase tracking-widest text-[#D4AF37]">
+              Catalogue
+            </span>
+          )}
+          {product.gender && (
+            <span className="inline-flex items-center rounded-none border border-border px-1.5 py-0.5 text-[9px] uppercase tracking-widest text-muted-foreground">
+              {product.gender}
+            </span>
+          )}
+          {product.isNew && (
+            <span className="inline-flex items-center rounded-none border border-foreground px-1.5 py-0.5 text-[9px] uppercase tracking-widest text-foreground">
+              New
+            </span>
+          )}
+        </div>
         <div className="flex items-center gap-1 mb-1">
           {product.averageRating > 0 && (
             <>
@@ -115,7 +144,9 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           )}
         </div>
         <p className="font-sans text-xs sm:text-sm text-foreground font-medium flex items-center gap-2">
-          <span>À partir de {formatPrice(minPrice)}</span>
+          <span>
+            {minPrice > 0 ? `À partir de ${formatPrice(minPrice)}` : formatPrice(minPrice)}
+          </span>
           {compareAtPrice && compareAtPrice > minPrice && (
             <span className="text-muted-foreground line-through text-[10px] sm:text-xs font-normal">
               {formatPrice(compareAtPrice)}
