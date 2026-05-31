@@ -14,7 +14,7 @@ export default function HeroSection({ settings = {} }: { settings?: SiteSettings
   const titleAccent = settings.hero_title_accent || "l'Essence du Naturel";
   const subtitle = settings.hero_subtitle || "Découvrez des créations olfactives d'exception, nées du savoir-faire africain et de la pureté des ingrédients naturels.";
   const ctaPrimary = settings.hero_cta_primary || 'Acheter maintenant';
-  const ctaSecondary = settings.hero_cta_secondary || 'Découvrir la collection';
+  const ctaSecondary = settings.hero_cta_secondary || 'Voir le catalogue';
 
   return (
     <section className="relative h-screen min-h-[500px] sm:min-h-[600px] max-h-[1000px] flex items-center justify-center overflow-hidden">
@@ -63,7 +63,7 @@ export default function HeroSection({ settings = {} }: { settings?: SiteSettings
             {ctaPrimary}
           </Button>
           <Button
-            onClick={() => navigate('shop', { collectionSlug: 'signature' })}
+            onClick={() => navigate('catalogue')}
             variant="outline"
             className="w-full sm:w-auto border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#1A1A1A] font-sans text-xs sm:text-sm tracking-widest uppercase px-6 sm:px-8 py-3.5 sm:py-4 h-auto rounded-none bg-transparent"
           >

@@ -9,7 +9,7 @@ export const DEFAULT_SETTINGS: SiteSettingsMap = {
   hero_title_accent: "l'Essence du Naturel",
   hero_subtitle: "Découvrez des créations olfactives d'exception, nées du savoir-faire africain et de la pureté des ingrédients naturels.",
   hero_cta_primary: "Acheter maintenant",
-  hero_cta_secondary: "Découvrir la collection",
+  hero_cta_secondary: "Voir le catalogue",
   hero_image_url: "/images/hero/hero-main.png",
 
   // Brand

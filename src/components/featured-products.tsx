@@ -9,6 +9,10 @@ interface Product {
   id: string;
   name: string;
   slug: string;
+  brand: string | null;
+  gender: string | null;
+  isNew: boolean;
+  sourcePage: number | null;
   imageUrl: string | null;
   collection: { name: string; slug: string };
   variants: { id: string; size: string; price: number; stock: number }[];
@@ -21,7 +25,7 @@ export default function FeaturedProducts() {
   const { navigate } = useNavigationStore();
 
   useEffect(() => {
-    fetch('/api/products')
+    fetch('/api/products?collection=catalogue-2026')
       .then((r) => r.json())
       .then((data: Product[]) => setProducts(data.slice(0, 4)))
       .catch(console.error);
@@ -41,12 +45,11 @@ export default function FeaturedProducts() {
           className="text-center mb-12 lg:mb-16"
         >
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-foreground mb-4">
-            Sélection du Moment
+            Sélection du Catalogue
           </h2>
           <div className="w-16 h-[1px] bg-[#D4AF37] mx-auto mb-4" />
           <p className="font-sans text-sm text-muted-foreground max-w-lg mx-auto">
-            Nos créations les plus plébiscitées, sélectionnées pour leur
-            excellence et leur sillage unique.
+            Les premières références du catalogue Mars 2026, affichées avec les vraies marques, genres et mentions de nouveauté.
           </p>
         </motion.div>
 
@@ -66,10 +69,10 @@ export default function FeaturedProducts() {
           className="text-center mt-12"
         >
           <button
-            onClick={() => navigate('shop')}
+            onClick={() => navigate('catalogue')}
             className="font-sans text-sm tracking-widest uppercase text-[#D4AF37] border-b border-[#D4AF37] pb-1 hover:text-[#B8962E] hover:border-[#B8962E] transition-colors"
           >
-            Voir tous les produits
+            Ouvrir le catalogue
           </button>
         </motion.div>
       </div>
