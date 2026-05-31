@@ -74,6 +74,7 @@ export default function Footer({ settings = {} }: { settings?: SiteSettingsMap }
               {[
                 { label: 'Accueil', view: 'home' as const },
                 { label: 'Boutique', view: 'shop' as const },
+                { label: 'Catalogue 2026', view: 'catalogue' as const },
                 { label: 'Notre Histoire', view: 'storytelling' as const },
               ].map((item) => (
                 <li key={item.label}>
@@ -96,10 +97,15 @@ export default function Footer({ settings = {} }: { settings?: SiteSettingsMap }
                 { label: 'Collection Signature', slug: 'signature' },
                 { label: 'Collection Héritage', slug: 'heritage' },
                 { label: 'Collection Botanique', slug: 'botanique' },
+                { label: 'Catalogue 2026', slug: 'catalogue-2026' },
               ].map((item) => (
                 <li key={item.slug}>
                   <button
-                    onClick={() => navigate('shop', { collectionSlug: item.slug })}
+                    onClick={() =>
+                      item.slug === 'catalogue-2026'
+                        ? navigate('catalogue')
+                        : navigate('shop', { collectionSlug: item.slug })
+                    }
                     className="text-sm text-muted-foreground hover:text-accent transition-colors"
                   >
                     {item.label}

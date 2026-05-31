@@ -8,6 +8,7 @@ import StorytellingSection from '@/components/storytelling-section';
 import ReassuranceSection from '@/components/reassurance-section';
 import FeaturedProducts from '@/components/featured-products';
 import ShopView from '@/components/shop-view';
+import CatalogueView from '@/components/catalogue-view';
 import ProductView from '@/components/product-view';
 import CartDrawer from '@/components/cart-drawer';
 import CheckoutView from '@/components/checkout-view';
@@ -34,6 +35,11 @@ export default function HomeClient({ settings }: { settings: SiteSettingsMap }) 
           {currentView === 'shop' && (
             <motion.div key="shop" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
               <ShopView />
+            </motion.div>
+          )}
+          {currentView === 'catalogue' && (
+            <motion.div key="catalogue" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
+              <CatalogueView />
             </motion.div>
           )}
           {currentView === 'product' && (

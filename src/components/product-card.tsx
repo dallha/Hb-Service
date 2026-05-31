@@ -15,6 +15,7 @@ interface ProductCardProps {
     brand?: string | null;
     gender?: string | null;
     isNew?: boolean;
+    sourcePage?: number | null;
     imageUrl: string | null;
     collection: { name: string; slug: string };
     variants: { id: string; size: string; price: number; compareAtPrice?: number | null; stock: number }[];
@@ -121,6 +122,11 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           {product.isNew && (
             <span className="inline-flex items-center rounded-none border border-foreground px-1.5 py-0.5 text-[9px] uppercase tracking-widest text-foreground">
               New
+            </span>
+          )}
+          {product.sourcePage && (
+            <span className="inline-flex items-center rounded-none border border-border px-1.5 py-0.5 text-[9px] uppercase tracking-widest text-muted-foreground">
+              P{product.sourcePage}
             </span>
           )}
         </div>

@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 const navLinks = [
   { label: 'Accueil', view: 'home' as const },
   { label: 'Boutique', view: 'shop' as const },
+  { label: 'Catalogue 2026', view: 'catalogue' as const },
   { label: 'Collections', view: 'shop' as const, params: {} },
   { label: 'Notre Histoire', view: 'storytelling' as const },
   { label: 'Journal', view: 'journal' as const },

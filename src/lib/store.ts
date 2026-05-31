@@ -97,6 +97,7 @@ export const useCartStore = create<CartState>()(
 export type AppView = 
   | 'home' 
   | 'shop' 
+  | 'catalogue'
   | 'product' 
   | 'checkout' 
   | 'dashboard'

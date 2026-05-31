@@ -141,6 +141,8 @@ export default function ProductView() {
       : 'Rupture de stock';
   const waMessage = `Bonjour HB_Service, je suis intéressé(e) par le produit ${product.name} (${variant?.size || 'Catalogue'}) — ${formatPrice(variant?.price || 0)}. Pouvez-vous m'en dire plus ?`;
   const waLink = getWhatsAppLink(waMessage);
+  const backView = product.collection.slug === 'catalogue-2026' ? 'catalogue' : 'shop';
+  const backLabel = product.collection.slug === 'catalogue-2026' ? 'Retour au catalogue' : 'Retour à la boutique';
 
   const handleAddToCart = () => {
     if (isQuoteOnly) {
@@ -214,7 +216,7 @@ export default function ProductView() {
           <ChevronRight className="w-3 h-3" />
           <button
             onClick={() =>
-              navigate('shop', { collectionSlug: product.collection.slug })
+              navigate(backView as any, backView === 'shop' ? { collectionSlug: product.collection.slug } : undefined)
             }
             className="hover:text-accent transition-colors"
           >
@@ -413,11 +415,11 @@ export default function ProductView() {
 
             {/* Back */}
             <button
-              onClick={() => navigate('shop')}
+              onClick={() => navigate(backView as any)}
               className="mt-6 flex items-center gap-2 font-sans text-xs text-muted-foreground hover:text-accent transition-colors"
             >
               <ChevronLeft className="w-3 h-3" />
-              Retour à la boutique
+              {backLabel}
             </button>
           </div>
         </div>
