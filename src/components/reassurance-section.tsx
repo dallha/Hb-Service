@@ -1,16 +1,26 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Truck, Shield, MessageCircle, Star } from 'lucide-react';
+import { Search, Shield, MessageCircle, Box } from 'lucide-react';
 
 import type { SiteSettingsMap } from '@/lib/settings';
 
 export default function ReassuranceSection({ settings = {} }: { settings?: SiteSettingsMap }) {
-  const headline = settings.reassurance_headline || '2 500+ Clients Satisfaits';
-  const rating = settings.reassurance_rating || 'Note moyenne de 4.8/5 basée sur les avis clients';
+  const [catalogueCount, setCatalogueCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch('/api/products?collection=catalogue-2026')
+      .then((r) => r.json())
+      .then((data) => setCatalogueCount(Array.isArray(data) ? data.length : null))
+      .catch(() => setCatalogueCount(null));
+  }, []);
+
+  const headline = settings.reassurance_headline || `${catalogueCount ?? '1103'} Références Catalogue`;
+  const rating = settings.reassurance_rating || 'Chaque fiche est indexée par marque, genre, nouveauté et page source du catalogue.';
   const reassuranceItems = [
-    { icon: Truck, label: settings.reassurance_1_label || 'Livraison Rapide', desc: settings.reassurance_1_desc || 'Sous 48h à Dakar' },
-    { icon: Shield, label: settings.reassurance_2_label || 'Paiement à la Livraison', desc: settings.reassurance_2_desc || 'Zéro risque' },
+    { icon: Box, label: settings.reassurance_1_label || 'Catalogue Réel', desc: settings.reassurance_1_desc || '1103 références importées' },
+    { icon: Search, label: settings.reassurance_2_label || 'Recherche Rapide', desc: settings.reassurance_2_desc || 'Marque, genre, nouveauté' },
     { icon: MessageCircle, label: settings.reassurance_3_label || 'Support WhatsApp', desc: settings.reassurance_3_desc || 'Conseil personnalisé' },
   ];
 
@@ -28,15 +38,7 @@ export default function ReassuranceSection({ settings = {} }: { settings?: SiteS
           <p className="font-serif text-3xl sm:text-4xl text-foreground mb-2">
             {headline}
           </p>
-          <div className="flex items-center justify-center gap-1 mt-3">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <Star
-                key={i}
-                className="w-5 h-5 fill-[#D4AF37] text-[#D4AF37]"
-              />
-            ))}
-          </div>
-          <p className="font-sans text-sm text-muted-foreground mt-2">
+          <p className="font-sans text-sm text-muted-foreground mt-2 max-w-2xl mx-auto">
             {rating}
           </p>
         </motion.div>

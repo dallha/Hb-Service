@@ -27,7 +27,19 @@ export default function FeaturedProducts() {
   useEffect(() => {
     fetch('/api/products?collection=catalogue-2026')
       .then((r) => r.json())
-      .then((data: Product[]) => setProducts(data.slice(0, 4)))
+      .then((data: Product[]) =>
+        setProducts(
+          [...data]
+            .filter((p) => p.isNew)
+            .sort(
+              (a, b) =>
+                (a.sourcePage ?? 0) - (b.sourcePage ?? 0) ||
+                (a.brand || '').localeCompare(b.brand || '') ||
+                a.name.localeCompare(b.name)
+            )
+            .slice(0, 4)
+        )
+      )
       .catch(console.error);
   }, []);
 
@@ -45,11 +57,11 @@ export default function FeaturedProducts() {
           className="text-center mb-12 lg:mb-16"
         >
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-foreground mb-4">
-            Sélection du Catalogue
+            Nouveautés du Catalogue
           </h2>
           <div className="w-16 h-[1px] bg-[#D4AF37] mx-auto mb-4" />
           <p className="font-sans text-sm text-muted-foreground max-w-lg mx-auto">
-            Les premières références du catalogue Mars 2026, affichées avec les vraies marques, genres et mentions de nouveauté.
+            Les premières nouveautés réelles du catalogue Mars 2026, triées par page source et présentées avec leurs vraies marques et genres.
           </p>
         </motion.div>
 
@@ -72,7 +84,7 @@ export default function FeaturedProducts() {
             onClick={() => navigate('catalogue')}
             className="font-sans text-sm tracking-widest uppercase text-[#D4AF37] border-b border-[#D4AF37] pb-1 hover:text-[#B8962E] hover:border-[#B8962E] transition-colors"
           >
-            Ouvrir le catalogue
+            Voir les nouveautés
           </button>
         </motion.div>
       </div>

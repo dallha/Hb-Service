@@ -38,6 +38,15 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const compareAtPrice = cheapestVariant ? cheapestVariant.compareAtPrice : null;
   const firstVariant = product.variants[0];
   const canAddToCart = Boolean(firstVariant && firstVariant.price > 0);
+  const fallbackImageUrl =
+    product.collection.slug === 'catalogue-2026'
+      ? product.gender === 'F'
+        ? '/images/products/perfume-rose.png'
+        : product.gender === 'H'
+        ? '/images/products/perfume-oud.png'
+        : '/images/products/perfume-amber.png'
+      : null;
+  const displayImageUrl = product.imageUrl || fallbackImageUrl;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -74,9 +83,9 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       onClick={() => navigate('product', { productId: product.id })}
     >
       <div className="relative aspect-[3/4] overflow-hidden rounded-sm bg-muted mb-3 sm:mb-4">
-        {product.imageUrl && (
+        {displayImageUrl && (
           <Image
-            src={product.imageUrl}
+            src={displayImageUrl}
             alt={product.name}
             fill
             className="object-cover transition-transform duration-700 group-hover:scale-105"

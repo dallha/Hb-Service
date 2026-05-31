@@ -52,12 +52,12 @@ export const DEFAULT_SETTINGS: SiteSettingsMap = {
   storytelling_values: "Qualité,Authenticité,Élégance,Confiance",
 
   // Reassurance
-  reassurance_headline: "2 500+ Clients Satisfaits",
-  reassurance_rating: "Note moyenne de 4.8/5 basée sur les avis clients",
-  reassurance_1_label: "Livraison Rapide",
-  reassurance_1_desc: "Sous 48h à Dakar",
-  reassurance_2_label: "Paiement à la Livraison",
-  reassurance_2_desc: "Zéro risque",
+  reassurance_headline: "1103 Références Catalogue",
+  reassurance_rating: "Chaque fiche est indexée par marque, genre, nouveauté et page source du catalogue.",
+  reassurance_1_label: "Catalogue Réel",
+  reassurance_1_desc: "1103 références importées",
+  reassurance_2_label: "Recherche Rapide",
+  reassurance_2_desc: "Marque, genre, nouveauté",
   reassurance_3_label: "Support WhatsApp",
   reassurance_3_desc: "Conseil personnalisé",
 
