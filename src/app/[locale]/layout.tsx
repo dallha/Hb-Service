@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
 import "../globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { NextIntlClientProvider } from "next-intl";
@@ -13,18 +12,6 @@ import { Providers } from './providers';
 import SupabaseAuthListener from "@/components/SupabaseAuthListener";
 import { getSettings } from "@/lib/settings";
 import MarketingPixels from "@/components/marketing-pixels";
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
-  display: "swap",
-});
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings();
@@ -58,9 +45,7 @@ export default async function RootLayout(props: {
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      <body
-        className={`${inter.variable} ${playfair.variable} antialiased bg-background text-foreground font-sans`}
-      >
+      <body className="antialiased bg-background text-foreground font-sans">
         <NextIntlClientProvider messages={messages}>
           <Providers>
             <Header settings={settings} />
