@@ -25,7 +25,7 @@ async function main() {
   await prisma.$executeRaw`
     UPDATE "Product"
     SET "description" = concat(
-      'Référence ',
+      'Création ',
       CASE
         WHEN "gender" = 'H' THEN 'homme'
         WHEN "gender" = 'F' THEN 'femme'
@@ -36,7 +36,7 @@ async function main() {
         WHEN "brand" IS NOT NULL AND "brand" <> '' THEN concat(', signée ', "brand")
         ELSE ''
       END,
-      '. Indexée pour une consultation rapide par marque, genre et page source.'
+      '. Présentée pour une consultation rapide, une lecture élégante et un repérage immédiat par marque, genre et page source.'
     )
     WHERE "collectionId" = ${collection.id}
   `;
