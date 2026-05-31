@@ -120,7 +120,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         <div className="flex items-center gap-2 mb-1 flex-wrap">
           {product.collection.slug === 'catalogue-2026' && (
             <span className="inline-flex items-center rounded-none border border-[#D4AF37] px-1.5 py-0.5 text-[9px] uppercase tracking-widest text-[#D4AF37]">
-              Catalogue
+              Sélection
             </span>
           )}
           {product.gender && (

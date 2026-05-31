@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, SlidersHorizontal, ChevronRight } from 'lucide-react';
 import { useNavigationStore } from '@/lib/store';
@@ -25,15 +25,31 @@ interface Product {
 
 type SortOption = 'relevance' | 'name-asc' | 'name-desc' | 'page-asc' | 'newest';
 
+const catalogueTitle = 'Sélection Parfum 2026';
+const catalogueSubtitle = 'Catalogue Mars 2026';
+
+const presetCopy: Record<'all' | 'new' | 'men' | 'women' | 'unisex', string> = {
+  all: 'Tout le catalogue',
+  new: 'Nouveautés',
+  men: 'Parfums Homme',
+  women: 'Parfums Femme',
+  unisex: 'Parfums Unisexes',
+};
+
 export default function CatalogueView() {
-  const { navigate } = useNavigationStore();
+  const { navigate, selectedCataloguePreset } = useNavigationStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
-  const [genderFilter, setGenderFilter] = useState<'all' | 'H' | 'F' | 'U'>('all');
+  const [genderFilter, setGenderFilter] = useState<'all' | 'H' | 'F' | 'U'>(() => {
+    if (selectedCataloguePreset === 'men') return 'H';
+    if (selectedCataloguePreset === 'women') return 'F';
+    if (selectedCataloguePreset === 'unisex') return 'U';
+    return 'all';
+  });
   const [brandFilter, setBrandFilter] = useState('all');
-  const [newOnly, setNewOnly] = useState(false);
-  const [sortBy, setSortBy] = useState<SortOption>('relevance');
+  const [newOnly, setNewOnly] = useState(() => selectedCataloguePreset === 'new');
+  const [sortBy, setSortBy] = useState<SortOption>(() => (selectedCataloguePreset === 'new' ? 'newest' : 'relevance'));
 
   useEffect(() => {
     fetch('/api/products?collection=catalogue-2026')
@@ -117,19 +133,19 @@ export default function CatalogueView() {
             Accueil
           </button>
           <ChevronRight className="w-3 h-3" />
-          <span className="text-foreground">Catalogue 2026</span>
+          <span className="text-foreground">{catalogueTitle}</span>
         </nav>
 
         <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr] items-end mb-10">
           <div>
             <p className="font-sans text-xs tracking-[0.3em] uppercase text-[#D4AF37] mb-3">
-              Collection catalogue
+              {catalogueSubtitle}
             </p>
             <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-foreground mb-4">
-              Catalogue 2026
+              {catalogueTitle}
             </h1>
             <p className="font-sans text-sm sm:text-base text-muted-foreground max-w-2xl leading-relaxed">
-              Parcours filtrable de toutes les références du catalogue Mars 2026, pensé pour retrouver rapidement une marque, un genre, une nouveauté ou une page source.
+              Parcours filtrable de toutes les références de la sélection Mars 2026, pensé pour retrouver rapidement une marque, un genre, une nouveauté ou une page source.
             </p>
           </div>
 
@@ -147,6 +163,46 @@ export default function CatalogueView() {
               <p className="font-serif text-2xl text-foreground">{brands.length}</p>
             </div>
           </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2 mb-8">
+          {(Object.keys(presetCopy) as Array<keyof typeof presetCopy>).map((preset) => {
+            const isActive =
+              (preset === 'all' && genderFilter === 'all' && !newOnly) ||
+              (preset === 'new' && newOnly) ||
+              (preset === 'men' && genderFilter === 'H') ||
+              (preset === 'women' && genderFilter === 'F') ||
+              (preset === 'unisex' && genderFilter === 'U');
+
+            return (
+              <button
+                key={preset}
+                onClick={() => {
+                  if (preset === 'new') {
+                    setGenderFilter('all');
+                    setBrandFilter('all');
+                    setNewOnly(true);
+                    setSortBy('newest');
+                    return;
+                  }
+
+                  setBrandFilter('all');
+                  setNewOnly(false);
+                  setSortBy('relevance');
+                  setGenderFilter(
+                    preset === 'men' ? 'H' : preset === 'women' ? 'F' : preset === 'unisex' ? 'U' : 'all'
+                  );
+                }}
+                className={`font-sans text-[11px] tracking-widest uppercase px-4 py-2 rounded-none transition-all border ${
+                  isActive
+                    ? 'bg-foreground text-background border-foreground'
+                    : 'bg-muted text-muted-foreground border-border hover:text-foreground'
+                }`}
+              >
+                {presetCopy[preset]}
+              </button>
+            );
+          })}
         </div>
 
         <div className="flex flex-col gap-4 mb-8 pb-6 border-b border-border">
@@ -253,7 +309,7 @@ export default function CatalogueView() {
           </AnimatePresence>
         )}
 
-        {filteredProducts.length === 0 && !loading && (
+              {filteredProducts.length === 0 && !loading && (
           <div className="text-center py-16">
             <p className="font-serif text-2xl text-foreground mb-4">
               Aucun parfum trouvé

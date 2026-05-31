@@ -103,11 +103,21 @@ export type AppView =
   | 'dashboard'
   | 'storytelling';
 
+export type CataloguePreset = 'all' | 'new' | 'men' | 'women' | 'unisex';
+
 interface NavigationState {
   currentView: AppView;
   selectedProductId: string | null;
   selectedCollectionSlug: string | null;
-  navigate: (view: AppView, params?: { productId?: string; collectionSlug?: string }) => void;
+  selectedCataloguePreset: CataloguePreset;
+  navigate: (
+    view: AppView,
+    params?: {
+      productId?: string;
+      collectionSlug?: string;
+      cataloguePreset?: CataloguePreset;
+    }
+  ) => void;
   goBack: () => void;
   history: AppView[];
 }
@@ -116,6 +126,7 @@ export const useNavigationStore = create<NavigationState>()((set) => ({
   currentView: 'home',
   selectedProductId: null,
   selectedCollectionSlug: null,
+  selectedCataloguePreset: 'all',
   history: [],
 
   navigate: (view, params) => {
@@ -124,6 +135,7 @@ export const useNavigationStore = create<NavigationState>()((set) => ({
       currentView: view,
       selectedProductId: params?.productId ?? null,
       selectedCollectionSlug: params?.collectionSlug ?? null,
+      selectedCataloguePreset: params?.cataloguePreset ?? 'all',
     }));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   },
@@ -136,6 +148,7 @@ export const useNavigationStore = create<NavigationState>()((set) => ({
         history: state.history.slice(0, -1),
         selectedProductId: null,
         selectedCollectionSlug: null,
+        selectedCataloguePreset: 'all',
       };
     });
   },

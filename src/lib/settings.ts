@@ -9,7 +9,7 @@ export const DEFAULT_SETTINGS: SiteSettingsMap = {
   hero_title_accent: "l'Essence du Naturel",
   hero_subtitle: "Découvrez des créations olfactives d'exception, nées du savoir-faire africain et de la pureté des ingrédients naturels.",
   hero_cta_primary: "Acheter maintenant",
-  hero_cta_secondary: "Voir le catalogue",
+  hero_cta_secondary: "Voir la sélection",
   hero_image_url: "/images/hero/hero-main.png",
 
   // Brand
@@ -62,8 +62,8 @@ export const DEFAULT_SETTINGS: SiteSettingsMap = {
   reassurance_3_desc: "Conseil personnalisé",
 
   // Collections section
-  collections_section_title: "Nos Collections",
-  collections_cta_label: "Explorer",
+  collections_section_title: "Sélections du catalogue",
+  collections_cta_label: "Explorer la sélection",
 
   // SEO
   seo_title: "HB_Service — Parfums & Soins Naturels Premium",

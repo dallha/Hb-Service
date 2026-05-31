@@ -57,7 +57,7 @@ export default function FeaturedProducts() {
           className="text-center mb-12 lg:mb-16"
         >
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-foreground mb-4">
-            Nouveautés du Catalogue
+            Nouveautés de la sélection
           </h2>
           <div className="w-16 h-[1px] bg-[#D4AF37] mx-auto mb-4" />
           <p className="font-sans text-sm text-muted-foreground max-w-lg mx-auto">
@@ -81,10 +81,10 @@ export default function FeaturedProducts() {
           className="text-center mt-12"
         >
           <button
-            onClick={() => navigate('catalogue')}
+            onClick={() => navigate('catalogue', { cataloguePreset: 'new' })}
             className="font-sans text-sm tracking-widest uppercase text-[#D4AF37] border-b border-[#D4AF37] pb-1 hover:text-[#B8962E] hover:border-[#B8962E] transition-colors"
           >
-            Voir les nouveautés
+            Voir la sélection
           </button>
         </motion.div>
       </div>

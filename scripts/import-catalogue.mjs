@@ -76,16 +76,16 @@ async function main() {
   const collection = await prisma.collection.upsert({
     where: { slug: 'catalogue-2026' },
     create: {
-      name: 'Catalogue 2026',
+      name: 'Sélection Parfum 2026',
       slug: 'catalogue-2026',
-      description: 'Référence du catalogue Mars 2026, intégrée comme collection boutique.',
-      heroText: 'Le catalogue complet des parfums',
+      description: 'Sélection réelle du catalogue Mars 2026, organisée pour une lecture professionnelle par marque, genre et nouveauté.',
+      heroText: 'La sélection parfum complète',
       sortOrder: 99,
     },
     update: {
-      name: 'Catalogue 2026',
-      description: 'Référence du catalogue Mars 2026, intégrée comme collection boutique.',
-      heroText: 'Le catalogue complet des parfums',
+      name: 'Sélection Parfum 2026',
+      description: 'Sélection réelle du catalogue Mars 2026, organisée pour une lecture professionnelle par marque, genre et nouveauté.',
+      heroText: 'La sélection parfum complète',
     },
   });
 
@@ -112,7 +112,7 @@ async function main() {
       brand: item.brand || null,
       name: item.name,
       slug,
-      description: 'Référence du Catalogue des Parfums Mars 2026.',
+      description: `Référence ${item.gender === 'H' ? 'homme' : item.gender === 'F' ? 'femme' : 'unisexe'} du catalogue Mars 2026${item.brand ? `, signée ${item.brand}` : ''}. Indexée pour une consultation rapide par marque, genre et page source.`,
       notesOlfactives: null,
       inspiration: item.core,
       imageUrl: null,

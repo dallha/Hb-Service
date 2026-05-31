@@ -21,6 +21,7 @@ export default function Footer({ settings = {} }: { settings?: SiteSettingsMap }
   const instagramUrl = settings.instagram_url || '#';
   const facebookUrl = settings.facebook_url || '#';
   const copyright = settings.copyright_text || 'HB_Service. Tous droits réservés.';
+  const catalogueLabel = settings.collections_section_title || 'Sélections du catalogue';
 
   return (
     <footer className="bg-card text-card-foreground mt-auto">
@@ -74,7 +75,7 @@ export default function Footer({ settings = {} }: { settings?: SiteSettingsMap }
               {[
                 { label: 'Accueil', view: 'home' as const },
                 { label: 'Boutique', view: 'shop' as const },
-                { label: 'Catalogue 2026', view: 'catalogue' as const },
+                { label: 'Sélection Parfum', view: 'catalogue' as const },
                 { label: 'Notre Histoire', view: 'storytelling' as const },
               ].map((item) => (
                 <li key={item.label}>
@@ -91,21 +92,18 @@ export default function Footer({ settings = {} }: { settings?: SiteSettingsMap }
 
           {/* Collections */}
           <div>
-            <h4 className="font-sans text-xs tracking-widest uppercase text-accent mb-6">Collections</h4>
+            <h4 className="font-sans text-xs tracking-widest uppercase text-accent mb-6">{catalogueLabel}</h4>
             <ul className="space-y-3">
               {[
-                { label: 'Collection Signature', slug: 'signature' },
-                { label: 'Collection Héritage', slug: 'heritage' },
-                { label: 'Collection Botanique', slug: 'botanique' },
-                { label: 'Catalogue 2026', slug: 'catalogue-2026' },
+                { label: 'Sélection complète', preset: 'all' as const },
+                { label: 'Nouveautés', preset: 'new' as const },
+                { label: 'Parfums Homme', preset: 'men' as const },
+                { label: 'Parfums Femme', preset: 'women' as const },
+                { label: 'Parfums Unisexes', preset: 'unisex' as const },
               ].map((item) => (
-                <li key={item.slug}>
+                <li key={item.label}>
                   <button
-                    onClick={() =>
-                      item.slug === 'catalogue-2026'
-                        ? navigate('catalogue')
-                        : navigate('shop', { collectionSlug: item.slug })
-                    }
+                    onClick={() => navigate('catalogue', { cataloguePreset: item.preset })}
                     className="text-sm text-muted-foreground hover:text-accent transition-colors"
                   >
                     {item.label}
@@ -145,6 +143,12 @@ export default function Footer({ settings = {} }: { settings?: SiteSettingsMap }
           <p className="text-xs text-muted-foreground">
             &copy; {new Date().getFullYear()} {copyright}
           </p>
+          <button
+            onClick={() => navigate('catalogue')}
+            className="text-xs uppercase tracking-widest text-accent hover:text-accent/80 transition-colors"
+          >
+            Ouvrir la sélection parfum
+          </button>
         </div>
       </div>
     </footer>

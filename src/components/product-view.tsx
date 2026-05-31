@@ -142,7 +142,7 @@ export default function ProductView() {
   const waMessage = `Bonjour HB_Service, je suis intéressé(e) par le produit ${product.name} (${variant?.size || 'Catalogue'}) — ${formatPrice(variant?.price || 0)}. Pouvez-vous m'en dire plus ?`;
   const waLink = getWhatsAppLink(waMessage);
   const backView = product.collection.slug === 'catalogue-2026' ? 'catalogue' : 'shop';
-  const backLabel = product.collection.slug === 'catalogue-2026' ? 'Retour au catalogue' : 'Retour à la boutique';
+  const backLabel = product.collection.slug === 'catalogue-2026' ? 'Retour à la sélection' : 'Retour à la boutique';
 
   const handleAddToCart = () => {
     if (isQuoteOnly) {

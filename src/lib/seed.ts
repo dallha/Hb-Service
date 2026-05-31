@@ -10,36 +10,14 @@ export async function seedDatabase() {
   if (existingCollections > 0) return;
 
   // ─── Collections ───────────────────────────────────────────
-  const signature = await db.collection.create({
+  await db.collection.create({
     data: {
-      name: 'Collection Signature',
-      slug: 'signature',
-      description: 'Nos créations signatures, l\'essence même du savoir-faire HB_Service. Des parfums qui définissent l\'élégance africaine contemporaine, alliant tradition et modernité dans chaque flacon.',
-      imageUrl: '/images/collections/signature.png',
-      heroText: 'L\'élégance absolue, redéfinie',
+      name: 'Sélection Parfum 2026',
+      slug: 'catalogue-2026',
+      description: 'Sélection réelle du catalogue Mars 2026, pensée pour une lecture professionnelle par marque, genre et nouveauté.',
+      imageUrl: '/images/products/perfume-amber.png',
+      heroText: 'La sélection parfum complète',
       sortOrder: 1,
-    },
-  });
-
-  const heritage = await db.collection.create({
-    data: {
-      name: 'Collection Héritage',
-      slug: 'heritage',
-      description: 'Oud, résines précieuses et bois nobles. Un voyage olfactif au cœur des traditions millénaires, où chaque fragrance raconte l\'histoire d\'un héritage ancestral préservé avec passion.',
-      imageUrl: '/images/collections/heritage.png',
-      heroText: 'L\'héritage olfactif des terres sacrées',
-      sortOrder: 2,
-    },
-  });
-
-  const botanique = await db.collection.create({
-    data: {
-      name: 'Collection Botanique',
-      slug: 'botanique',
-      description: 'Soins naturels d\'exception, formulés avec des ingrédients purs et biologiques. Le meilleur de la nature au service de votre beauté, sans compromis sur la qualité ni sur l\'éthique.',
-      imageUrl: '/images/collections/botanique.png',
-      heroText: 'La pureté du naturel, sublimée',
-      sortOrder: 3,
     },
   });
 

@@ -1534,7 +1534,7 @@ function CollectionsTab({ collections, onRefresh, showToast }: {
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value, slug: generateSlug(e.target.value) })}
                   className="bg-white border-[#E8E0D5] rounded-none font-sans text-sm"
-                  placeholder="Collection Signature"
+                  placeholder="Sélection Parfum 2026"
                 />
               </div>
               <div>
@@ -1543,7 +1543,7 @@ function CollectionsTab({ collections, onRefresh, showToast }: {
                   value={form.slug}
                   onChange={(e) => setForm({ ...form, slug: e.target.value })}
                   className="bg-white border-[#E8E0D5] rounded-none font-sans text-sm"
-                  placeholder="signature"
+                  placeholder="catalogue-2026"
                 />
               </div>
             </div>

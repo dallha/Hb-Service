@@ -16,7 +16,7 @@ import StorytellingView from '@/components/storytelling-view';
 import type { SiteSettingsMap } from '@/lib/settings';
 
 export default function HomeClient({ settings }: { settings: SiteSettingsMap }) {
-  const { currentView } = useNavigationStore();
+  const { currentView, selectedCataloguePreset } = useNavigationStore();
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -38,7 +38,7 @@ export default function HomeClient({ settings }: { settings: SiteSettingsMap }) 
             </motion.div>
           )}
           {currentView === 'catalogue' && (
-            <motion.div key="catalogue" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
+            <motion.div key={`catalogue-${selectedCataloguePreset}`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
               <CatalogueView />
             </motion.div>
           )}
