@@ -24,7 +24,6 @@ export default function Header({ settings = {} }: { settings?: SiteSettingsMap }
   const logoUrl = settings.logo_url || '/logo-gold.jpg';
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [clickCount, setClickCount] = useState(0);
   const { getTotalItems, openCart } = useCartStore();
   const { navigate } = useNavigationStore();
   const { isDark, toggle, mounted } = useTheme();
@@ -63,20 +62,14 @@ export default function Header({ settings = {} }: { settings?: SiteSettingsMap }
     setMobileMenuOpen(false);
   };
 
-  // Secret access: double-click on logo to open admin
   const handleLogoClick = () => {
-    const newCount = clickCount + 1;
-    setClickCount(newCount);
-    if (newCount >= 2) {
-      setClickCount(0);
-      router.push('/admin');
-    } else if (isSubpage && newCount === 1) {
+    if (isSubpage) {
       navigate('home');
       router.push('/fr');
-    } else if (!isSubpage && newCount === 1) {
-      navigate('home');
+      return;
     }
-    setTimeout(() => setClickCount(0), 500);
+
+    navigate('home');
   };
 
   return (
@@ -93,7 +86,7 @@ export default function Header({ settings = {} }: { settings?: SiteSettingsMap }
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14 sm:h-20">
-            {/* Logo - double-click to access admin */}
+            {/* Logo */}
             <button
               onClick={handleLogoClick}
               className="flex items-center gap-1.5 sm:gap-2 group"
