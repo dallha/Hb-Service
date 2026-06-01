@@ -5,12 +5,12 @@ import Link from 'next/link';
 const publicSections = [
   {
     title: 'Parfums',
-    description: 'Les créations olfactives principales de la maison, visibles sur le site public.',
+    description: 'Les créations olfactives principales de la maison.',
     icon: Sparkles,
   },
   {
     title: 'Extraits',
-    description: 'Les extraits et concentrations fortes proposés dans la sélection publique.',
+    description: 'Les extraits et concentrations fortes de la maison.',
     icon: FlaskConical,
   },
 ];
@@ -56,9 +56,6 @@ export default async function CatalogueMaisonPublicPage({
               return (
                 <article key={section.title} className="border border-border bg-background p-6">
                   <div className="flex items-center justify-between mb-6">
-                    <span className="font-sans text-[10px] tracking-[0.35em] uppercase text-[#D4AF37]">
-                      Public
-                    </span>
                     <Icon className="w-5 h-5 text-muted-foreground" />
                   </div>
                   <h2 className="font-serif text-2xl text-foreground mb-3">{section.title}</h2>
