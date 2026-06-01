@@ -67,6 +67,14 @@ export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteS
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isBusy, setIsBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [rawNames, setRawNames] = useState('');
+  const [defaultBrand, setDefaultBrand] = useState('HB Maison');
+  const [defaultCategory, setDefaultCategory] = useState('Parfum');
+  const [defaultGender, setDefaultGender] = useState('U');
+  const [defaultSize, setDefaultSize] = useState('Standard');
+  const [defaultPrice, setDefaultPrice] = useState('0');
+  const [defaultStock, setDefaultStock] = useState('0');
+  const [defaultIsNew, setDefaultIsNew] = useState(false);
   const locale = pathname?.split('/')[1] || 'fr';
 
   const headline = settings.story_1_title || 'Catalogue Maison HB_Service';
@@ -117,6 +125,51 @@ export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteS
       if (fileInputRef.current) fileInputRef.current.value = '';
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Erreur lors de l’import.');
+    } finally {
+      setIsBusy(false);
+    }
+  };
+
+  const handleRawImport = async () => {
+    const names = rawNames
+      .split(/\r?\n|[,;]+/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    if (names.length === 0) {
+      setMessage('Colle au moins un nom de produit avant d’importer.');
+      return;
+    }
+
+    setIsBusy(true);
+    setMessage(null);
+    try {
+      const res = await fetch('/api/catalogue-maison', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          names,
+          defaults: {
+            defaultBrand,
+            defaultCategory,
+            defaultGender,
+            defaultDescription: '',
+            defaultSize,
+            defaultPrice: Number(defaultPrice) || 0,
+            defaultCompareAtPrice: null,
+            defaultStock: Number(defaultStock) || 0,
+            defaultIsNew,
+          },
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Import failed');
+      setMessage(`Auto-remplissage réussi: ${data.counts?.products ?? 0} produits, ${data.counts?.variants ?? 0} variantes.`);
+      setRawNames('');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Erreur lors de l’auto-remplissage.');
     } finally {
       setIsBusy(false);
     }
@@ -325,6 +378,138 @@ export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteS
                   {message}
                 </p>
               )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 sm:py-24 border-t border-border bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] items-start">
+            <div>
+              <p className="font-sans text-[11px] tracking-[0.35em] uppercase text-[#D4AF37] mb-4">
+                Auto-remplissage rapide
+              </p>
+              <h2 className="font-serif text-3xl sm:text-4xl text-foreground mb-4">
+                Coller une liste brute de noms
+              </h2>
+              <p className="font-sans text-sm sm:text-base text-muted-foreground leading-relaxed">
+                Colle un nom par ligne, puis le système génère les fiches de base tout seul. C’est l’option à utiliser quand la liste des produits est prête mais pas encore structurée.
+              </p>
+              <div className="mt-6 rounded-none border border-border bg-card/60 p-4 space-y-2">
+                <p className="font-sans text-xs tracking-widest uppercase text-muted-foreground">
+                  Format conseillé
+                </p>
+                <p className="font-sans text-sm text-muted-foreground leading-relaxed">
+                  Un nom par ligne. Les virgules et points-virgules sont aussi acceptés.
+                </p>
+              </div>
+            </div>
+
+            <div className="border border-border bg-background p-6 sm:p-8 space-y-5">
+              <div>
+                <label className="block font-sans text-[10px] tracking-[0.35em] uppercase text-muted-foreground mb-2">
+                  Liste brute de noms
+                </label>
+                <textarea
+                  value={rawNames}
+                  onChange={(event) => setRawNames(event.target.value)}
+                  rows={8}
+                  placeholder={`Oud Noir Intense\nBougie Ambre Doux\nHuile Rose Safran`}
+                  className="block w-full border border-border bg-background p-4 text-sm text-foreground placeholder:text-muted-foreground resize-y"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <label className="space-y-2">
+                  <span className="block font-sans text-[10px] tracking-[0.35em] uppercase text-muted-foreground">
+                    Marque par défaut
+                  </span>
+                  <input
+                    value={defaultBrand}
+                    onChange={(event) => setDefaultBrand(event.target.value)}
+                    className="block w-full border border-border bg-background p-3 text-sm text-foreground"
+                  />
+                </label>
+                <label className="space-y-2">
+                  <span className="block font-sans text-[10px] tracking-[0.35em] uppercase text-muted-foreground">
+                    Famille
+                  </span>
+                  <input
+                    value={defaultCategory}
+                    onChange={(event) => setDefaultCategory(event.target.value)}
+                    className="block w-full border border-border bg-background p-3 text-sm text-foreground"
+                  />
+                </label>
+                <label className="space-y-2">
+                  <span className="block font-sans text-[10px] tracking-[0.35em] uppercase text-muted-foreground">
+                    Genre
+                  </span>
+                  <select
+                    value={defaultGender}
+                    onChange={(event) => setDefaultGender(event.target.value)}
+                    className="block w-full border border-border bg-background p-3 text-sm text-foreground"
+                  >
+                    <option value="U">U</option>
+                    <option value="H">H</option>
+                    <option value="F">F</option>
+                  </select>
+                </label>
+                <label className="space-y-2">
+                  <span className="block font-sans text-[10px] tracking-[0.35em] uppercase text-muted-foreground">
+                    Taille
+                  </span>
+                  <input
+                    value={defaultSize}
+                    onChange={(event) => setDefaultSize(event.target.value)}
+                    className="block w-full border border-border bg-background p-3 text-sm text-foreground"
+                  />
+                </label>
+                <label className="space-y-2">
+                  <span className="block font-sans text-[10px] tracking-[0.35em] uppercase text-muted-foreground">
+                    Prix par défaut
+                  </span>
+                  <input
+                    type="number"
+                    min="0"
+                    value={defaultPrice}
+                    onChange={(event) => setDefaultPrice(event.target.value)}
+                    className="block w-full border border-border bg-background p-3 text-sm text-foreground"
+                  />
+                </label>
+                <label className="space-y-2">
+                  <span className="block font-sans text-[10px] tracking-[0.35em] uppercase text-muted-foreground">
+                    Stock par défaut
+                  </span>
+                  <input
+                    type="number"
+                    min="0"
+                    value={defaultStock}
+                    onChange={(event) => setDefaultStock(event.target.value)}
+                    className="block w-full border border-border bg-background p-3 text-sm text-foreground"
+                  />
+                </label>
+              </div>
+
+              <label className="flex items-center gap-3 text-sm text-muted-foreground">
+                <input
+                  type="checkbox"
+                  checked={defaultIsNew}
+                  onChange={(event) => setDefaultIsNew(event.target.checked)}
+                  className="h-4 w-4 border-border text-foreground"
+                />
+                Marquer tous les produits comme nouveaux
+              </label>
+
+              <button
+                type="button"
+                disabled={isBusy}
+                onClick={handleRawImport}
+                className="inline-flex items-center gap-2 bg-foreground text-background font-sans text-xs tracking-widest uppercase px-5 py-3 rounded-none disabled:opacity-50"
+              >
+                <Upload className="w-4 h-4" />
+                Importer la liste brute
+              </button>
             </div>
           </div>
         </div>

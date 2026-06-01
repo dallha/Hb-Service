@@ -184,6 +184,7 @@ def build_sheet2() -> str:
         ("A5", "1. Télécharge le modèle CSV ou Excel.", 0),
         ("A6", "2. Remplis une ligne par variante. Si un produit a plusieurs tailles, répète le nom et change seulement la taille/prix.", 0),
         ("A7", "3. Réimporte le fichier depuis la page catalogue maison.", 0),
+        ("A8", "4. Si tu n'as que des noms, colle la liste brute dans la page catalogue maison: le système remplit les champs par défaut.", 0),
         ("A9", "Champs obligatoires", 4),
         ("A10", "nom, slug, marque, categorie, genre, description, taille, prix, stock, ordre", 0),
         ("A12", "Valeurs autorisées", 4),

@@ -26,6 +26,18 @@ const CSV_HEADERS = [
 
 type CsvRow = Record<string, string>;
 
+type RawImportOptions = {
+  defaultBrand: string;
+  defaultCategory: string;
+  defaultGender: string;
+  defaultDescription: string;
+  defaultSize: string;
+  defaultPrice: number;
+  defaultCompareAtPrice: number | null;
+  defaultStock: number;
+  defaultIsNew: boolean;
+};
+
 function slugify(value: string) {
   return value
     .normalize('NFD')
@@ -126,6 +138,98 @@ function parseNumber(value: string) {
   if (!value.trim()) return null;
   const parsed = Number(value.replace(',', '.'));
   return Number.isFinite(parsed) ? parsed : null;
+}
+
+function toStringList(value: unknown) {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => (typeof item === 'string' ? item : ''))
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  if (typeof value === 'string') {
+    return value
+      .split(/\r?\n|[,;]+/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+}
+
+function buildRawDescription(name: string, category: string, brand: string) {
+  const brandPart = brand.trim() ? `par ${brand.trim()}` : 'par la maison';
+  return `${category.trim() || 'Produit'} du catalogue maison, ${brandPart}. Fiche générée à partir de la liste de noms fournie.`;
+}
+
+function buildRawRows(names: string[], options: RawImportOptions) {
+  const usedSlugs = new Set<string>();
+
+  return names.map((name, index) => {
+    const cleanName = name.trim();
+    const baseSlug = slugify(cleanName || `catalogue-maison-${index + 1}`);
+    let slug = baseSlug;
+    let suffix = 2;
+
+    while (usedSlugs.has(slug)) {
+      slug = `${baseSlug}-${suffix}`;
+      suffix += 1;
+    }
+    usedSlugs.add(slug);
+
+    return {
+      nom: cleanName,
+      slug,
+      marque: options.defaultBrand,
+      categorie: options.defaultCategory,
+      genre: options.defaultGender,
+      description: options.defaultDescription || buildRawDescription(cleanName, options.defaultCategory, options.defaultBrand),
+      nouveau: options.defaultIsNew ? 'true' : 'false',
+      page_source: '',
+      nom_arabe: '',
+      image_url: '',
+      taille: options.defaultSize,
+      prix: String(options.defaultPrice),
+      prix_barre: options.defaultCompareAtPrice === null ? '' : String(options.defaultCompareAtPrice),
+      stock: String(options.defaultStock),
+      sku: '',
+      ordre: String(index + 1),
+    } satisfies CsvRow;
+  });
+}
+
+function normalizeNumber(value: unknown, fallback: number) {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string') {
+    const parsed = Number(value.replace(',', '.'));
+    return Number.isFinite(parsed) ? parsed : fallback;
+  }
+  return fallback;
+}
+
+function normalizeNullableNumber(value: unknown) {
+  if (value === null || value === undefined || value === '') return null;
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string') {
+    const parsed = Number(value.replace(',', '.'));
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+}
+
+function normalizeRawImportOptions(input?: Partial<RawImportOptions>): RawImportOptions {
+  return {
+    defaultBrand: input?.defaultBrand?.trim() || 'HB Maison',
+    defaultCategory: input?.defaultCategory?.trim() || 'Parfum',
+    defaultGender: input?.defaultGender?.trim() || 'U',
+    defaultDescription: input?.defaultDescription?.trim() || '',
+    defaultSize: input?.defaultSize?.trim() || 'Standard',
+    defaultPrice: normalizeNumber(input?.defaultPrice, 0),
+    defaultCompareAtPrice: normalizeNullableNumber(input?.defaultCompareAtPrice),
+    defaultStock: normalizeNumber(input?.defaultStock, 0),
+    defaultIsNew: Boolean(input?.defaultIsNew),
+  };
 }
 
 function rowToProduct(row: CsvRow, index: number) {
@@ -277,21 +381,77 @@ export async function POST(request: Request) {
   }
 
   try {
-    const formData = await request.formData();
-    const file = formData.get('file');
+    const contentType = request.headers.get('content-type') || '';
+    let rows: CsvRow[] = [];
 
-    if (!(file instanceof File)) {
-      return NextResponse.json({ error: 'Fichier CSV requis' }, { status: 400 });
+    if (contentType.includes('application/json')) {
+      const body = await request.json() as {
+        names?: unknown;
+        rawNames?: unknown;
+        defaults?: Partial<RawImportOptions>;
+      };
+      const names = toStringList(body.names ?? body.rawNames);
+      if (names.length === 0) {
+        return NextResponse.json({ error: 'Aucun nom fourni' }, { status: 400 });
+      }
+
+      const defaults: RawImportOptions = {
+        defaultBrand: body.defaults?.defaultBrand?.trim() || 'HB Maison',
+        defaultCategory: body.defaults?.defaultCategory?.trim() || 'Parfum',
+        defaultGender: body.defaults?.defaultGender?.trim() || 'U',
+        defaultDescription: body.defaults?.defaultDescription?.trim() || '',
+        defaultSize: body.defaults?.defaultSize?.trim() || 'Standard',
+        defaultPrice: Number.isFinite(body.defaults?.defaultPrice as number) ? Number(body.defaults?.defaultPrice) : 0,
+        defaultCompareAtPrice:
+          body.defaults?.defaultCompareAtPrice === null || body.defaults?.defaultCompareAtPrice === undefined
+            ? null
+            : Number.isFinite(body.defaults.defaultCompareAtPrice as number)
+              ? Number(body.defaults.defaultCompareAtPrice)
+              : null,
+        defaultStock: Number.isFinite(body.defaults?.defaultStock as number) ? Number(body.defaults?.defaultStock) : 0,
+        defaultIsNew: Boolean(body.defaults?.defaultIsNew),
+      };
+
+      rows = buildRawRows(names, defaults);
+    } else {
+      const formData = await request.formData();
+      const file = formData.get('file');
+      const rawNames = formData.get('rawNames');
+
+      if (typeof rawNames === 'string' && rawNames.trim()) {
+        const names = toStringList(rawNames);
+        if (names.length === 0) {
+          return NextResponse.json({ error: 'Aucun nom fourni' }, { status: 400 });
+        }
+
+        const defaults: RawImportOptions = {
+          defaultBrand: String(formData.get('defaultBrand') || 'HB Maison').trim(),
+          defaultCategory: String(formData.get('defaultCategory') || 'Parfum').trim(),
+          defaultGender: String(formData.get('defaultGender') || 'U').trim(),
+          defaultDescription: String(formData.get('defaultDescription') || '').trim(),
+          defaultSize: String(formData.get('defaultSize') || 'Standard').trim(),
+          defaultPrice: parseNumber(String(formData.get('defaultPrice') || '')) ?? 0,
+          defaultCompareAtPrice: parseNumber(String(formData.get('defaultCompareAtPrice') || '')),
+          defaultStock: parseNumber(String(formData.get('defaultStock') || '')) ?? 0,
+          defaultIsNew: parseBoolean(String(formData.get('defaultIsNew') || '')),
+        };
+
+        rows = buildRawRows(names, defaults);
+      } else {
+        if (!(file instanceof File)) {
+          return NextResponse.json({ error: 'Fichier CSV requis' }, { status: 400 });
+        }
+
+        const raw = await file.text();
+        if (!raw.trim()) {
+          return NextResponse.json({ error: 'Le fichier est vide' }, { status: 400 });
+        }
+
+        rows = raw.trim().startsWith('[')
+          ? (JSON.parse(raw) as CsvRow[])
+          : parseCsv(raw);
+      }
     }
-
-    const raw = await file.text();
-    if (!raw.trim()) {
-      return NextResponse.json({ error: 'Le fichier est vide' }, { status: 400 });
-    }
-
-    const rows = raw.trim().startsWith('[')
-      ? (JSON.parse(raw) as CsvRow[])
-      : parseCsv(raw);
 
     if (!Array.isArray(rows) || rows.length === 0) {
       return NextResponse.json({ error: 'Aucune ligne à importer' }, { status: 400 });
