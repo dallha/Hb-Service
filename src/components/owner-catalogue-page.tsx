@@ -261,7 +261,7 @@ export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteS
                 Outils de transfert du catalogue
               </h2>
               <p className="font-sans text-sm sm:text-base text-muted-foreground leading-relaxed">
-                Tu peux télécharger un modèle CSV, exporter la collection actuelle ou importer un fichier rempli quand la liste des noms sera prête.
+                Tu peux télécharger un modèle Excel avec exemples, exporter la collection actuelle ou importer un fichier rempli quand la liste des noms sera prête.
               </p>
 
               <div className="mt-6 flex flex-wrap gap-3">
@@ -271,7 +271,7 @@ export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteS
                   className="inline-flex items-center gap-2 border border-border px-4 py-3 text-xs uppercase tracking-widest text-foreground hover:border-accent hover:text-accent transition-colors"
                 >
                   <Download className="w-4 h-4" />
-                  Modèle Excel
+                  Excel avec exemples
                 </a>
                 <button
                   type="button"

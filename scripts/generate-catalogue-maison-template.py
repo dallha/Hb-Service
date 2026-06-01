@@ -27,6 +27,63 @@ SHEET1_HEADERS = [
     "ordre",
 ]
 
+SAMPLE_ROWS = [
+    {
+        "nom": "Oud Noir Intense",
+        "slug": "oud-noir-intense",
+        "marque": "HB Maison",
+        "categorie": "Parfum",
+        "genre": "H",
+        "description": "Exemple de fiche parfum masculine à remplacer.",
+        "nouveau": "oui",
+        "page_source": 1,
+        "nom_arabe": "",
+        "image_url": "",
+        "taille": "100ml",
+        "prix": 45000,
+        "prix_barre": "",
+        "stock": 20,
+        "sku": "HB-ONI-100",
+        "ordre": 1,
+    },
+    {
+        "nom": "Bougie Ambre Doux",
+        "slug": "bougie-ambre-doux",
+        "marque": "HB Maison",
+        "categorie": "Bougie",
+        "genre": "U",
+        "description": "Exemple de fiche bougie à personnaliser.",
+        "nouveau": "non",
+        "page_source": 2,
+        "nom_arabe": "",
+        "image_url": "",
+        "taille": "220g",
+        "prix": 22000,
+        "prix_barre": "",
+        "stock": 15,
+        "sku": "HB-BAD-220",
+        "ordre": 2,
+    },
+    {
+        "nom": "Huile Rose Safran",
+        "slug": "huile-rose-safran",
+        "marque": "HB Maison",
+        "categorie": "Huile",
+        "genre": "F",
+        "description": "Exemple d’huile parfumée à remplacer.",
+        "nouveau": "oui",
+        "page_source": 3,
+        "nom_arabe": "",
+        "image_url": "",
+        "taille": "50ml",
+        "prix": 18000,
+        "prix_barre": "",
+        "stock": 30,
+        "sku": "HB-HRS-50",
+        "ordre": 3,
+    },
+]
+
 
 def col_letter(n: int) -> str:
     result = ""
@@ -50,13 +107,22 @@ def build_sheet1() -> str:
         for i, header in enumerate(SHEET1_HEADERS, start=1)
     )
 
+    example_rows = []
+    for row_index, row in enumerate(SAMPLE_ROWS, start=2):
+        cells = []
+        for col_index, header in enumerate(SHEET1_HEADERS, start=1):
+            ref = f"{col_letter(col_index)}{row_index}"
+            value = row.get(header, "")
+            if isinstance(value, (int, float)):
+                cells.append(num_cell(ref, value, style=3))
+            else:
+                cells.append(inline_cell(ref, str(value), style=3))
+        example_rows.append(f'<row r="{row_index}" spans="1:16" ht="20" customHeight="1">{"".join(cells)}</row>')
+
     sheet_data = f"""
     <sheetData>
       <row r="1" spans="1:16" ht="22" customHeight="1">{header_row}</row>
-      <row r="2" spans="1:16" ht="20" customHeight="1">
-        {inline_cell("A2", "Commence ici", style=2)}
-        {inline_cell("B2", "Laisse vide si inutile", style=3)}
-      </row>
+      {''.join(example_rows)}
     </sheetData>
     """.strip()
 
@@ -95,7 +161,7 @@ def build_sheet1() -> str:
     return f"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
            xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
-  <dimension ref="A1:P2"/>
+  <dimension ref="A1:P4"/>
   <sheetViews>
     <sheetView workbookViewId="0">
       <pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/>
@@ -105,7 +171,7 @@ def build_sheet1() -> str:
   <sheetFormatPr defaultRowHeight="20"/>
   {cols}
   {sheet_data}
-  <autoFilter ref="A1:P2"/>
+  <autoFilter ref="A1:P4"/>
   {validations}
 </worksheet>
 """
@@ -114,16 +180,17 @@ def build_sheet1() -> str:
 def build_sheet2() -> str:
     rows = [
         ("A1", "Catalogue maison - mode d'emploi", 4),
-        ("A3", "1. Télécharge le modèle CSV ou Excel.", 0),
-        ("A4", "2. Remplis une ligne par variante. Si un produit a plusieurs tailles, répète le nom et change seulement la taille/prix.", 0),
-        ("A5", "3. Réimporte le fichier depuis la page catalogue maison.", 0),
-        ("A7", "Champs obligatoires", 4),
-        ("A8", "nom, slug, marque, categorie, genre, description, taille, prix, stock, ordre", 0),
-        ("A10", "Valeurs autorisées", 4),
-        ("A11", "genre = H, F, U", 0),
-        ("A12", "nouveau = oui / non", 0),
-        ("A14", "Conseil", 4),
-        ("A15", "Utilise un slug unique. Exemple: oud-noir-intense, rose-safran, huile-d-ambre.", 0),
+        ("A3", "Les 3 premières lignes sont des exemples. Remplace-les ou ajoute-en d'autres en gardant la même structure.", 0),
+        ("A5", "1. Télécharge le modèle CSV ou Excel.", 0),
+        ("A6", "2. Remplis une ligne par variante. Si un produit a plusieurs tailles, répète le nom et change seulement la taille/prix.", 0),
+        ("A7", "3. Réimporte le fichier depuis la page catalogue maison.", 0),
+        ("A9", "Champs obligatoires", 4),
+        ("A10", "nom, slug, marque, categorie, genre, description, taille, prix, stock, ordre", 0),
+        ("A12", "Valeurs autorisées", 4),
+        ("A13", "genre = H, F, U", 0),
+        ("A14", "nouveau = oui / non", 0),
+        ("A16", "Conseil", 4),
+        ("A17", "Utilise un slug unique. Exemple: oud-noir-intense, rose-safran, huile-d-ambre.", 0),
     ]
 
     cell_xml = "\n".join(
@@ -134,7 +201,7 @@ def build_sheet2() -> str:
     return f"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
            xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
-  <dimension ref="A1:A15"/>
+  <dimension ref="A1:A17"/>
   <sheetViews>
     <sheetView workbookViewId="0">
       <selection activeCell="A1" sqref="A1"/>
