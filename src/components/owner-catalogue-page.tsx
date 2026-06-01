@@ -1,7 +1,17 @@
 'use client';
 
+import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Droplets, Flame, FlaskConical, Sparkles, ChevronRight } from 'lucide-react';
+import {
+  ArrowRight,
+  Droplets,
+  Flame,
+  FlaskConical,
+  Sparkles,
+  ChevronRight,
+  Download,
+  Upload,
+} from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import type { SiteSettingsMap } from '@/lib/settings';
 
@@ -54,10 +64,63 @@ const importFields = [
 export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteSettingsMap }) {
   const router = useRouter();
   const pathname = usePathname();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isBusy, setIsBusy] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
   const locale = pathname?.split('/')[1] || 'fr';
 
   const headline = settings.story_1_title || 'Catalogue Maison HB_Service';
   const subtitle = settings.storytelling_hero_subtitle || 'Un espace dédié aux produits créés par le propriétaire: parfums, bougies, huiles et autres références de la maison.';
+
+  const downloadCsv = async (mode: 'template' | 'export') => {
+    setIsBusy(true);
+    setMessage(null);
+    try {
+      const res = await fetch(`/api/catalogue-maison?mode=${mode}`);
+      if (!res.ok) throw new Error('Impossible de générer le fichier');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = mode === 'template' ? 'catalogue-maison-template.csv' : 'catalogue-maison.csv';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      setMessage(mode === 'template' ? 'Modèle CSV téléchargé.' : 'Export CSV téléchargé.');
+    } catch {
+      setMessage('Erreur lors du téléchargement.');
+    } finally {
+      setIsBusy(false);
+    }
+  };
+
+  const handleImport = async () => {
+    const file = fileInputRef.current?.files?.[0];
+    if (!file) {
+      setMessage('Choisis un fichier CSV avant d’importer.');
+      return;
+    }
+
+    setIsBusy(true);
+    setMessage(null);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/catalogue-maison', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Import failed');
+      setMessage(`Import réussi: ${data.counts?.products ?? 0} produits, ${data.counts?.variants ?? 0} variantes.`);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Erreur lors de l’import.');
+    } finally {
+      setIsBusy(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -182,6 +245,78 @@ export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteS
                   </p>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 sm:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] items-start">
+            <div>
+              <p className="font-sans text-[11px] tracking-[0.35em] uppercase text-[#D4AF37] mb-4">
+                Import / Export
+              </p>
+              <h2 className="font-serif text-3xl sm:text-4xl text-foreground mb-4">
+                Outils de transfert du catalogue
+              </h2>
+              <p className="font-sans text-sm sm:text-base text-muted-foreground leading-relaxed">
+                Tu peux télécharger un modèle CSV, exporter la collection actuelle ou importer un fichier rempli quand la liste des noms sera prête.
+              </p>
+
+              <div className="mt-6 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  disabled={isBusy}
+                  onClick={() => downloadCsv('template')}
+                  className="inline-flex items-center gap-2 border border-border px-4 py-3 text-xs uppercase tracking-widest text-foreground hover:border-accent hover:text-accent transition-colors disabled:opacity-50"
+                >
+                  <Download className="w-4 h-4" />
+                  Modèle CSV
+                </button>
+                <button
+                  type="button"
+                  disabled={isBusy}
+                  onClick={() => downloadCsv('export')}
+                  className="inline-flex items-center gap-2 border border-border px-4 py-3 text-xs uppercase tracking-widest text-foreground hover:border-accent hover:text-accent transition-colors disabled:opacity-50"
+                >
+                  <Download className="w-4 h-4" />
+                  Export actuel
+                </button>
+              </div>
+            </div>
+
+            <div className="border border-border bg-background p-6 sm:p-8 space-y-4">
+              <div>
+                <label className="block font-sans text-[10px] tracking-[0.35em] uppercase text-muted-foreground mb-2">
+                  Fichier CSV ou JSON
+                </label>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".csv,.json,text/csv,application/json"
+                  className="block w-full text-sm text-muted-foreground file:mr-4 file:border-0 file:bg-foreground file:text-background file:px-4 file:py-2 file:uppercase file:tracking-widest file:text-xs file:rounded-none"
+                />
+              </div>
+
+              <button
+                type="button"
+                disabled={isBusy}
+                onClick={handleImport}
+                className="inline-flex items-center gap-2 bg-foreground text-background font-sans text-xs tracking-widest uppercase px-5 py-3 rounded-none disabled:opacity-50"
+              >
+                <Upload className="w-4 h-4" />
+                Importer le fichier
+              </button>
+
+              <p className="font-sans text-sm text-muted-foreground leading-relaxed">
+                Format attendu: `nom`, `slug`, `marque`, `categorie`, `genre`, `description`, `nouveau`, `page_source`, `nom_arabe`, `image_url`, `taille`, `prix`, `prix_barre`, `stock`, `sku`, `ordre`.
+              </p>
+              {message && (
+                <p className="font-sans text-sm text-foreground border-t border-border pt-4">
+                  {message}
+                </p>
+              )}
             </div>
           </div>
         </div>
