@@ -88,6 +88,7 @@ export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteS
     order: number;
   }> | null>(null);
   const [rawPreviewCounts, setRawPreviewCounts] = useState<{ products: number; variants: number } | null>(null);
+  const [rawDuplicateNames, setRawDuplicateNames] = useState<string[]>([]);
   const locale = pathname?.split('/')[1] || 'fr';
 
   const headline = settings.story_1_title || 'Catalogue Maison HB_Service';
@@ -183,6 +184,7 @@ export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteS
       setRawNames('');
       setRawPreview(null);
       setRawPreviewCounts(null);
+      setRawDuplicateNames(data.duplicates ?? []);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Erreur lors de l’auto-remplissage.');
     } finally {
@@ -229,6 +231,7 @@ export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteS
       if (!res.ok) throw new Error(data?.error || 'Preview failed');
       setRawPreview(data.preview ?? []);
       setRawPreviewCounts(data.counts ?? null);
+      setRawDuplicateNames(data.duplicates ?? []);
       setMessage(`Aperçu généré: ${data.counts?.products ?? 0} produits, ${data.counts?.variants ?? 0} variantes.`);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Erreur lors de l’aperçu.');
@@ -586,6 +589,21 @@ export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteS
                 <p className="font-sans text-xs uppercase tracking-widest text-muted-foreground">
                   Aperçu calculé sur {rawPreviewCounts.products} produits et {rawPreviewCounts.variants} variantes
                 </p>
+              )}
+
+              {rawDuplicateNames.length > 0 && (
+                <div className="rounded-none border border-amber-500/40 bg-amber-500/5 p-4">
+                  <p className="font-sans text-[10px] tracking-[0.35em] uppercase text-amber-700 mb-2">
+                    Doublons ignorés
+                  </p>
+                  <p className="font-sans text-sm text-foreground leading-relaxed">
+                    {rawDuplicateNames.length} nom(s) déjà répété(s) dans la liste ont été ignorés pour éviter les fiches en double.
+                  </p>
+                  <p className="font-sans text-xs text-muted-foreground mt-2">
+                    {rawDuplicateNames.slice(0, 8).join(', ')}
+                    {rawDuplicateNames.length > 8 ? '…' : ''}
+                  </p>
+                </div>
               )}
 
               {rawPreview && rawPreview.length > 0 && (

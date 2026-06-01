@@ -163,11 +163,25 @@ function buildRawDescription(name: string, category: string, brand: string) {
   return `${category.trim() || 'Produit'} du catalogue maison, ${brandPart}. Fiche générée à partir de la liste de noms fournie.`;
 }
 
+function normalizeDuplicateKey(value: string) {
+  return slugify(value) || value.trim().toLowerCase();
+}
+
 function buildRawRows(names: string[], options: RawImportOptions) {
   const usedSlugs = new Set<string>();
+  const seenNames = new Set<string>();
+  const duplicates: string[] = [];
+  const rows: CsvRow[] = [];
 
-  return names.map((name, index) => {
+  names.forEach((name, index) => {
     const cleanName = name.trim();
+    const duplicateKey = normalizeDuplicateKey(cleanName);
+    if (seenNames.has(duplicateKey)) {
+      duplicates.push(cleanName);
+      return;
+    }
+    seenNames.add(duplicateKey);
+
     const baseSlug = slugify(cleanName || `catalogue-maison-${index + 1}`);
     let slug = baseSlug;
     let suffix = 2;
@@ -178,7 +192,7 @@ function buildRawRows(names: string[], options: RawImportOptions) {
     }
     usedSlugs.add(slug);
 
-    return {
+    rows.push({
       nom: cleanName,
       slug,
       marque: options.defaultBrand,
@@ -195,8 +209,10 @@ function buildRawRows(names: string[], options: RawImportOptions) {
       stock: String(options.defaultStock),
       sku: '',
       ordre: String(index + 1),
-    } satisfies CsvRow;
+    } satisfies CsvRow);
   });
+
+  return { rows, duplicates };
 }
 
 function normalizeNumber(value: unknown, fallback: number) {
@@ -420,6 +436,7 @@ export async function POST(request: Request) {
     const contentType = request.headers.get('content-type') || '';
     let rows: CsvRow[] = [];
     let previewOnly = false;
+    let duplicateNames: string[] = [];
 
     if (contentType.includes('application/json')) {
       const body = await request.json() as {
@@ -450,7 +467,9 @@ export async function POST(request: Request) {
         defaultIsNew: Boolean(body.defaults?.defaultIsNew),
       };
 
-      rows = buildRawRows(names, defaults);
+      const rawRows = buildRawRows(names, defaults);
+      rows = rawRows.rows;
+      duplicateNames = rawRows.duplicates;
       previewOnly = Boolean(body.previewOnly);
     } else {
       const formData = await request.formData();
@@ -476,7 +495,9 @@ export async function POST(request: Request) {
           defaultIsNew: parseBoolean(String(formData.get('defaultIsNew') || '')),
         };
 
-        rows = buildRawRows(names, defaults);
+        const rawRows = buildRawRows(names, defaults);
+        rows = rawRows.rows;
+        duplicateNames = rawRows.duplicates;
       } else {
         if (!(file instanceof File)) {
           return NextResponse.json({ error: 'Fichier CSV requis' }, { status: 400 });
@@ -503,6 +524,7 @@ export async function POST(request: Request) {
       return NextResponse.json({
         success: true,
         previewOnly: true,
+        duplicates: duplicateNames,
         counts: {
           products: importPlan.productCount,
           variants: importPlan.variantCount,
@@ -559,6 +581,7 @@ export async function POST(request: Request) {
         products: productCount,
         variants: variantCount,
       },
+      duplicates: duplicateNames,
     });
   } catch (error) {
     console.error('Owner catalogue import error:', error);
