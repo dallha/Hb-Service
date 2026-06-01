@@ -265,6 +265,14 @@ export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteS
               </p>
 
               <div className="mt-6 flex flex-wrap gap-3">
+                <a
+                  href="/downloads/catalogue-maison-import-template.xlsx"
+                  download
+                  className="inline-flex items-center gap-2 border border-border px-4 py-3 text-xs uppercase tracking-widest text-foreground hover:border-accent hover:text-accent transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  Modèle Excel
+                </a>
                 <button
                   type="button"
                   disabled={isBusy}
