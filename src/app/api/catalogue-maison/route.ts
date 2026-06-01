@@ -168,33 +168,13 @@ function normalizeDuplicateKey(value: string) {
 }
 
 function buildRawRows(names: string[], options: RawImportOptions) {
-  const usedSlugs = new Set<string>();
-  const seenNames = new Set<string>();
-  const duplicates: string[] = [];
-  const rows: CsvRow[] = [];
-
-  names.forEach((name, index) => {
+  return names.map((name, index) => {
     const cleanName = name.trim();
-    const duplicateKey = normalizeDuplicateKey(cleanName);
-    if (seenNames.has(duplicateKey)) {
-      duplicates.push(cleanName);
-      return;
-    }
-    seenNames.add(duplicateKey);
-
     const baseSlug = slugify(cleanName || `catalogue-maison-${index + 1}`);
-    let slug = baseSlug;
-    let suffix = 2;
 
-    while (usedSlugs.has(slug)) {
-      slug = `${baseSlug}-${suffix}`;
-      suffix += 1;
-    }
-    usedSlugs.add(slug);
-
-    rows.push({
+    return {
       nom: cleanName,
-      slug,
+      slug: baseSlug,
       marque: options.defaultBrand,
       categorie: options.defaultCategory,
       genre: options.defaultGender,
@@ -209,10 +189,8 @@ function buildRawRows(names: string[], options: RawImportOptions) {
       stock: String(options.defaultStock),
       sku: '',
       ordre: String(index + 1),
-    } satisfies CsvRow);
+    } satisfies CsvRow;
   });
-
-  return { rows, duplicates };
 }
 
 function normalizeNumber(value: unknown, fallback: number) {
@@ -289,17 +267,105 @@ function rowToProduct(row: CsvRow, index: number) {
   };
 }
 
-function buildImportPlan(rows: CsvRow[]) {
-  const grouped = new Map<string, { product: ReturnType<typeof rowToProduct>['product']; variants: ReturnType<typeof rowToProduct>['variant'][] }>();
+function normalizeSlugKey(value: string) {
+  return slugify(value) || value.trim().toLowerCase();
+}
+
+function normalizeVariantSignature(variant: ReturnType<typeof rowToProduct>['variant']) {
+  return [
+    variant.size || 'Standard',
+    Number.isFinite(variant.price) ? variant.price : 0,
+    variant.compareAtPrice ?? '',
+    Number.isFinite(variant.stock) ? variant.stock : 0,
+    variant.sku || '',
+  ].join('|');
+}
+
+type ExistingImportKeys = {
+  nameKeys: Set<string>;
+  slugKeys: Set<string>;
+};
+
+type ImportPlan = {
+  products: Array<{
+    product: ReturnType<typeof rowToProduct>['product'];
+    variants: ReturnType<typeof rowToProduct>['variant'][];
+  }>;
+  productCount: number;
+  variantCount: number;
+  mergedDuplicates: string[];
+  existingNameConflicts: string[];
+  slugAdjustments: Array<{ name: string; from: string; to: string }>;
+  preview: Array<{
+    name: string;
+    slug: string;
+    brand: string | null;
+    category: string | null;
+    gender: string | null;
+    size: string;
+    price: number;
+    stock: number;
+    isNew: boolean;
+    order: number;
+  }>;
+};
+
+function buildImportPlan(rows: CsvRow[], existing: ExistingImportKeys, mergeDuplicates: boolean): ImportPlan {
+  const grouped = new Map<
+    string,
+    {
+      product: ReturnType<typeof rowToProduct>['product'];
+      variants: ReturnType<typeof rowToProduct>['variant'][];
+      variantSignatures: Set<string>;
+    }
+  >();
+  const mergedDuplicates: string[] = [];
+  const existingNameConflicts: string[] = [];
+  const slugAdjustments: Array<{ name: string; from: string; to: string }> = [];
+  const usedSlugs = new Set(existing.slugKeys);
 
   rows.forEach((row, index) => {
     const { product, variant } = rowToProduct(row, index);
-    const existing = grouped.get(product.slug);
-    if (existing) {
-      existing.variants.push(variant);
-    } else {
-      grouped.set(product.slug, { product, variants: [variant] });
+    const nameKey = normalizeDuplicateKey(product.name);
+
+    if (existing.nameKeys.has(nameKey)) {
+      existingNameConflicts.push(product.name);
+      return;
     }
+
+    const groupKey = mergeDuplicates ? nameKey : product.slug;
+    const existingGroup = grouped.get(groupKey);
+    const variantSignature = normalizeVariantSignature(variant);
+
+    if (existingGroup) {
+      if (!existingGroup.variantSignatures.has(variantSignature)) {
+        existingGroup.variants.push(variant);
+        existingGroup.variantSignatures.add(variantSignature);
+      }
+      mergedDuplicates.push(product.name);
+      return;
+    }
+
+    const baseSlug = product.slug || slugify(product.name);
+    let finalSlug = baseSlug;
+    let suffix = 2;
+    while (usedSlugs.has(finalSlug)) {
+      finalSlug = `${baseSlug}-${suffix}`;
+      suffix += 1;
+    }
+    usedSlugs.add(finalSlug);
+    if (finalSlug !== baseSlug) {
+      slugAdjustments.push({ name: product.name, from: baseSlug, to: finalSlug });
+    }
+
+    grouped.set(groupKey, {
+      product: {
+        ...product,
+        slug: finalSlug,
+      },
+      variants: [variant],
+      variantSignatures: new Set([variantSignature]),
+    });
   });
 
   const products = [...grouped.values()];
@@ -310,6 +376,9 @@ function buildImportPlan(rows: CsvRow[]) {
     products,
     productCount,
     variantCount,
+    mergedDuplicates,
+    existingNameConflicts,
+    slugAdjustments,
     preview: products.slice(0, 10).map((entry, index) => ({
       name: entry.product.name,
       slug: entry.product.slug,
@@ -322,6 +391,25 @@ function buildImportPlan(rows: CsvRow[]) {
       isNew: entry.product.isNew,
       order: entry.product.catalogOrder ?? index + 1,
     })),
+  };
+}
+
+async function loadExistingImportKeys(collectionId: string): Promise<ExistingImportKeys> {
+  const products = await db.product.findMany({
+    where: {
+      collectionId: {
+        not: collectionId,
+      },
+    },
+    select: {
+      name: true,
+      slug: true,
+    },
+  });
+
+  return {
+    nameKeys: new Set(products.map((product) => normalizeDuplicateKey(product.name))),
+    slugKeys: new Set(products.map((product) => normalizeSlugKey(product.slug))),
   };
 }
 
@@ -436,7 +524,7 @@ export async function POST(request: Request) {
     const contentType = request.headers.get('content-type') || '';
     let rows: CsvRow[] = [];
     let previewOnly = false;
-    let duplicateNames: string[] = [];
+    let mergeDuplicates = true;
 
     if (contentType.includes('application/json')) {
       const body = await request.json() as {
@@ -444,6 +532,7 @@ export async function POST(request: Request) {
         rawNames?: unknown;
         defaults?: Partial<RawImportOptions>;
         previewOnly?: boolean;
+        mergeDuplicates?: boolean;
       };
       const names = toStringList(body.names ?? body.rawNames);
       if (names.length === 0) {
@@ -467,15 +556,15 @@ export async function POST(request: Request) {
         defaultIsNew: Boolean(body.defaults?.defaultIsNew),
       };
 
-      const rawRows = buildRawRows(names, defaults);
-      rows = rawRows.rows;
-      duplicateNames = rawRows.duplicates;
+      rows = buildRawRows(names, defaults);
       previewOnly = Boolean(body.previewOnly);
+      mergeDuplicates = body.mergeDuplicates !== false;
     } else {
       const formData = await request.formData();
       const file = formData.get('file');
       const rawNames = formData.get('rawNames');
       previewOnly = String(formData.get('previewOnly') || '').toLowerCase() === 'true';
+      mergeDuplicates = String(formData.get('mergeDuplicates') || 'true').toLowerCase() !== 'false';
 
       if (typeof rawNames === 'string' && rawNames.trim()) {
         const names = toStringList(rawNames);
@@ -495,9 +584,7 @@ export async function POST(request: Request) {
           defaultIsNew: parseBoolean(String(formData.get('defaultIsNew') || '')),
         };
 
-        const rawRows = buildRawRows(names, defaults);
-        rows = rawRows.rows;
-        duplicateNames = rawRows.duplicates;
+        rows = buildRawRows(names, defaults);
       } else {
         if (!(file instanceof File)) {
           return NextResponse.json({ error: 'Fichier CSV requis' }, { status: 400 });
@@ -518,22 +605,26 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Aucune ligne à importer' }, { status: 400 });
     }
 
-    const importPlan = buildImportPlan(rows);
+    const collection = await ensureCollection();
+    const existingKeys = await loadExistingImportKeys(collection.id);
+    const importPlan = buildImportPlan(rows, existingKeys, mergeDuplicates);
 
     if (previewOnly) {
       return NextResponse.json({
         success: true,
         previewOnly: true,
-        duplicates: duplicateNames,
         counts: {
           products: importPlan.productCount,
           variants: importPlan.variantCount,
         },
         preview: importPlan.preview,
+        duplicates: {
+          merged: importPlan.mergedDuplicates,
+          existingNames: importPlan.existingNameConflicts,
+          slugAdjustments: importPlan.slugAdjustments,
+        },
       });
     }
-
-    const collection = await ensureCollection();
 
     await db.productVariant.deleteMany({
       where: { product: { collectionId: collection.id } },
@@ -581,7 +672,11 @@ export async function POST(request: Request) {
         products: productCount,
         variants: variantCount,
       },
-      duplicates: duplicateNames,
+      duplicates: {
+        merged: importPlan.mergedDuplicates,
+        existingNames: importPlan.existingNameConflicts,
+        slugAdjustments: importPlan.slugAdjustments,
+      },
     });
   } catch (error) {
     console.error('Owner catalogue import error:', error);

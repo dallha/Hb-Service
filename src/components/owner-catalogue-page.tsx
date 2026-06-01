@@ -75,6 +75,7 @@ export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteS
   const [defaultPrice, setDefaultPrice] = useState('0');
   const [defaultStock, setDefaultStock] = useState('0');
   const [defaultIsNew, setDefaultIsNew] = useState(false);
+  const [mergeDuplicates, setMergeDuplicates] = useState(true);
   const [rawPreview, setRawPreview] = useState<Array<{
     name: string;
     slug: string;
@@ -88,7 +89,15 @@ export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteS
     order: number;
   }> | null>(null);
   const [rawPreviewCounts, setRawPreviewCounts] = useState<{ products: number; variants: number } | null>(null);
-  const [rawDuplicateNames, setRawDuplicateNames] = useState<string[]>([]);
+  const [rawDuplicateSummary, setRawDuplicateSummary] = useState<{
+    merged: string[];
+    existingNames: string[];
+    slugAdjustments: Array<{ name: string; from: string; to: string }>;
+  }>({
+    merged: [],
+    existingNames: [],
+    slugAdjustments: [],
+  });
   const locale = pathname?.split('/')[1] || 'fr';
 
   const headline = settings.story_1_title || 'Catalogue Maison HB_Service';
@@ -176,6 +185,7 @@ export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteS
             defaultStock: Number(defaultStock) || 0,
             defaultIsNew,
           },
+          mergeDuplicates,
         }),
       });
       const data = await res.json();
@@ -184,7 +194,7 @@ export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteS
       setRawNames('');
       setRawPreview(null);
       setRawPreviewCounts(null);
-      setRawDuplicateNames(data.duplicates ?? []);
+      setRawDuplicateSummary(data.duplicates ?? { merged: [], existingNames: [], slugAdjustments: [] });
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Erreur lors de l’auto-remplissage.');
     } finally {
@@ -225,13 +235,14 @@ export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteS
             defaultStock: Number(defaultStock) || 0,
             defaultIsNew,
           },
+          mergeDuplicates,
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || 'Preview failed');
       setRawPreview(data.preview ?? []);
       setRawPreviewCounts(data.counts ?? null);
-      setRawDuplicateNames(data.duplicates ?? []);
+      setRawDuplicateSummary(data.duplicates ?? { merged: [], existingNames: [], slugAdjustments: [] });
       setMessage(`Aperçu généré: ${data.counts?.products ?? 0} produits, ${data.counts?.variants ?? 0} variantes.`);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Erreur lors de l’aperçu.');
@@ -566,6 +577,16 @@ export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteS
                 Marquer tous les produits comme nouveaux
               </label>
 
+              <label className="flex items-center gap-3 text-sm text-muted-foreground">
+                <input
+                  type="checkbox"
+                  checked={mergeDuplicates}
+                  onChange={(event) => setMergeDuplicates(event.target.checked)}
+                  className="h-4 w-4 border-border text-foreground"
+                />
+                Fusionner les doublons
+              </label>
+
               <button
                 type="button"
                 disabled={isBusy}
@@ -591,18 +612,38 @@ export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteS
                 </p>
               )}
 
-              {rawDuplicateNames.length > 0 && (
+              {(rawDuplicateSummary.merged.length > 0 || rawDuplicateSummary.existingNames.length > 0 || rawDuplicateSummary.slugAdjustments.length > 0) && (
                 <div className="rounded-none border border-amber-500/40 bg-amber-500/5 p-4">
                   <p className="font-sans text-[10px] tracking-[0.35em] uppercase text-amber-700 mb-2">
-                    Doublons ignorés
+                    Doublons et collisions
                   </p>
-                  <p className="font-sans text-sm text-foreground leading-relaxed">
-                    {rawDuplicateNames.length} nom(s) déjà répété(s) dans la liste ont été ignorés pour éviter les fiches en double.
-                  </p>
-                  <p className="font-sans text-xs text-muted-foreground mt-2">
-                    {rawDuplicateNames.slice(0, 8).join(', ')}
-                    {rawDuplicateNames.length > 8 ? '…' : ''}
-                  </p>
+                  {rawDuplicateSummary.merged.length > 0 && (
+                    <p className="font-sans text-sm text-foreground leading-relaxed">
+                      {rawDuplicateSummary.merged.length} doublon(s) ont été fusionné(s) dans le lot.
+                    </p>
+                  )}
+                  {rawDuplicateSummary.existingNames.length > 0 && (
+                    <p className="font-sans text-sm text-foreground leading-relaxed mt-2">
+                      {rawDuplicateSummary.existingNames.length} nom(s) existent déjà dans la base et ont été ignorés.
+                    </p>
+                  )}
+                  {rawDuplicateSummary.slugAdjustments.length > 0 && (
+                    <p className="font-sans text-sm text-foreground leading-relaxed mt-2">
+                      {rawDuplicateSummary.slugAdjustments.length} slug(s) ont été ajustés pour rester uniques.
+                    </p>
+                  )}
+                  {rawDuplicateSummary.merged.length > 0 && (
+                    <p className="font-sans text-xs text-muted-foreground mt-2">
+                      Fusionnés: {rawDuplicateSummary.merged.slice(0, 8).join(', ')}
+                      {rawDuplicateSummary.merged.length > 8 ? '…' : ''}
+                    </p>
+                  )}
+                  {rawDuplicateSummary.existingNames.length > 0 && (
+                    <p className="font-sans text-xs text-muted-foreground mt-2">
+                      Déjà présents: {rawDuplicateSummary.existingNames.slice(0, 8).join(', ')}
+                      {rawDuplicateSummary.existingNames.length > 8 ? '…' : ''}
+                    </p>
+                  )}
                 </div>
               )}
 
