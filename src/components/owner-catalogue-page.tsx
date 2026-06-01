@@ -129,7 +129,7 @@ export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteS
   const handleImport = async () => {
     const file = fileInputRef.current?.files?.[0];
     if (!file) {
-      setMessage('Choisis un fichier CSV avant d’importer.');
+      setMessage('Choisis un fichier CSV, JSON ou Excel avant d’importer.');
       return;
     }
 
@@ -138,6 +138,7 @@ export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteS
     try {
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('mergeDuplicates', String(mergeDuplicates));
       const res = await fetch('/api/catalogue-maison', {
         method: 'POST',
         body: formData,
@@ -146,8 +147,42 @@ export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteS
       if (!res.ok) throw new Error(data?.error || 'Import failed');
       setMessage(`Import réussi: ${data.counts?.products ?? 0} produits, ${data.counts?.variants ?? 0} variantes.`);
       if (fileInputRef.current) fileInputRef.current.value = '';
+      setRawPreview(null);
+      setRawPreviewCounts(null);
+      setRawDuplicateSummary(data.duplicates ?? { merged: [], existingNames: [], slugAdjustments: [] });
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Erreur lors de l’import.');
+    } finally {
+      setIsBusy(false);
+    }
+  };
+
+  const handleFilePreview = async () => {
+    const file = fileInputRef.current?.files?.[0];
+    if (!file) {
+      setMessage('Choisis un fichier CSV, JSON ou Excel avant de prévisualiser.');
+      return;
+    }
+
+    setIsBusy(true);
+    setMessage(null);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('previewOnly', 'true');
+      formData.append('mergeDuplicates', String(mergeDuplicates));
+      const res = await fetch('/api/catalogue-maison', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Preview failed');
+      setRawPreview(data.preview ?? []);
+      setRawPreviewCounts(data.counts ?? null);
+      setRawDuplicateSummary(data.duplicates ?? { merged: [], existingNames: [], slugAdjustments: [] });
+      setMessage(`Aperçu généré: ${data.counts?.products ?? 0} produits, ${data.counts?.variants ?? 0} variantes.`);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Erreur lors de l’aperçu.');
     } finally {
       setIsBusy(false);
     }
@@ -426,25 +461,35 @@ export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteS
             <div className="border border-border bg-background p-6 sm:p-8 space-y-4">
               <div>
                 <label className="block font-sans text-[10px] tracking-[0.35em] uppercase text-muted-foreground mb-2">
-                  Fichier CSV ou JSON
+                  Fichier CSV, JSON ou Excel
                 </label>
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".csv,.json,text/csv,application/json"
+                  accept=".csv,.json,.xlsx,text/csv,application/json,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                   className="block w-full text-sm text-muted-foreground file:mr-4 file:border-0 file:bg-foreground file:text-background file:px-4 file:py-2 file:uppercase file:tracking-widest file:text-xs file:rounded-none"
                 />
               </div>
 
-              <button
-                type="button"
-                disabled={isBusy}
-                onClick={handleImport}
-                className="inline-flex items-center gap-2 bg-foreground text-background font-sans text-xs tracking-widest uppercase px-5 py-3 rounded-none disabled:opacity-50"
-              >
-                <Upload className="w-4 h-4" />
-                Importer le fichier
-              </button>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  disabled={isBusy}
+                  onClick={handleFilePreview}
+                  className="inline-flex items-center gap-2 border border-border text-foreground font-sans text-xs tracking-widest uppercase px-5 py-3 rounded-none hover:border-accent hover:text-accent transition-colors disabled:opacity-50"
+                >
+                  Aperçu fichier
+                </button>
+                <button
+                  type="button"
+                  disabled={isBusy}
+                  onClick={handleImport}
+                  className="inline-flex items-center gap-2 bg-foreground text-background font-sans text-xs tracking-widest uppercase px-5 py-3 rounded-none disabled:opacity-50"
+                >
+                  <Upload className="w-4 h-4" />
+                  Importer le fichier
+                </button>
+              </div>
 
               <p className="font-sans text-sm text-muted-foreground leading-relaxed">
                 Format attendu: `nom`, `slug`, `marque`, `categorie`, `genre`, `description`, `nouveau`, `page_source`, `nom_arabe`, `image_url`, `taille`, `prix`, `prix_barre`, `stock`, `sku`, `ordre`.

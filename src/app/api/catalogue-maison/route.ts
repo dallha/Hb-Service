@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/auth-admin';
+import { parseXlsxFile } from '@/lib/xlsx-parser';
 
 const COLLECTION_SLUG = 'catalogue-maison';
 const DEFAULT_COLLECTION_NAME = 'Catalogue Maison';
@@ -590,14 +591,21 @@ export async function POST(request: Request) {
           return NextResponse.json({ error: 'Fichier CSV requis' }, { status: 400 });
         }
 
-        const raw = await file.text();
-        if (!raw.trim()) {
-          return NextResponse.json({ error: 'Le fichier est vide' }, { status: 400 });
-        }
+        const fileName = file.name.toLowerCase();
+        const isXlsx = fileName.endsWith('.xlsx') || file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
-        rows = raw.trim().startsWith('[')
-          ? (JSON.parse(raw) as CsvRow[])
-          : parseCsv(raw);
+        if (isXlsx) {
+          rows = await parseXlsxFile(file);
+        } else {
+          const raw = await file.text();
+          if (!raw.trim()) {
+            return NextResponse.json({ error: 'Le fichier est vide' }, { status: 400 });
+          }
+
+          rows = raw.trim().startsWith('[')
+            ? (JSON.parse(raw) as CsvRow[])
+            : parseCsv(raw);
+        }
       }
     }
 

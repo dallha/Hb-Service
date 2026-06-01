@@ -47,11 +47,22 @@
 - **Actions de masse (Bulk)** : Activation/désactivation de produits et mise à jour des commandes groupées en un clic.
 - **Export CSV** : Export de la liste des commandes pour gestion comptable externe.
 
+### 📚 Catalogue Maison
+- **Surface publique** : `/[locale]/catalogue-maison` affiche uniquement la présentation publique du catalogue maison.
+- **Surface admin** : `/[locale]/admin/catalogue-maison` contient les outils d’import, d’aperçu, de fusion des doublons et d’export.
+- **Imports supportés** : CSV, JSON et Excel `.xlsx`.
+- **Aperçu avant import** : permet de valider les fiches générées avant écriture en base.
+- **Anti-doublons** : fusion des doublons du lot, détection des noms déjà présents en base, et ajustement automatique des slugs.
+- **Modèle Excel** : `public/downloads/catalogue-maison-import-template.xlsx`.
+
 ### 📡 API REST
 - `GET /api/products` — Catalogue produits
 - `GET /api/collections` — Collections
 - `GET /api/orders` — Commandes (admin)
 - `GET /api/analytics` — Statistiques (admin)
+- `GET /api/catalogue-maison?mode=template` — Modèle CSV du catalogue maison
+- `GET /api/catalogue-maison?mode=export` — Export du catalogue maison
+- `POST /api/catalogue-maison` — Import CSV / JSON / `.xlsx` du catalogue maison (admin)
 - `GET /api/settings` — Paramètres du site (GET / PUT)
 - `POST /api/auth/login` — Connexion admin/client
 - `POST /api/auth/logout` — Déconnexion

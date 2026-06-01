@@ -57,12 +57,6 @@ export default async function CatalogueMaisonPublicPage({
               Voir la boutique
               <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link
-              href={`/${locale}/login`}
-              className="inline-flex items-center gap-2 border border-border text-foreground font-sans text-xs tracking-widest uppercase px-5 py-3 rounded-none hover:border-accent hover:text-accent transition-colors"
-            >
-              Accès administrateur
-            </Link>
           </div>
         </div>
       </section>

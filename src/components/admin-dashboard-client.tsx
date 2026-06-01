@@ -28,6 +28,7 @@ import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter,
 } from '@/components/ui/sheet';
 import { useToast } from '@/hooks/use-toast';
+import { usePathname } from 'next/navigation';
 
 
 // ─── Types ──────────────────────────────────────────────────────
@@ -217,6 +218,8 @@ export default function AdminDashboardClient() {
   const [loading, setLoading] = useState(true);
   const { navigate } = useNavigationStore();
   const { toast } = useToast();
+  const pathname = usePathname();
+  const locale = pathname?.split('/')[1] || 'fr';
 
   // ─── Data Fetching ──────────────────────────────────────────
 
@@ -388,6 +391,13 @@ export default function AdminDashboardClient() {
           ))}
         </nav>
         <div className="p-4 border-t border-[#E8E0D5] space-y-1">
+          <a
+            href={`/${locale}/admin/catalogue-maison`}
+            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-[#8C8C8C] hover:text-[#1A1A1A] transition-colors rounded-md hover:bg-[#F8F7F5]"
+          >
+            <LayoutGrid className="w-4 h-4" />
+            Catalogue maison
+          </a>
           <button
             onClick={() => window.location.href = '/account'}
             className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-[#8C8C8C] hover:text-[#1A1A1A] transition-colors rounded-md hover:bg-[#F8F7F5]"
@@ -452,6 +462,13 @@ export default function AdminDashboardClient() {
                 ))}
               </nav>
               <div className="p-4 border-t border-[#E8E0D5] space-y-1">
+                <a
+                  href={`/${locale}/admin/catalogue-maison`}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-[#8C8C8C] hover:text-[#1A1A1A] transition-colors rounded-md hover:bg-[#F8F7F5]"
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                  Catalogue maison
+                </a>
                 <button
                   onClick={() => {
                     window.location.href = '/account';
