@@ -7,7 +7,7 @@ import { notFound } from "next/navigation";
 import { locales } from "@/i18n";
 import Header from '@/components/header';
 import Footer from '@/components/footer';
-import { WhatsAppButton } from '@/components/whatsapp-button';
+import ConseillerVirtuel from '@/components/conseiller-virtuel';
 import { Providers } from './providers';
 import SupabaseAuthListener from "@/components/SupabaseAuthListener";
 import { getSettings } from "@/lib/settings";
@@ -55,7 +55,7 @@ export default async function RootLayout(props: {
               <SupabaseAuthListener />
               {children}
             </main>
-            <WhatsAppButton settings={settings} />
+            <ConseillerVirtuel settings={settings} />
             <Footer settings={settings} />
             <Toaster position="top-right" richColors />
             <MarketingPixels settings={settings} />
