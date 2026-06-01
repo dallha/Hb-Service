@@ -16,11 +16,11 @@ export default function ReassuranceSection({ settings = {} }: { settings?: SiteS
       .catch(() => setCatalogueCount(null));
   }, []);
 
-  const headline = settings.reassurance_headline || `${catalogueCount ?? '1103'} Références Catalogue`;
-  const rating = settings.reassurance_rating || 'Chaque fiche est indexée par marque, genre, nouveauté et page source du catalogue.';
+  const headline = settings.reassurance_headline || `${catalogueCount ?? '1103'} Références de la maison`;
+  const rating = settings.reassurance_rating || 'Chaque fiche a été pensée pour un repérage simple par marque, genre et nouveauté.';
   const reassuranceItems = [
-    { icon: Box, label: settings.reassurance_1_label || 'Catalogue Réel', desc: settings.reassurance_1_desc || '1103 références importées' },
-    { icon: Search, label: settings.reassurance_2_label || 'Recherche Rapide', desc: settings.reassurance_2_desc || 'Marque, genre, nouveauté' },
+    { icon: Box, label: settings.reassurance_1_label || 'Sélection Authentique', desc: settings.reassurance_1_desc || '1103 références au total' },
+    { icon: Search, label: settings.reassurance_2_label || 'Recherche Intuitive', desc: settings.reassurance_2_desc || 'Marque, genre, nouveauté' },
     { icon: MessageCircle, label: settings.reassurance_3_label || 'Support WhatsApp', desc: settings.reassurance_3_desc || 'Conseil personnalisé' },
   ];
 

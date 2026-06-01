@@ -133,11 +133,6 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               New
             </span>
           )}
-          {product.sourcePage && (
-            <span className="inline-flex items-center rounded-none border border-border px-1.5 py-0.5 text-[9px] uppercase tracking-widest text-muted-foreground">
-              P{product.sourcePage}
-            </span>
-          )}
         </div>
         <div className="flex items-center gap-1 mb-1">
           {product.averageRating > 0 && (

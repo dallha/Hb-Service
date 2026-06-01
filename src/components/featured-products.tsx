@@ -61,7 +61,7 @@ export default function FeaturedProducts() {
           </h2>
           <div className="w-16 h-[1px] bg-[#D4AF37] mx-auto mb-4" />
           <p className="font-sans text-sm text-muted-foreground max-w-lg mx-auto">
-            Les premières nouveautés réelles du catalogue Mars 2026, triées par page source et présentées avec leurs vraies marques et genres.
+            Les nouveautés mises en avant du catalogue Mars 2026, présentées avec leurs vraies marques et leurs genres.
           </p>
         </motion.div>
 

@@ -145,7 +145,7 @@ export default function CatalogueView() {
               {catalogueTitle}
             </h1>
             <p className="font-sans text-sm sm:text-base text-muted-foreground max-w-2xl leading-relaxed">
-              Parcours filtrable de toutes les références de la sélection Mars 2026, pensé pour retrouver rapidement une marque, un genre, une nouveauté ou une page source.
+              Parcours élégant de la sélection Mars 2026, pensé pour retrouver rapidement une marque, un genre ou une nouveauté.
             </p>
           </div>
 

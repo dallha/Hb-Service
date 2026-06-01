@@ -24,19 +24,19 @@ type SegmentKey = 'all' | 'new' | 'men' | 'women' | 'unisex';
 const segmentConfig: Record<SegmentKey, { title: string; subtitle: string; preset: SegmentKey; fallback: string }> = {
   all: {
     title: 'Sélection complète',
-    subtitle: 'L’ensemble du catalogue Mars 2026 présenté dans une lecture premium.',
+    subtitle: 'L’ensemble du catalogue Mars 2026 dans une présentation élégante.',
     preset: 'all',
     fallback: '/images/products/perfume-amber.png',
   },
   new: {
     title: 'Nouveautés',
-    subtitle: 'Les références marquées New dans le catalogue.',
+    subtitle: 'Les références marquées New dans la sélection.',
     preset: 'new',
     fallback: '/images/products/perfume-amber.png',
   },
   men: {
     title: 'Parfums Homme',
-    subtitle: 'Les références H du catalogue, triées pour une lecture simple.',
+    subtitle: 'Les références H du catalogue, présentées avec clarté.',
     preset: 'men',
     fallback: '/images/products/perfume-oud.png',
   },
@@ -48,7 +48,7 @@ const segmentConfig: Record<SegmentKey, { title: string; subtitle: string; prese
   },
   unisex: {
     title: 'Parfums Unisexes',
-    subtitle: 'Les références U, pensées pour une sélection neutre et moderne.',
+    subtitle: 'Les références U, pensées pour une lecture moderne et équilibrée.',
     preset: 'unisex',
     fallback: '/images/products/perfume-amber.png',
   },
@@ -126,7 +126,7 @@ export default function CollectionsSection({ settings = {} }: { settings?: SiteS
             {sectionTitle}
           </h2>
           <p className="font-sans text-sm text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Une navigation plus professionnelle: toutes les références du catalogue sont regroupées en sélections métier, pas en collections démo.
+            Des sélections claires pour parcourir le catalogue par univers, sans surcharge visuelle.
           </p>
           <div className="w-16 h-[1px] bg-[#D4AF37] mx-auto mt-4" />
         </motion.div>

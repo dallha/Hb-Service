@@ -133,13 +133,13 @@ export default function ProductView() {
 
   const stockText =
     isQuoteOnly
-      ? 'Référence catalogue'
+      ? 'Référence de la maison'
       : variant && variant.stock > 10
       ? 'En stock'
       : variant && variant.stock > 0
       ? `Plus que ${variant.stock} en stock`
       : 'Rupture de stock';
-  const waMessage = `Bonjour HB_Service, je suis intéressé(e) par le produit ${product.name} (${variant?.size || 'Catalogue'}) — ${formatPrice(variant?.price || 0)}. Pouvez-vous m'en dire plus ?`;
+  const waMessage = `Bonjour HB_Service, je suis intéressé(e) par le produit ${product.name} (${variant?.size || 'Sélection'}) — ${formatPrice(variant?.price || 0)}. Pouvez-vous m'en dire plus ?`;
   const waLink = getWhatsAppLink(waMessage);
   const backView = product.collection.slug === 'catalogue-2026' ? 'catalogue' : 'shop';
   const backLabel = product.collection.slug === 'catalogue-2026' ? 'Retour à la sélection' : 'Retour à la boutique';
@@ -288,11 +288,6 @@ export default function ProductView() {
               {product.isNew && (
                 <span className="inline-flex items-center rounded-none border border-[#D4AF37] px-2 py-1 text-[10px] uppercase tracking-widest text-[#D4AF37]">
                   New
-                </span>
-              )}
-              {product.sourcePage && (
-                <span className="inline-flex items-center rounded-none border border-border px-2 py-1 text-[10px] uppercase tracking-widest text-muted-foreground">
-                  Page {product.sourcePage}
                 </span>
               )}
             </div>
