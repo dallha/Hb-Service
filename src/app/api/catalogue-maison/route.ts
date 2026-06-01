@@ -273,6 +273,42 @@ function rowToProduct(row: CsvRow, index: number) {
   };
 }
 
+function buildImportPlan(rows: CsvRow[]) {
+  const grouped = new Map<string, { product: ReturnType<typeof rowToProduct>['product']; variants: ReturnType<typeof rowToProduct>['variant'][] }>();
+
+  rows.forEach((row, index) => {
+    const { product, variant } = rowToProduct(row, index);
+    const existing = grouped.get(product.slug);
+    if (existing) {
+      existing.variants.push(variant);
+    } else {
+      grouped.set(product.slug, { product, variants: [variant] });
+    }
+  });
+
+  const products = [...grouped.values()];
+  const productCount = products.length;
+  const variantCount = products.reduce((sum, entry) => sum + entry.variants.length, 0);
+
+  return {
+    products,
+    productCount,
+    variantCount,
+    preview: products.slice(0, 10).map((entry, index) => ({
+      name: entry.product.name,
+      slug: entry.product.slug,
+      brand: entry.product.brand,
+      category: entry.product.inspiration,
+      gender: entry.product.gender,
+      size: entry.variants[0]?.size || 'Standard',
+      price: entry.variants[0]?.price ?? 0,
+      stock: entry.variants[0]?.stock ?? 0,
+      isNew: entry.product.isNew,
+      order: entry.product.catalogOrder ?? index + 1,
+    })),
+  };
+}
+
 async function ensureCollection() {
   return db.collection.upsert({
     where: { slug: COLLECTION_SLUG },
@@ -383,12 +419,14 @@ export async function POST(request: Request) {
   try {
     const contentType = request.headers.get('content-type') || '';
     let rows: CsvRow[] = [];
+    let previewOnly = false;
 
     if (contentType.includes('application/json')) {
       const body = await request.json() as {
         names?: unknown;
         rawNames?: unknown;
         defaults?: Partial<RawImportOptions>;
+        previewOnly?: boolean;
       };
       const names = toStringList(body.names ?? body.rawNames);
       if (names.length === 0) {
@@ -413,10 +451,12 @@ export async function POST(request: Request) {
       };
 
       rows = buildRawRows(names, defaults);
+      previewOnly = Boolean(body.previewOnly);
     } else {
       const formData = await request.formData();
       const file = formData.get('file');
       const rawNames = formData.get('rawNames');
+      previewOnly = String(formData.get('previewOnly') || '').toLowerCase() === 'true';
 
       if (typeof rawNames === 'string' && rawNames.trim()) {
         const names = toStringList(rawNames);
@@ -457,6 +497,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Aucune ligne à importer' }, { status: 400 });
     }
 
+    const importPlan = buildImportPlan(rows);
+
+    if (previewOnly) {
+      return NextResponse.json({
+        success: true,
+        previewOnly: true,
+        counts: {
+          products: importPlan.productCount,
+          variants: importPlan.variantCount,
+        },
+        preview: importPlan.preview,
+      });
+    }
+
     const collection = await ensureCollection();
 
     await db.productVariant.deleteMany({
@@ -469,20 +523,8 @@ export async function POST(request: Request) {
       where: { collectionId: collection.id },
     });
 
-    const grouped = new Map<string, { product: any; variants: any[] }>();
-
-    rows.forEach((row, index) => {
-      const { product, variant } = rowToProduct(row, index);
-      const existing = grouped.get(product.slug);
-      if (existing) {
-        existing.variants.push(variant);
-      } else {
-        grouped.set(product.slug, { product, variants: [variant] });
-      }
-    });
-
     let order = 1;
-    for (const entry of grouped.values()) {
+    for (const entry of importPlan.products) {
       const product = await db.product.create({
         data: {
           ...entry.product,
@@ -497,7 +539,7 @@ export async function POST(request: Request) {
               sku: variant.sku || null,
             })),
           },
-        },
+        } as any,
       });
       order += 1;
       void product;

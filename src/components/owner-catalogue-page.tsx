@@ -75,6 +75,19 @@ export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteS
   const [defaultPrice, setDefaultPrice] = useState('0');
   const [defaultStock, setDefaultStock] = useState('0');
   const [defaultIsNew, setDefaultIsNew] = useState(false);
+  const [rawPreview, setRawPreview] = useState<Array<{
+    name: string;
+    slug: string;
+    brand: string | null;
+    category: string | null;
+    gender: string | null;
+    size: string;
+    price: number;
+    stock: number;
+    isNew: boolean;
+    order: number;
+  }> | null>(null);
+  const [rawPreviewCounts, setRawPreviewCounts] = useState<{ products: number; variants: number } | null>(null);
   const locale = pathname?.split('/')[1] || 'fr';
 
   const headline = settings.story_1_title || 'Catalogue Maison HB_Service';
@@ -168,8 +181,57 @@ export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteS
       if (!res.ok) throw new Error(data?.error || 'Import failed');
       setMessage(`Auto-remplissage réussi: ${data.counts?.products ?? 0} produits, ${data.counts?.variants ?? 0} variantes.`);
       setRawNames('');
+      setRawPreview(null);
+      setRawPreviewCounts(null);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Erreur lors de l’auto-remplissage.');
+    } finally {
+      setIsBusy(false);
+    }
+  };
+
+  const handleRawPreview = async () => {
+    const names = rawNames
+      .split(/\r?\n|[,;]+/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    if (names.length === 0) {
+      setMessage('Colle au moins un nom de produit avant de prévisualiser.');
+      return;
+    }
+
+    setIsBusy(true);
+    setMessage(null);
+    try {
+      const res = await fetch('/api/catalogue-maison', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          names,
+          previewOnly: true,
+          defaults: {
+            defaultBrand,
+            defaultCategory,
+            defaultGender,
+            defaultDescription: '',
+            defaultSize,
+            defaultPrice: Number(defaultPrice) || 0,
+            defaultCompareAtPrice: null,
+            defaultStock: Number(defaultStock) || 0,
+            defaultIsNew,
+          },
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Preview failed');
+      setRawPreview(data.preview ?? []);
+      setRawPreviewCounts(data.counts ?? null);
+      setMessage(`Aperçu généré: ${data.counts?.products ?? 0} produits, ${data.counts?.variants ?? 0} variantes.`);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Erreur lors de l’aperçu.');
     } finally {
       setIsBusy(false);
     }
@@ -510,6 +572,53 @@ export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteS
                 <Upload className="w-4 h-4" />
                 Importer la liste brute
               </button>
+
+              <button
+                type="button"
+                disabled={isBusy}
+                onClick={handleRawPreview}
+                className="inline-flex items-center gap-2 border border-border text-foreground font-sans text-xs tracking-widest uppercase px-5 py-3 rounded-none hover:border-accent hover:text-accent transition-colors disabled:opacity-50"
+              >
+                Aperçu avant import
+              </button>
+
+              {rawPreviewCounts && (
+                <p className="font-sans text-xs uppercase tracking-widest text-muted-foreground">
+                  Aperçu calculé sur {rawPreviewCounts.products} produits et {rawPreviewCounts.variants} variantes
+                </p>
+              )}
+
+              {rawPreview && rawPreview.length > 0 && (
+                <div className="border-t border-border pt-5 space-y-3">
+                  <p className="font-sans text-[10px] tracking-[0.35em] uppercase text-muted-foreground">
+                    Premières fiches générées
+                  </p>
+                  <div className="max-h-64 overflow-auto border border-border">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-muted/50 text-muted-foreground uppercase tracking-widest">
+                        <tr>
+                          <th className="px-3 py-2">Nom</th>
+                          <th className="px-3 py-2">Slug</th>
+                          <th className="px-3 py-2">Famille</th>
+                          <th className="px-3 py-2">Genre</th>
+                          <th className="px-3 py-2">Prix</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {rawPreview.map((item) => (
+                          <tr key={item.slug} className="border-t border-border">
+                            <td className="px-3 py-2">{item.name}</td>
+                            <td className="px-3 py-2">{item.slug}</td>
+                            <td className="px-3 py-2">{item.category || '—'}</td>
+                            <td className="px-3 py-2">{item.gender || '—'}</td>
+                            <td className="px-3 py-2">{item.price}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
