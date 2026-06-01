@@ -1,11 +1,13 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Minus, Plus, ShoppingBag } from 'lucide-react';
+import { X, Minus, Plus, ShoppingBag, Volume2, VolumeX } from 'lucide-react';
 import Image from 'next/image';
+import { useEffect, useState } from 'react';
 import { useCartStore, useNavigationStore } from '@/lib/store';
 import { formatPrice } from '@/lib/format';
 import { Button } from '@/components/ui/button';
+import { SoundEngine } from '@/components/SoundEngine';
 
 export default function CartDrawer() {
   const {
@@ -21,6 +23,13 @@ export default function CartDrawer() {
 
   const total = getTotalPrice();
   const totalItems = getTotalItems();
+
+  // Jouer un son à l'ouverture du panier
+  useEffect(() => {
+    if (isOpen) {
+      SoundEngine.playCartOpen();
+    }
+  }, [isOpen]);
 
   const handleCheckout = () => {
     closeCart();

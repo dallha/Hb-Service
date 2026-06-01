@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, Menu, X, MessageCircle, Moon, Sun } from 'lucide-react';
+import { ShoppingBag, Menu, X, MessageCircle } from 'lucide-react';
 import { useCartStore, useNavigationStore } from '@/lib/store';
 import { useRouter, usePathname } from 'next/navigation';
-import { useTheme } from '@/hooks/use-theme';
 import { Button } from '@/components/ui/button';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const navLinks = [
   { label: 'Accueil', view: 'home' as const },
@@ -26,7 +26,6 @@ export default function Header({ settings = {} }: { settings?: SiteSettingsMap }
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { getTotalItems, openCart } = useCartStore();
   const { navigate } = useNavigationStore();
-  const { isDark, toggle, mounted } = useTheme();
   const totalItems = getTotalItems();
   const router = useRouter();
   const pathname = usePathname();
@@ -125,22 +124,8 @@ export default function Header({ settings = {} }: { settings?: SiteSettingsMap }
                 <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
               </a>
 
-              {/* Dark/Light Mode Toggle */}
-              {mounted && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={toggle}
-                  className="rounded-none hover:bg-accent/10 w-9 h-9 sm:w-10 sm:h-10"
-                  aria-label={isDark ? 'Activer le mode clair' : 'Activer le mode sombre'}
-                >
-                  {isDark ? (
-                    <Sun className="w-4 h-4 sm:w-5 sm:h-5" />
-                  ) : (
-                    <Moon className="w-4 h-4 sm:w-5 sm:h-5" />
-                  )}
-                </Button>
-              )}
+              {/* Dark/Light Mode Toggle — Premium */}
+              <ThemeToggle />
 
               {/* Cart */}
               <Button

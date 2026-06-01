@@ -3,9 +3,12 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { Star, ShoppingBag } from 'lucide-react';
+import { useState } from 'react';
 import { useNavigationStore, useCartStore } from '@/lib/store';
 import { formatPrice } from '@/lib/format';
 import { toast } from 'sonner';
+import { SoundEngine } from '@/components/SoundEngine';
+import ParticleEffect from '@/components/ParticleEffect';
 
 interface ProductCardProps {
   product: {
@@ -28,6 +31,7 @@ interface ProductCardProps {
 export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const { navigate } = useNavigationStore();
   const { addItem, openCart } = useCartStore();
+  const [particleTrigger, setParticleTrigger] = useState(0);
   
   // Find variant with the minimum price
   const cheapestVariant = product.variants.reduce((prev, curr) => 
@@ -64,24 +68,30 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       quantity: 1,
       imageUrl: product.imageUrl || undefined,
     });
+    // Son premium d'ajout au panier
+    SoundEngine.playAddToCart();
+    // Particules dorées
+    setParticleTrigger(prev => prev + 1);
     toast.success(`${product.name} ajouté au panier`);
     openCart();
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-50px' }}
-      transition={{
-        duration: 0.4,
-        ease: [0.22, 1, 0.36, 1],
-        delay: index * 0.08,
-      }}
-      whileHover={{ y: -4 }}
-      className="group cursor-pointer"
-      onClick={() => navigate('product', { productId: product.id })}
-    >
+    <>
+      <ParticleEffect trigger={particleTrigger} count={16} />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-50px' }}
+        transition={{
+          duration: 0.4,
+          ease: [0.22, 1, 0.36, 1],
+          delay: index * 0.08,
+        }}
+        whileHover={{ y: -4 }}
+        className="group cursor-pointer"
+        onClick={() => navigate('product', { productId: product.id })}
+      >
       <div className="relative aspect-[3/4] overflow-hidden rounded-sm bg-muted mb-3 sm:mb-4">
         {displayImageUrl && (
           <Image
@@ -165,5 +175,6 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         </p>
       </div>
     </motion.div>
+    </>
   );
 }

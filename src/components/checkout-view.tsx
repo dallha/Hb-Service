@@ -9,6 +9,7 @@ import { formatPrice, getWhatsAppLink } from '@/lib/format';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { SoundEngine } from '@/components/SoundEngine';
 
 type PaymentMethod = 'card' | 'wave' | 'orange_money' | 'cash' | 'paypal';
 
@@ -163,6 +164,7 @@ export default function CheckoutView() {
       setOrderId(order.id);
       setOrderSuccess(true);
       clearCart();
+      SoundEngine.playSuccess();
       toast.success('Commande confirmée !');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Erreur lors de la commande');

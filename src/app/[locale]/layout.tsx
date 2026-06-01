@@ -12,6 +12,7 @@ import { Providers } from './providers';
 import SupabaseAuthListener from "@/components/SupabaseAuthListener";
 import { getSettings } from "@/lib/settings";
 import MarketingPixels from "@/components/marketing-pixels";
+import AmbientStars from '@/components/AmbientStars';
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings();
@@ -46,6 +47,7 @@ export default async function RootLayout(props: {
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className="antialiased bg-background text-foreground font-sans">
+        <AmbientStars />
         <NextIntlClientProvider messages={messages}>
           <Providers>
             <Header settings={settings} />
