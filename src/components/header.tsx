@@ -12,6 +12,7 @@ const navLinks = [
   { label: 'Accueil', view: 'home' as const },
   { label: 'Boutique', view: 'shop' as const },
   { label: 'Sélection Parfum', view: 'catalogue' as const },
+  { label: 'Catalogue Maison', view: 'catalogue-maison' as const },
   { label: 'Collections', view: 'shop' as const, params: {} },
   { label: 'Notre Histoire', view: 'storytelling' as const },
   { label: 'Journal', view: 'journal' as const },
@@ -30,6 +31,7 @@ export default function Header({ settings = {} }: { settings?: SiteSettingsMap }
   const totalItems = getTotalItems();
   const router = useRouter();
   const pathname = usePathname();
+  const locale = pathname?.split('/')[1] || 'fr';
   const isRootPath = pathname === '/' || pathname === '/fr' || pathname === '/en';
   const isSubpage = !isRootPath;
 
@@ -44,6 +46,12 @@ export default function Header({ settings = {} }: { settings?: SiteSettingsMap }
   const handleNav = (view: string) => {
     if (view === 'journal') {
       router.push('/fr/journal');
+      setMobileMenuOpen(false);
+      return;
+    }
+
+    if (view === 'catalogue-maison') {
+      router.push(`/${locale}/catalogue-maison`);
       setMobileMenuOpen(false);
       return;
     }

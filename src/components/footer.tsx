@@ -2,11 +2,12 @@
 
 import { MessageCircle, Instagram, Facebook, Mail, MapPin, Phone } from 'lucide-react';
 import { useNavigationStore } from '@/lib/store';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import type { SiteSettingsMap } from '@/lib/settings';
 
 export default function Footer({ settings = {} }: { settings?: SiteSettingsMap }) {
   const { navigate } = useNavigationStore();
+  const router = useRouter();
   const pathname = usePathname();
 
   if (pathname?.includes('/admin')) return null;
@@ -22,6 +23,7 @@ export default function Footer({ settings = {} }: { settings?: SiteSettingsMap }
   const facebookUrl = settings.facebook_url || '#';
   const copyright = settings.copyright_text || 'HB_Service. Tous droits réservés.';
   const catalogueLabel = settings.collections_section_title || 'Sélections du catalogue';
+  const locale = pathname?.split('/')[1] || 'fr';
 
   return (
     <footer className="bg-card text-card-foreground mt-auto">
@@ -144,10 +146,10 @@ export default function Footer({ settings = {} }: { settings?: SiteSettingsMap }
             &copy; {new Date().getFullYear()} {copyright}
           </p>
           <button
-            onClick={() => navigate('catalogue')}
+            onClick={() => router.push(`/${locale}/catalogue-maison`)}
             className="text-xs uppercase tracking-widest text-accent hover:text-accent/80 transition-colors"
           >
-            Ouvrir la sélection parfum
+            Ouvrir le catalogue maison
           </button>
         </div>
       </div>
