@@ -48,7 +48,7 @@
 - **Export CSV** : Export de la liste des commandes pour gestion comptable externe.
 
 ### 📚 Catalogue Maison
-- **Surface publique** : `/[locale]/catalogue-maison` affiche uniquement la présentation publique du catalogue maison.
+- **Surface publique** : `/[locale]/catalogue-maison` affiche uniquement les parfums et extraits publics.
 - **Surface admin** : `/[locale]/admin/catalogue-maison` contient les outils d’import, d’aperçu, de fusion des doublons et d’export.
 - **Imports supportés** : CSV, JSON et Excel `.xlsx`.
 - **Aperçu avant import** : permet de valider les fiches générées avant écriture en base.
