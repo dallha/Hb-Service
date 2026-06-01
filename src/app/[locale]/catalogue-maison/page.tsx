@@ -22,8 +22,8 @@ export default async function CatalogueMaisonPublicPage({
 }) {
   const { locale } = await params;
   const settings = await getSettings();
-  const title = settings.story_1_title || 'Catalogue Maison';
-  const subtitle = settings.storytelling_hero_subtitle || 'Une sélection publique des parfums et extraits de la maison.';
+  const title = 'Catalogue Maison';
+  const subtitle = 'Une sélection publique des parfums et extraits de la maison.';
 
   return (
     <div className="min-h-screen bg-background">

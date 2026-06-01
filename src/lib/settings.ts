@@ -52,11 +52,11 @@ export const DEFAULT_SETTINGS: SiteSettingsMap = {
   storytelling_values: "Qualité,Authenticité,Élégance,Confiance",
 
   // Reassurance
-  reassurance_headline: "1103 Références Catalogue",
-  reassurance_rating: "Chaque fiche est indexée par marque, genre, nouveauté et page source du catalogue.",
-  reassurance_1_label: "Catalogue Réel",
-  reassurance_1_desc: "1103 références importées",
-  reassurance_2_label: "Recherche Rapide",
+  reassurance_headline: "1103 Références de la maison",
+  reassurance_rating: "Chaque fiche a été pensée pour un repérage simple par marque, genre et nouveauté.",
+  reassurance_1_label: "Sélection Authentique",
+  reassurance_1_desc: "1103 références au total",
+  reassurance_2_label: "Recherche Intuitive",
   reassurance_2_desc: "Marque, genre, nouveauté",
   reassurance_3_label: "Support WhatsApp",
   reassurance_3_desc: "Conseil personnalisé",
