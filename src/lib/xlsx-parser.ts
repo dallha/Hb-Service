@@ -113,6 +113,11 @@ function parseSharedStrings(xml: string) {
 }
 
 function parseCellValue(cellXml: string, sharedStrings: string[]) {
+  // Cellule vide (self-closing)
+  if (cellXml.endsWith('/>')) {
+    return '';
+  }
+
   const typeMatch = cellXml.match(/ t="([^"]+)"/);
   const type = typeMatch?.[1] || '';
 
@@ -141,39 +146,49 @@ function parseCellValue(cellXml: string, sharedStrings: string[]) {
 }
 
 function parseWorksheetRows(xml: string, sharedStrings: string[]) {
-  const rows: string[][] = [];
+  const rows: { rowNum: number; cells: { ref: string; value: string }[] }[] = [];
   const rowMatches = xml.matchAll(/<row[^>]*r="(\d+)"[^>]*>([\s\S]*?)<\/row>/g);
 
   for (const rowMatch of rowMatches) {
+    const rowNum = parseInt(rowMatch[1], 10);
     const rowXml = rowMatch[2] || '';
     const cells: { ref: string; value: string }[] = [];
-    const cellMatches = rowXml.matchAll(/<c[^>]*r="([A-Z]+)(\d+)"[^>]*>([\s\S]*?)<\/c>/g);
+    // Match both self-closing and regular cells
+    const cellRegex = /<c\s[^>]*\/>|<c\s[^>]*>[\s\S]*?<\/c>/g;
+    const cellMatches = rowXml.matchAll(cellRegex);
 
     for (const cellMatch of cellMatches) {
-      const ref = cellMatch[1] || '';
       const cellXml = cellMatch[0] || '';
+      const refMatch = cellXml.match(/ r="([A-Z]+)(\d+)"/);
+      const ref = refMatch ? refMatch[1] : '';
       cells.push({ ref, value: parseCellValue(cellXml, sharedStrings) });
     }
 
     cells.sort((a, b) => a.ref.localeCompare(b.ref));
-    rows.push(cells.map((cell) => cell.value));
+    rows.push({ rowNum, cells });
   }
 
   return rows;
 }
 
-function rowsToCsvRows(rows: string[][]) {
-  const nonEmptyRows = rows.filter((row) => row.some((cell) => cell.trim() !== ''));
-  const headers = nonEmptyRows.shift() || [];
+function rowsToCsvRows(rows: { rowNum: number; cells: { ref: string; value: string }[] }[]) {
+  const nonEmptyRows = rows.filter((row) => row.cells.some((cell) => cell.value.trim() !== ''));
+  const headers = nonEmptyRows.shift()?.cells || [];
 
-  return nonEmptyRows.map((row) =>
-    headers.reduce<CsvRow>((acc, header, index) => {
-      const key = header.trim();
-      if (key) acc[key] = (row[index] ?? '').trim();
+  return nonEmptyRows.map((row) => {
+    const cellMap: Record<string, string> = {};
+    for (const cell of row.cells) {
+      cellMap[cell.ref] = cell.value;
+    }
+
+    return headers.reduce<CsvRow>((acc, header) => {
+      const key = header.value.trim();
+      if (key) acc[key] = (cellMap[header.ref] ?? '').trim();
       return acc;
-    }, {})
-  );
+    }, {});
+  });
 }
+
 
 export async function parseXlsxFile(file: File): Promise<CsvRow[]> {
   const buffer = new Uint8Array(await file.arrayBuffer());
