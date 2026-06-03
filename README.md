@@ -46,6 +46,7 @@
 - Gestion complète des produits, collections et commandes (CRUD)
 - **Actions de masse (Bulk)** : Activation/désactivation de produits et mise à jour des commandes groupées en un clic.
 - **Export CSV** : Export de la liste des commandes pour gestion comptable externe.
+- **Protection du Droit d'Auteur** : Le crédit d'identité visuelle (Graphiste de la Hadara) est verrouillé dans le code source et ne peut pas être modifié depuis le tableau de bord, garantissant ainsi la pérennité de la signature de l'auteur.
 
 ### ⚡ Optimisations & Performance
 - **Régénération Statique Incrémentale (ISR)** : La page d'accueil se rafraîchit automatiquement toutes les 60 secondes en arrière-plan. Si vous modifiez une image ou un texte depuis l'admin (Supabase), la mise à jour est en ligne en moins d'une minute sans avoir à re-déployer le site.
