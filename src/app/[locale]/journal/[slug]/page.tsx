@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { db } from '@/lib/db';
 import Header from '@/components/header';
-import Footer from '@/components/footer';
+
 import { Metadata } from 'next';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
@@ -85,7 +85,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
         </article>
       </main>
 
-      <Footer />
+
     </div>
   );
 }

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { BookOpen } from 'lucide-react';
 import Header from '@/components/header';
-import Footer from '@/components/footer';
+
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -86,7 +86,7 @@ export default async function JournalPage({ params }: { params: Promise<{ locale
         )}
       </main>
 
-      <Footer />
+
     </div>
   );
 }
