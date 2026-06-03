@@ -110,12 +110,14 @@ interface NavigationState {
   selectedProductSlug: string | null;
   selectedCollectionSlug: string | null;
   selectedCataloguePreset: CataloguePreset;
+  searchQuery: string;
   navigate: (
     view: AppView,
     params?: {
       productSlug?: string;
       collectionSlug?: string;
       cataloguePreset?: CataloguePreset;
+      searchQuery?: string;
     }
   ) => void;
   goBack: () => void;
@@ -127,6 +129,7 @@ export const useNavigationStore = create<NavigationState>()((set) => ({
   selectedProductSlug: null,
   selectedCollectionSlug: null,
   selectedCataloguePreset: 'all',
+  searchQuery: '',
   history: [],
 
   navigate: (view, params) => {
@@ -136,6 +139,7 @@ export const useNavigationStore = create<NavigationState>()((set) => ({
       selectedProductSlug: params?.productSlug ?? null,
       selectedCollectionSlug: params?.collectionSlug ?? null,
       selectedCataloguePreset: params?.cataloguePreset ?? 'all',
+      searchQuery: params?.searchQuery ?? '',
     }));
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -147,6 +151,7 @@ export const useNavigationStore = create<NavigationState>()((set) => ({
         queryParams.set('view', view);
         if (params?.productSlug) queryParams.set('product', params.productSlug);
         if (params?.cataloguePreset && params.cataloguePreset !== 'all') queryParams.set('preset', params.cataloguePreset);
+        if (params?.searchQuery) queryParams.set('q', params.searchQuery);
         
         const localeMatch = path.match(/^\/([a-z]{2})(?:\/|$)/);
         const locale = localeMatch ? localeMatch[1] : 'fr';
@@ -165,6 +170,7 @@ export const useNavigationStore = create<NavigationState>()((set) => ({
         selectedProductSlug: null,
         selectedCollectionSlug: null,
         selectedCataloguePreset: 'all',
+        searchQuery: '',
       };
     });
   },

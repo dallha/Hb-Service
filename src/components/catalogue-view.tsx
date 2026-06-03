@@ -37,10 +37,10 @@ const presetCopy: Record<'all' | 'new' | 'men' | 'women' | 'unisex', string> = {
 };
 
 export default function CatalogueView() {
-  const { navigate, selectedCataloguePreset } = useNavigationStore();
+  const { navigate, selectedCataloguePreset, searchQuery } = useNavigationStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(searchQuery || '');
   const [genderFilter, setGenderFilter] = useState<'all' | 'H' | 'F' | 'U'>(() => {
     if (selectedCataloguePreset === 'men') return 'H';
     if (selectedCataloguePreset === 'women') return 'F';
@@ -50,6 +50,12 @@ export default function CatalogueView() {
   const [brandFilter, setBrandFilter] = useState('all');
   const [newOnly, setNewOnly] = useState(() => selectedCataloguePreset === 'new');
   const [sortBy, setSortBy] = useState<SortOption>(() => (selectedCataloguePreset === 'new' ? 'newest' : 'relevance'));
+
+  useEffect(() => {
+    if (searchQuery && searchQuery !== query) {
+      setQuery(searchQuery);
+    }
+  }, [searchQuery]);
 
   useEffect(() => {
     fetch('/api/products?collection=catalogue-2026')

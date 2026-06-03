@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, Menu, X, MessageCircle } from 'lucide-react';
+import { ShoppingBag, Menu, X, MessageCircle, Search } from 'lucide-react';
 import { useCartStore, useNavigationStore } from '@/lib/store';
 import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -24,6 +24,8 @@ export default function Header({ settings = {} }: { settings?: SiteSettingsMap }
   const logoUrl = settings.logo_url || '/logo-gold.jpg';
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [localSearchQuery, setLocalSearchQuery] = useState('');
   const { getTotalItems, openCart } = useCartStore();
   const { navigate } = useNavigationStore();
   const totalItems = getTotalItems();
@@ -66,6 +68,15 @@ export default function Header({ settings = {} }: { settings?: SiteSettingsMap }
     }
 
     navigate('home');
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (localSearchQuery.trim()) {
+      setSearchOpen(false);
+      navigate('catalogue', { searchQuery: localSearchQuery.trim() });
+      setLocalSearchQuery('');
+    }
   };
 
   return (
@@ -123,6 +134,17 @@ export default function Header({ settings = {} }: { settings?: SiteSettingsMap }
 
               {/* Dark/Light Mode Toggle — Premium */}
               <ThemeToggle />
+
+              {/* Search Toggle */}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSearchOpen(true)}
+                className="relative rounded-none hover:bg-accent/10 w-9 h-9 sm:w-10 sm:h-10"
+                aria-label="Recherche"
+              >
+                <Search className="w-4 h-4 sm:w-5 sm:h-5" />
+              </Button>
 
               {/* Cart */}
               <Button
@@ -204,6 +226,40 @@ export default function Header({ settings = {} }: { settings?: SiteSettingsMap }
               </a>
             </motion.nav>
           </>
+        )}
+      </AnimatePresence>
+
+      {/* Search Overlay */}
+      <AnimatePresence>
+        {searchOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[60] bg-background/95 backdrop-blur-md flex flex-col items-center pt-24 px-4 sm:px-6"
+          >
+            <button
+              onClick={() => setSearchOpen(false)}
+              className="absolute top-6 right-6 sm:top-8 sm:right-8 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="w-8 h-8" />
+            </button>
+            <div className="w-full max-w-2xl">
+              <h2 className="font-serif text-2xl sm:text-3xl mb-6 text-center text-foreground">Que recherchez-vous ?</h2>
+              <form onSubmit={handleSearchSubmit} className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground" />
+                <input
+                  type="text"
+                  autoFocus
+                  value={localSearchQuery}
+                  onChange={(e) => setLocalSearchQuery(e.target.value)}
+                  placeholder="Ex: Oud, Rose, Marque..."
+                  className="w-full bg-transparent border-b-2 border-muted-foreground/30 focus:border-accent text-xl sm:text-2xl py-4 pl-14 pr-4 outline-none transition-colors text-foreground"
+                />
+              </form>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </>
