@@ -1,19 +1,8 @@
 import { getSettings } from '@/lib/settings';
-import { ArrowRight, FlaskConical, Sparkles } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-
-const publicSections = [
-  {
-    title: 'Parfums',
-    description: 'Les créations olfactives principales de la maison.',
-    icon: Sparkles,
-  },
-  {
-    title: 'Extraits',
-    description: 'Les extraits et concentrations fortes de la maison.',
-    icon: FlaskConical,
-  },
-];
+import { db } from '@/lib/db';
+import ProductCard from '@/components/product-card';
 
 export default async function CatalogueMaisonPublicPage({
   params,
@@ -23,7 +12,30 @@ export default async function CatalogueMaisonPublicPage({
   const { locale } = await params;
   const settings = await getSettings();
   const title = 'Catalogue Maison';
-  const subtitle = 'Une sélection publique des parfums et extraits de la maison.';
+  const subtitle = 'Découvrez nos bougies et parfums d\\'intérieur pour une ambiance unique.';
+
+  const products = await db.product.findMany({
+    where: {
+      collection: { slug: 'catalogue-maison' },
+      isActive: true,
+    },
+    include: {
+      collection: true,
+      variants: true,
+      reviews: {
+        where: { isVerified: true },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  const formattedProducts = products.map((p) => ({
+    ...p,
+    averageRating: p.reviews.length > 0
+      ? p.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / p.reviews.length
+      : 0,
+    reviewCount: p.reviews.length,
+  }));
 
   return (
     <div className="min-h-screen bg-background">
@@ -41,7 +53,7 @@ export default async function CatalogueMaisonPublicPage({
               href={`/${locale}`}
               className="inline-flex items-center gap-2 bg-foreground text-background font-sans text-xs tracking-widest uppercase px-5 py-3 rounded-none"
             >
-              Voir la boutique
+              Retour à la boutique
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -50,25 +62,19 @@ export default async function CatalogueMaisonPublicPage({
 
       <section className="py-16 sm:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-            {publicSections.map((section) => {
-              const Icon = section.icon;
-              return (
-                <article key={section.title} className="border border-border bg-background p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <Icon className="w-5 h-5 text-muted-foreground" />
-                  </div>
-                  <h2 className="font-serif text-2xl text-foreground mb-3">{section.title}</h2>
-                  <p className="font-sans text-sm text-muted-foreground leading-relaxed">
-                    {section.description}
-                  </p>
-                </article>
-              );
-            })}
-          </div>
+          {formattedProducts.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+              {formattedProducts.map((product, index) => (
+                <ProductCard key={product.id} product={product as any} index={index} />
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-muted-foreground font-sans">
+              Aucun produit disponible pour le moment.
+            </p>
+          )}
         </div>
       </section>
-
     </div>
   );
 }
