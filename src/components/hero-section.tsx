@@ -9,7 +9,7 @@ import type { SiteSettingsMap } from '@/lib/settings';
 export default function HeroSection({ settings = {} }: { settings?: SiteSettingsMap }) {
   const { navigate } = useNavigationStore();
 
-  const heroImage = settings.hero_image_url || '/images/hero/hero-main.png';
+  const heroImage = settings.hero_image_url || '/images/hero/hero-main.jpg';
   const title = settings.hero_title || "L'Art du Parfum,";
   const titleAccent = settings.hero_title_accent || "l'Essence du Naturel";
   const subtitle = settings.hero_subtitle || "Découvrez des créations olfactives d'exception, nées du savoir-faire africain et de la pureté des ingrédients naturels.";
