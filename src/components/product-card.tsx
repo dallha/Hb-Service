@@ -55,7 +55,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!firstVariant || !canAddToCart) {
-      navigate('product', { productId: product.id });
+      navigate('product', { productSlug: product.slug });
       return;
     }
     addItem({
@@ -90,7 +90,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         }}
         whileHover={{ y: -4 }}
         className="group cursor-pointer"
-        onClick={() => navigate('product', { productId: product.id })}
+        onClick={() => navigate('product', { productSlug: product.slug })}
       >
       <div className="relative aspect-[3/4] overflow-hidden rounded-sm bg-muted mb-3 sm:mb-4">
         {displayImageUrl && (

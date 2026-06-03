@@ -107,13 +107,13 @@ export type CataloguePreset = 'all' | 'new' | 'men' | 'women' | 'unisex';
 
 interface NavigationState {
   currentView: AppView;
-  selectedProductId: string | null;
+  selectedProductSlug: string | null;
   selectedCollectionSlug: string | null;
   selectedCataloguePreset: CataloguePreset;
   navigate: (
     view: AppView,
     params?: {
-      productId?: string;
+      productSlug?: string;
       collectionSlug?: string;
       cataloguePreset?: CataloguePreset;
     }
@@ -124,7 +124,7 @@ interface NavigationState {
 
 export const useNavigationStore = create<NavigationState>()((set) => ({
   currentView: 'home',
-  selectedProductId: null,
+  selectedProductSlug: null,
   selectedCollectionSlug: null,
   selectedCataloguePreset: 'all',
   history: [],
@@ -133,7 +133,7 @@ export const useNavigationStore = create<NavigationState>()((set) => ({
     set((state) => ({
       history: [...state.history, state.currentView],
       currentView: view,
-      selectedProductId: params?.productId ?? null,
+      selectedProductSlug: params?.productSlug ?? null,
       selectedCollectionSlug: params?.collectionSlug ?? null,
       selectedCataloguePreset: params?.cataloguePreset ?? 'all',
     }));
@@ -146,7 +146,7 @@ export const useNavigationStore = create<NavigationState>()((set) => ({
       return {
         currentView: prev,
         history: state.history.slice(0, -1),
-        selectedProductId: null,
+        selectedProductSlug: null,
         selectedCollectionSlug: null,
         selectedCataloguePreset: 'all',
       };

@@ -19,18 +19,18 @@ import type { SiteSettingsMap } from '@/lib/settings';
 import { useEffect } from 'react';
 
 export default function HomeClient({ settings }: { settings: SiteSettingsMap }) {
-  const { currentView, selectedCataloguePreset, selectedProductId, navigate } = useNavigationStore();
+  const { currentView, selectedCataloguePreset, selectedProductSlug, navigate } = useNavigationStore();
 
   // On mount: Restore view from URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const view = params.get('view') as any;
-    const productId = params.get('productId');
+    const productSlug = params.get('product');
     const preset = params.get('preset') as any;
     
     if (view && view !== 'home') {
       navigate(view, {
-        productId: productId || undefined,
+        productSlug: productSlug || undefined,
         cataloguePreset: preset || undefined,
       });
     }
@@ -41,12 +41,12 @@ export default function HomeClient({ settings }: { settings: SiteSettingsMap }) 
     const params = new URLSearchParams(window.location.search);
     if (currentView === 'home') {
       params.delete('view');
-      params.delete('productId');
+      params.delete('product');
       params.delete('preset');
     } else {
       params.set('view', currentView);
-      if (selectedProductId) params.set('productId', selectedProductId);
-      else params.delete('productId');
+      if (selectedProductSlug) params.set('product', selectedProductSlug);
+      else params.delete('product');
       
       if (selectedCataloguePreset && selectedCataloguePreset !== 'all') params.set('preset', selectedCataloguePreset);
       else params.delete('preset');
@@ -54,7 +54,7 @@ export default function HomeClient({ settings }: { settings: SiteSettingsMap }) 
     
     const newUrl = params.toString() ? `?${params.toString()}` : window.location.pathname;
     window.history.replaceState(null, '', newUrl);
-  }, [currentView, selectedProductId, selectedCataloguePreset]);
+  }, [currentView, selectedProductSlug, selectedCataloguePreset]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">

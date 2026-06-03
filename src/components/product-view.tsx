@@ -56,26 +56,26 @@ export default function ProductView() {
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const { navigate, selectedProductId } = useNavigationStore();
+  const { navigate, selectedProductSlug } = useNavigationStore();
   const { addItem, openCart } = useCartStore();
 
   const [reviewForm, setReviewForm] = useState({ userName: '', rating: 5, comment: '' });
   const [submittingReview, setSubmittingReview] = useState(false);
 
-  const loading = selectedProductId !== fetchedId;
+  const loading = selectedProductSlug !== fetchedId;
 
   useEffect(() => {
-    if (!selectedProductId) return;
+    if (!selectedProductSlug) return;
     fetch('/api/products')
       .then((r) => r.json())
       .then((data: Product[]) => {
-        const found = data.find((p) => p.id === selectedProductId);
+        const found = data.find((p) => p.slug === selectedProductSlug);
         setProduct(found || null);
         setAllProducts(data);
-        setFetchedId(selectedProductId);
+        setFetchedId(selectedProductSlug);
       })
-      .catch(() => setFetchedId(selectedProductId));
-  }, [selectedProductId]);
+      .catch(() => setFetchedId(selectedProductSlug));
+  }, [selectedProductSlug]);
 
   if (loading) {
     return (
