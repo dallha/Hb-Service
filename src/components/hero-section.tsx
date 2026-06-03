@@ -30,6 +30,21 @@ export default function HeroSection({ settings = {} }: { settings?: SiteSettings
 
       {/* Content */}
       <div className="relative z-10 text-center px-5 sm:px-6 max-w-5xl mx-auto mt-16 sm:mt-24">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+          className="mb-6 flex justify-center"
+        >
+          <button 
+            onClick={() => navigate('formations')}
+            className="px-4 py-1.5 border border-[#D4AF37] text-[#D4AF37] text-[10px] sm:text-xs tracking-widest uppercase font-sans hover:bg-[#D4AF37] hover:text-[#1A1A1A] transition-colors rounded-none flex items-center gap-2"
+          >
+            <span className="w-2 h-2 rounded-full bg-[#D4AF37] animate-pulse" />
+            Académie : Formations Professionnelles Disponibles
+          </button>
+        </motion.div>
+
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -54,7 +69,7 @@ export default function HeroSection({ settings = {} }: { settings?: SiteSettings
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.6 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-16"
+          className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-16 flex-wrap"
         >
           <Button
             onClick={() => navigate('shop')}
@@ -68,6 +83,13 @@ export default function HeroSection({ settings = {} }: { settings?: SiteSettings
             className="w-full sm:w-auto border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#1A1A1A] font-sans text-xs sm:text-sm tracking-widest uppercase px-6 sm:px-8 py-3.5 sm:py-4 h-auto rounded-none bg-transparent"
           >
             {ctaSecondary}
+          </Button>
+          <Button
+            onClick={() => navigate('formations')}
+            variant="outline"
+            className="w-full sm:w-auto border-white/50 text-white hover:bg-white hover:text-[#1A1A1A] font-sans text-xs sm:text-sm tracking-widest uppercase px-6 sm:px-8 py-3.5 sm:py-4 h-auto rounded-none bg-transparent"
+          >
+            Voir nos formations
           </Button>
         </motion.div>
 
