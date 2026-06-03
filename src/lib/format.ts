@@ -4,7 +4,9 @@
  */
 export function formatPrice(price: number): string {
   if (price <= 0) return 'Sur demande';
-  return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' FCFA';
+  const fcfaStr = price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' FCFA';
+  const dhPrice = Math.round(price / 60);
+  return `${fcfaStr} (${dhPrice} DH)`;
 }
 
 /**
