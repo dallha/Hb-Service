@@ -3096,7 +3096,6 @@ function SettingsTab({ showToast }: { showToast: (msg: string, v?: 'default' | '
             <Field label="Email" k="email" placeholder="contact@hb-service.com" />
             <Field label="Adresse" k="address" placeholder="Dakar, Sénégal" />
             <Field label="Tagline de la marque (footer)" k="brand_tagline" textarea placeholder="Parfums & Soins Naturels Premium..." />
-            <Field label="Texte copyright" k="copyright_text" placeholder="HB_Service. Tous droits réservés." />
           </>
         )}
 
