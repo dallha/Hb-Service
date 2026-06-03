@@ -15,6 +15,8 @@ export async function GET() {
   }
 }
 
+import { revalidatePath } from 'next/cache';
+
 export async function PUT(request: Request) {
   const admin = await requireAdmin();
   if (!admin) {
@@ -34,6 +36,10 @@ export async function PUT(request: Request) {
     );
 
     await Promise.all(ops);
+    
+    // Purge cache to apply new settings globally
+    revalidatePath('/', 'layout');
+    
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Settings PUT error:', error);
