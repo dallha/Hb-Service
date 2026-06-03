@@ -31,6 +31,7 @@
 - **Recherche Globale Intelligente** : Barre de recherche accessible depuis le header permettant de filtrer dynamiquement le catalogue par mot-clé (marque, parfum, genre).
 - **Paramètres du site 100% dynamiques** : Modifiez à la volée le logo, les titres, sous-titres, coordonnées (téléphone, e-mail, adresse), réseaux sociaux, les sections Storytelling et Réassurance, ainsi que les métadonnées SEO depuis le panneau admin.
 - **Le Journal (Blog SEO)** : Section articles de blog dynamique avec éditeur de rédaction intégré pour booster le référencement naturel.
+- **Académie HB_Service (Formations)** : Page dédiée aux formations professionnelles (Parfumerie, Cosmétique) avec formulaire d'inscription redirigeant directement vers WhatsApp avec les données pré-remplies.
 
 ### 🎨 Design & Expérience
 - **Mode sombre/clair** avec persistance (`localStorage`)
@@ -39,6 +40,7 @@
 - **Design 100% Mobile Responsive** : Optimisation des grilles de produits, gestion anti-débordement des typographies géantes (`break-words`), et espacement adaptatif du menu pour une navigation fluide sur smartphone.
 - Thème luxe (doré, blanc cassé, noir profond)
 - **Impression de Factures optimisée** : Modèle de facture A4 épuré sans fioritures d'interface, prêt à l'impression papier ou PDF en un clic.
+- **Crédits Interactifs** : Le crédit d'identité visuelle (Graphiste de la Hadara) dans le pied de page ouvre une modale détaillée présentant les services, packages et contacts du designer.
 
 ### 🔐 Administration & Sécurité
 - Dashboard analytics (ventes, CA, panier moyen)
@@ -57,6 +59,7 @@
 
 ### 📚 Catalogue Maison
 - **Surface publique** : `/[locale]/catalogue-maison` affiche dynamiquement tous les produits de la collection Maison (Bougies Parfumées, Home Sprays, Parfums d'intérieur, etc.). La page interroge directement la base de données en temps réel pour être toujours à jour.
+- **Automatisation Intelligente** : Tout produit dont le nom ou la marque contient "HB_Service" est automatiquement et instantanément affiché dans le Catalogue Maison, indépendamment de sa collection d'origine (ex: Soins Capillaires).
 - **Ajout rapide par script** : Des scripts spécifiques sont disponibles dans le dossier `scripts/` pour ajouter rapidement des produits avec leurs descriptions et prix convertis (ex: `add-bougie-760g.ts`, `add-home-spray.ts`). Pour les exécuter : `npx tsx scripts/<nom-du-script>.ts`.
 - **Surface admin** : `/[locale]/admin/catalogue-maison` contient les outils d’import, d’aperçu, de fusion des doublons et d’export.
 - **Imports supportés** : CSV, JSON et Excel `.xlsx`.
