@@ -18,7 +18,11 @@ export default async function CatalogueMaisonPublicPage({
 
   const products = await db.product.findMany({
     where: {
-      collection: { slug: 'catalogue-maison' },
+      OR: [
+        { collection: { slug: 'catalogue-maison' } },
+        { name: { contains: 'HB_Service', mode: 'insensitive' } },
+        { brand: { contains: 'HB_Service', mode: 'insensitive' } },
+      ],
       isActive: true,
     },
     include: {

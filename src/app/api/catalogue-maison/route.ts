@@ -471,7 +471,13 @@ export async function GET(request: Request) {
     }
 
     const products = await db.product.findMany({
-      where: { collectionId: collection.id },
+      where: {
+        OR: [
+          { collectionId: collection.id },
+          { name: { contains: 'HB_Service', mode: 'insensitive' } },
+          { brand: { contains: 'HB_Service', mode: 'insensitive' } },
+        ],
+      },
       include: {
         variants: true,
       },
