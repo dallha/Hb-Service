@@ -13,6 +13,6 @@ export function formatPrice(price: number): string {
  * Generate a WhatsApp link with pre-filled message
  */
 export function getWhatsAppLink(message: string): string {
-  const phone = '221770000000';
+  const phone = '221778757474';
   return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 }

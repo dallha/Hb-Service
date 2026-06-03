@@ -304,7 +304,7 @@ export default function CheckoutView() {
                     value={form.phone}
                     onChange={handleChange}
                     className="rounded-none border-[#E8E0D5] focus:border-[#D4AF37] bg-white"
-                    placeholder="+221 77 000 00 00"
+                    placeholder="+221 77 875 74 74"
                   />
                 </div>
               </div>
