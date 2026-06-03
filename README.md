@@ -48,7 +48,8 @@
 - **Export CSV** : Export de la liste des commandes pour gestion comptable externe.
 
 ### 📚 Catalogue Maison
-- **Surface publique** : `/[locale]/catalogue-maison` affiche uniquement les parfums et extraits publics.
+- **Surface publique** : `/[locale]/catalogue-maison` affiche dynamiquement tous les produits de la collection Maison (Bougies Parfumées, Home Sprays, Parfums d'intérieur, etc.). La page interroge directement la base de données en temps réel pour être toujours à jour.
+- **Ajout rapide par script** : Des scripts spécifiques sont disponibles dans le dossier `scripts/` pour ajouter rapidement des produits avec leurs descriptions et prix convertis (ex: `add-bougie-760g.ts`, `add-home-spray.ts`). Pour les exécuter : `npx tsx scripts/<nom-du-script>.ts`.
 - **Surface admin** : `/[locale]/admin/catalogue-maison` contient les outils d’import, d’aperçu, de fusion des doublons et d’export.
 - **Imports supportés** : CSV, JSON et Excel `.xlsx`.
 - **Aperçu avant import** : permet de valider les fiches générées avant écriture en base.
