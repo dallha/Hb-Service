@@ -28,6 +28,7 @@
 - Fiches produits détaillées (notes olfactives, inspirations, galerie)
 - Panier d'achat avec sélection de variantes (tailles)
 - Checkout intégré
+- **Recherche Globale Intelligente** : Barre de recherche accessible depuis le header permettant de filtrer dynamiquement le catalogue par mot-clé (marque, parfum, genre).
 - **Paramètres du site 100% dynamiques** : Modifiez à la volée le logo, les titres, sous-titres, coordonnées (téléphone, e-mail, adresse), réseaux sociaux, les sections Storytelling et Réassurance, ainsi que les métadonnées SEO depuis le panneau admin.
 - **Le Journal (Blog SEO)** : Section articles de blog dynamique avec éditeur de rédaction intégré pour booster le référencement naturel.
 
@@ -35,7 +36,7 @@
 - **Mode sombre/clair** avec persistance (`localStorage`)
 - Typographie élégante (Inter + Playfair Display)
 - Animations fluides (Framer Motion)
-- Design responsive et accessible
+- **Design 100% Mobile Responsive** : Optimisation des grilles de produits, gestion anti-débordement des typographies géantes (`break-words`), et espacement adaptatif du menu pour une navigation fluide sur smartphone.
 - Thème luxe (doré, blanc cassé, noir profond)
 - **Impression de Factures optimisée** : Modèle de facture A4 épuré sans fioritures d'interface, prêt à l'impression papier ou PDF en un clic.
 
