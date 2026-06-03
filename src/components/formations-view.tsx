@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, CheckCircle2, Star, MessageCircle, Mail, MapPin, ChevronDown } from 'lucide-react';
 import { useNavigationStore } from '@/lib/store';
 import { Button } from '@/components/ui/button';
