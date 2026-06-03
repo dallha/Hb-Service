@@ -37,7 +37,13 @@ export default async function CatalogueMaisonPublicPage({
       ? p.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / p.reviews.length
       : 0,
     reviewCount: p.reviews.length,
-  }));
+  })).sort((a, b) => {
+    const aIsHB = a.name.includes('HB_Service');
+    const bIsHB = b.name.includes('HB_Service');
+    if (aIsHB && !bIsHB) return -1;
+    if (!aIsHB && bIsHB) return 1;
+    return 0; // The database query already sorts by createdAt desc
+  });
 
   return (
     <div className="min-h-screen bg-background">

@@ -138,6 +138,22 @@ export const useNavigationStore = create<NavigationState>()((set) => ({
       selectedCataloguePreset: params?.cataloguePreset ?? 'all',
     }));
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname;
+      const isSubpage = !(path === '/' || path === '/fr' || path === '/en');
+      if (isSubpage) {
+        const queryParams = new URLSearchParams();
+        queryParams.set('view', view);
+        if (params?.productSlug) queryParams.set('product', params.productSlug);
+        if (params?.cataloguePreset && params.cataloguePreset !== 'all') queryParams.set('preset', params.cataloguePreset);
+        
+        const localeMatch = path.match(/^\/([a-z]{2})(?:\/|$)/);
+        const locale = localeMatch ? localeMatch[1] : 'fr';
+        
+        window.location.href = `/${locale}?${queryParams.toString()}`;
+      }
+    }
   },
 
   goBack: () => {

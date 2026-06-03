@@ -55,9 +55,6 @@ export default function Header({ settings = {} }: { settings?: SiteSettingsMap }
     }
     
     navigate(view as any);
-    if (isSubpage) {
-      router.push('/fr');
-    }
     setMobileMenuOpen(false);
   };
 
