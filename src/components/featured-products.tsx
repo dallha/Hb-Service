@@ -25,7 +25,7 @@ export default function FeaturedProducts() {
   const { navigate } = useNavigationStore();
 
   useEffect(() => {
-    fetch('/api/products?collection=catalogue-2026')
+    fetch('/api/products')
       .then((r) => r.json())
       .then((data: Product[]) =>
         setProducts(
@@ -61,7 +61,7 @@ export default function FeaturedProducts() {
           </h2>
           <div className="w-16 h-[1px] bg-[#D4AF37] mx-auto mb-4" />
           <p className="font-sans text-sm text-muted-foreground max-w-lg mx-auto">
-            Les nouveautés mises en avant du catalogue Mars 2026, présentées avec leurs vraies marques et leurs genres.
+            Les nouveautés mises en avant, présentées avec leurs vraies marques et leurs genres.
           </p>
         </motion.div>
 

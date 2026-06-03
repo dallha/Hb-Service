@@ -41,6 +41,13 @@ const segments: Array<{
     preset: 'unisex',
     accent: 'Unisexe',
   },
+  {
+    key: 'maison',
+    title: 'Catalogue Maison',
+    description: 'Découvrez nos bougies et parfums d\\'intérieur pour une ambiance unique.',
+    preset: 'maison' as any,
+    accent: 'Maison',
+  },
 ];
 
 export default function CatalogueSegments() {
@@ -59,7 +66,13 @@ export default function CatalogueSegments() {
               viewport={{ once: true, margin: '-50px' }}
               transition={{ duration: 0.35, delay: index * 0.08 }}
               whileHover={{ y: -4 }}
-              onClick={() => navigate('catalogue', { cataloguePreset: segment.preset })}
+              onClick={() => {
+                if (segment.preset === 'maison') {
+                  window.location.href = '/fr/catalogue-maison'; // Or dynamic locale if available
+                } else {
+                  navigate('catalogue', { cataloguePreset: segment.preset });
+                }
+              }}
               className="group text-left p-6 sm:p-7 border border-border bg-card/40 backdrop-blur-sm hover:border-[#D4AF37]/60 transition-all"
             >
               <div className="flex items-center justify-between mb-4">
