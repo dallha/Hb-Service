@@ -1,11 +1,14 @@
 'use client';
 
-import { MessageCircle, Instagram, Facebook, Mail, MapPin, Phone } from 'lucide-react';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MessageCircle, Instagram, Facebook, Mail, MapPin, Phone, X, CheckCircle2 } from 'lucide-react';
 import { useNavigationStore } from '@/lib/store';
 import { usePathname, useRouter } from 'next/navigation';
 import type { SiteSettingsMap } from '@/lib/settings';
 
 export default function Footer({ settings = {} }: { settings?: SiteSettingsMap }) {
+  const [designerModalOpen, setDesignerModalOpen] = useState(false);
   const { navigate } = useNavigationStore();
   const router = useRouter();
   const pathname = usePathname();
@@ -148,14 +151,12 @@ export default function Footer({ settings = {} }: { settings?: SiteSettingsMap }
             </p>
             <p className="opacity-80">
               Identité visuelle par{' '}
-              <a 
-                href="https://www.behance.net/mrniasse" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="hover:text-accent transition-colors font-medium"
+              <button 
+                onClick={() => setDesignerModalOpen(true)}
+                className="hover:text-accent transition-colors font-medium underline underline-offset-2"
               >
                 El Hadji Abdoulaye Niass (Graphiste de la Hadara)
-              </a>
+              </button>
             </p>
           </div>
           <button
@@ -166,6 +167,83 @@ export default function Footer({ settings = {} }: { settings?: SiteSettingsMap }
           </button>
         </div>
       </div>
+
+      <AnimatePresence>
+        {designerModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
+            onClick={() => setDesignerModalOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-background text-foreground w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-none border border-border p-6 sm:p-10 relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setDesignerModalOpen(false)}
+                className="absolute top-4 right-4 sm:top-6 sm:right-6 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+
+              <div className="mb-8">
+                <h3 className="font-serif text-3xl sm:text-4xl mb-2">El Hadji Abdoulaye Niass</h3>
+                <p className="font-sans text-sm tracking-widest uppercase text-accent mb-4">Graphiste de la Hadara</p>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  En tant que designer graphique, je combine une approche esthétique moderne avec la richesse de notre héritage culturel pour créer des identités visuelles fortes et mémorables pour les entreprises, les institutions et les particuliers.
+                </p>
+              </div>
+
+              <div className="space-y-8">
+                <div>
+                  <h4 className="font-sans text-sm tracking-widest uppercase border-b border-border pb-2 mb-4">1. Identité Visuelle & Logo</h4>
+                  <ul className="space-y-3 text-sm text-muted-foreground">
+                    <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-accent mt-0.5 shrink-0" /> <span><strong>Recherche & Concepts :</strong> 3 propositions de logo initiales.</span></li>
+                    <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-accent mt-0.5 shrink-0" /> <span><strong>Révisions :</strong> Jusqu'à 3 cycles de modifications.</span></li>
+                    <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-accent mt-0.5 shrink-0" /> <span><strong>Fichiers finaux :</strong> Livraison en différents formats (PNG, JPG, SVG, PDF).</span></li>
+                    <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-accent mt-0.5 shrink-0" /> <span><strong>Tarif :</strong> À partir de 60 000 FCFA.</span></li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h4 className="font-sans text-sm tracking-widest uppercase border-b border-border pb-2 mb-4">2. Communication Visuelle</h4>
+                  <ul className="space-y-3 text-sm text-muted-foreground">
+                    <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-accent mt-0.5 shrink-0" /> <span><strong>Affiches & Flyers :</strong> Événementiel (30 000 FCFA) ou Business (50 000 FCFA).</span></li>
+                    <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-accent mt-0.5 shrink-0" /> <span><strong>Bâches & Bannières :</strong> À partir de 45 000 FCFA.</span></li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h4 className="font-sans text-sm tracking-widest uppercase border-b border-border pb-2 mb-4">3. Packages "Booster"</h4>
+                  <ul className="space-y-3 text-sm text-muted-foreground">
+                    <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-accent mt-0.5 shrink-0" /> <span><strong>Starter Pack :</strong> Logo + Charte graphique simple + Carte de visite.</span></li>
+                    <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-accent mt-0.5 shrink-0" /> <span><strong>Event Pack :</strong> Affiche ou flyer + Badge + Kakemono.</span></li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h4 className="font-sans text-sm tracking-widest uppercase border-b border-border pb-2 mb-4">Contact & Portfolio</h4>
+                  <div className="grid sm:grid-cols-2 gap-4 text-sm text-muted-foreground">
+                    <a href="https://wa.me/221776232741" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 border border-border hover:border-accent transition-colors group">
+                      <MessageCircle className="w-5 h-5 text-accent group-hover:scale-110 transition-transform" />
+                      <span>+221 77 623 27 41<br/>+221 76 375 63 63</span>
+                    </a>
+                    <a href="https://www.behance.net/mrniasse" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 border border-border hover:border-accent transition-colors group">
+                      <div className="w-5 h-5 bg-accent text-background font-bold flex items-center justify-center text-xs group-hover:scale-110 transition-transform">Bê</div>
+                      <span>Portfolio Behance<br/>mrniasse</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </footer>
   );
 }
