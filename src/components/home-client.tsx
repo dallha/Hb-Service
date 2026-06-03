@@ -64,11 +64,11 @@ export default function HomeClient({ settings }: { settings: SiteSettingsMap }) 
           {currentView === 'home' && (
             <motion.div key="home" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
               <HeroSection settings={settings} />
+              <FeaturedProducts />
               <CatalogueSegments />
               <CollectionsSection settings={settings} />
               <StorytellingSection settings={settings} />
               <ReassuranceSection settings={settings} />
-              <FeaturedProducts />
             </motion.div>
           )}
           {currentView === 'shop' && (
