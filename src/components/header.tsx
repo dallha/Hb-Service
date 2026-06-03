@@ -85,12 +85,12 @@ export default function Header({ settings = {} }: { settings?: SiteSettingsMap }
             {/* Logo */}
             <button
               onClick={handleLogoClick}
-              className="flex items-center gap-1.5 sm:gap-2 group"
+              className="flex items-center gap-1.5 sm:gap-2 group flex-shrink-0"
             >
               <img
                 src={logoUrl}
                 alt="HB Service"
-                className="h-10 w-10 sm:h-12 sm:w-12 object-cover rounded-full"
+                className="h-10 w-10 sm:h-12 sm:w-12 min-w-[40px] sm:min-w-[48px] aspect-square object-cover rounded-full flex-shrink-0"
               />
             </button>
 
