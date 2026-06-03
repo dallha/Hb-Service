@@ -65,6 +65,10 @@ interface Product {
   galleryUrls: string | null;
   relatedRitualIds: string | null;
   isActive: boolean;
+  brand: string | null;
+  isNew: boolean;
+  gender: string | null;
+  arabicName: string | null;
   collection?: Collection;
   variants: ProductVariant[];
   averageRating?: number;
@@ -785,6 +789,7 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
   const [form, setForm] = useState({
     name: '', slug: '', description: '', notesOlfactives: '', inspiration: '',
     imageUrl: '', galleryUrls: '', relatedRitualIds: '', collectionId: '', isActive: true,
+    brand: '', isNew: false, gender: 'U', arabicName: '',
   });
   const [formVariants, setFormVariants] = useState<{ size: string; price: number; compareAtPrice: number | string; stock: number; sku: string }[]>([
     { size: '50ml', price: 0, compareAtPrice: '', stock: 0, sku: '' },
@@ -796,6 +801,7 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
     setForm({
       name: '', slug: '', description: '', notesOlfactives: '', inspiration: '',
       imageUrl: '', galleryUrls: '', relatedRitualIds: '', collectionId: collections[0]?.id || '', isActive: true,
+      brand: '', isNew: false, gender: 'U', arabicName: '',
     });
     setFormVariants([{ size: '50ml', price: 0, compareAtPrice: '', stock: 0, sku: '' }]);
   };
@@ -823,6 +829,10 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
       relatedRitualIds: product.relatedRitualIds ? (JSON.parse(product.relatedRitualIds) as string[]).join(', ') : '',
       collectionId: product.collectionId,
       isActive: product.isActive,
+      brand: product.brand || '',
+      isNew: product.isNew || false,
+      gender: product.gender || 'U',
+      arabicName: product.arabicName || '',
     });
     setFormVariants(
       product.variants.length > 0
@@ -853,6 +863,10 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
       relatedRitualIds: form.relatedRitualIds ? JSON.stringify(form.relatedRitualIds.split(',').map((s) => s.trim())) : null,
       isActive: form.isActive,
       collectionId: form.collectionId,
+      brand: form.brand || null,
+      isNew: form.isNew,
+      gender: form.gender || null,
+      arabicName: form.arabicName || null,
       variants: formVariants.filter((v) => v.size && v.price > 0).map((v) => ({
         size: v.size,
         price: v.price,
@@ -1156,6 +1170,42 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
                 />
               </div>
 
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-sans text-[10px] tracking-wider uppercase text-[#8C8C8C] mb-1.5">Marque (Ex: HB_Service)</label>
+                  <Input
+                    value={form.brand}
+                    onChange={(e) => setForm({ ...form, brand: e.target.value })}
+                    className="bg-white border-[#E8E0D5] rounded-none font-sans text-sm"
+                    placeholder="HB_Service"
+                  />
+                </div>
+                <div>
+                  <label className="block font-sans text-[10px] tracking-wider uppercase text-[#8C8C8C] mb-1.5">Genre</label>
+                  <Select value={form.gender} onValueChange={(v) => setForm({ ...form, gender: v })}>
+                    <SelectTrigger className="bg-white border-[#E8E0D5] rounded-none font-sans text-sm h-10">
+                      <SelectValue placeholder="Sélectionner" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="U">Unisexe (U)</SelectItem>
+                      <SelectItem value="F">Femme (F)</SelectItem>
+                      <SelectItem value="H">Homme (H)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-sans text-[10px] tracking-wider uppercase text-[#8C8C8C] mb-1.5">Nom en Arabe</label>
+                <Input
+                  value={form.arabicName}
+                  onChange={(e) => setForm({ ...form, arabicName: e.target.value })}
+                  className="bg-white border-[#E8E0D5] rounded-none font-sans text-sm"
+                  placeholder="عطر"
+                  dir="rtl"
+                />
+              </div>
+
               <div>
                 <label className="block font-sans text-[10px] tracking-wider uppercase text-[#8C8C8C] mb-1.5">Notes Olfactives</label>
                 <Textarea
@@ -1180,12 +1230,19 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block font-sans text-[10px] tracking-wider uppercase text-[#8C8C8C] mb-1.5">Image URL</label>
-                  <Input
-                    value={form.imageUrl}
-                    onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-                    className="bg-white border-[#E8E0D5] rounded-none font-sans text-sm"
-                    placeholder="/images/products/perfume.png"
-                  />
+                  <div className="flex gap-2">
+                    {form.imageUrl && (
+                      <div className="w-10 h-10 border border-[#E8E0D5] shrink-0 bg-[#F5F0E8] flex items-center justify-center overflow-hidden">
+                        <img src={form.imageUrl} alt="Aperçu" className="w-full h-full object-cover" onError={(e) => e.currentTarget.style.display = 'none'} />
+                      </div>
+                    )}
+                    <Input
+                      value={form.imageUrl}
+                      onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
+                      className="bg-white border-[#E8E0D5] rounded-none font-sans text-sm flex-1"
+                      placeholder="/images/products/perfume.png"
+                    />
+                  </div>
                 </div>
                 <div>
                   <label className="block font-sans text-[10px] tracking-wider uppercase text-[#8C8C8C] mb-1.5">IDs Rituel (séparés par virgule)</label>
@@ -1208,12 +1265,19 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
                 />
               </div>
 
-              {/* Active Toggle */}
-              <div className="flex items-center justify-between py-2">
+              {/* Toggles */}
+              <div className="flex items-center justify-between py-2 border-t border-[#E8E0D5] mt-4">
                 <span className="font-sans text-sm text-[#1A1A1A]">Produit actif</span>
                 <Switch
                   checked={form.isActive}
                   onCheckedChange={(checked) => setForm({ ...form, isActive: checked })}
+                />
+              </div>
+              <div className="flex items-center justify-between py-2">
+                <span className="font-sans text-sm text-[#1A1A1A]">Marquer comme "Nouveau"</span>
+                <Switch
+                  checked={form.isNew}
+                  onCheckedChange={(checked) => setForm({ ...form, isNew: checked })}
                 />
               </div>
             </div>
@@ -1253,6 +1317,9 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
                         className="border-[#E8E0D5] rounded-none font-sans text-sm h-8"
                         placeholder="35000"
                       />
+                      {variant.price > 0 && (
+                        <p className="font-sans text-[9px] text-[#8C8C8C] mt-0.5">~ {Math.round(variant.price * 0.0165)} DH</p>
+                      )}
                     </div>
                     <div className="col-span-3">
                       <label className="block font-sans text-[9px] tracking-wider uppercase text-[#8C8C8C] mb-1">Prix barré</label>
