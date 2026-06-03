@@ -3,6 +3,8 @@ import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/auth-admin';
 import { DEFAULT_SETTINGS } from '@/lib/settings';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const rows = await db.siteSettings.findMany();
