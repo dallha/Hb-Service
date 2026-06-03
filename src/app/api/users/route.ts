@@ -16,6 +16,7 @@ export async function GET() {
         fullName: true,
         phone: true,
         role: true,
+        isBlocked: true,
         createdAt: true,
       },
       orderBy: { createdAt: 'desc' },
@@ -63,6 +64,7 @@ export async function PUT(request: Request) {
         fullName: true,
         phone: true,
         role: true,
+        isBlocked: true,
         createdAt: true,
       },
     });

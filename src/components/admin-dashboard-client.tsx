@@ -29,6 +29,7 @@ import {
 } from '@/components/ui/sheet';
 import { useToast } from '@/hooks/use-toast';
 import { usePathname } from 'next/navigation';
+import { ImageUpload } from '@/components/image-upload';
 
 
 // ─── Types ──────────────────────────────────────────────────────
@@ -117,6 +118,7 @@ interface AdminUser {
   fullName: string | null;
   phone: string | null;
   role: 'USER' | 'ADMIN';
+  isBlocked?: boolean;
   createdAt: string;
 }
 
@@ -227,8 +229,8 @@ export default function AdminDashboardClient() {
 
   // ─── Data Fetching ──────────────────────────────────────────
 
-  const fetchAnalytics = useCallback(() => {
-    fetch('/api/analytics')
+  const fetchAnalytics = useCallback((period: string = '30d') => {
+    fetch(`/api/analytics?period=${period}`)
       .then((r) => r.json())
       .then(setAnalytics)
       .catch(console.error);
@@ -531,6 +533,7 @@ export default function AdminDashboardClient() {
                 analytics={analytics}
                 chartData={chartData}
                 loading={loading}
+                onPeriodChange={fetchAnalytics}
               />
             )}
             {activeTab === 'products' && (
@@ -614,12 +617,35 @@ export default function AdminDashboardClient() {
 
 // ─── Analytics Tab ──────────────────────────────────────────────
 
-function AnalyticsTab({ analytics, chartData, loading }: {
+function AnalyticsTab({ analytics, chartData, loading, onPeriodChange }: {
   analytics: Analytics | null;
   chartData: { date: string; revenue: number }[];
   loading: boolean;
+  onPeriodChange: (period: string) => void;
 }) {
+  const [period, setPeriod] = useState('30d');
+
   if (loading) return <LoadingSkeleton />;
+
+  const handlePeriodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newPeriod = e.target.value;
+    setPeriod(newPeriod);
+    onPeriodChange(newPeriod);
+  };
+
+  const handleExportCSV = () => {
+    if (!analytics) return;
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + "Date,Revenu\n" 
+      + chartData.map(e => `${e.date},${e.revenue}`).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `analytics_${period}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <motion.div
@@ -629,6 +655,18 @@ function AnalyticsTab({ analytics, chartData, loading }: {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
     >
+      <div className="flex justify-between items-center mb-6">
+        <select value={period} onChange={handlePeriodChange} className="bg-white border-[#E8E0D5] p-2 text-sm rounded-none focus:outline-none focus:border-[#1A1A1A]">
+          <option value="7d">7 derniers jours</option>
+          <option value="30d">30 derniers jours</option>
+          <option value="1y">Cette année</option>
+          <option value="all">Historique complet</option>
+        </select>
+        <Button variant="outline" onClick={handleExportCSV} className="rounded-none border-[#E8E0D5] text-xs uppercase">
+          Exporter CSV
+        </Button>
+      </div>
+
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
         {[
@@ -1230,19 +1268,10 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block font-sans text-[10px] tracking-wider uppercase text-[#8C8C8C] mb-1.5">Image URL</label>
-                  <div className="flex gap-2">
-                    {form.imageUrl && (
-                      <div className="w-10 h-10 border border-[#E8E0D5] shrink-0 bg-[#F5F0E8] flex items-center justify-center overflow-hidden">
-                        <img src={form.imageUrl} alt="Aperçu" className="w-full h-full object-cover" onError={(e) => e.currentTarget.style.display = 'none'} />
-                      </div>
-                    )}
-                    <Input
-                      value={form.imageUrl}
-                      onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-                      className="bg-white border-[#E8E0D5] rounded-none font-sans text-sm flex-1"
-                      placeholder="/images/products/perfume.png"
-                    />
-                  </div>
+                  <ImageUpload 
+                    value={form.imageUrl} 
+                    onUpload={(url) => setForm({ ...form, imageUrl: url })} 
+                  />
                 </div>
                 <div>
                   <label className="block font-sans text-[10px] tracking-wider uppercase text-[#8C8C8C] mb-1.5">IDs Rituel (séparés par virgule)</label>
@@ -1654,12 +1683,10 @@ function CollectionsTab({ collections, onRefresh, showToast }: {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block font-sans text-[10px] tracking-wider uppercase text-[#8C8C8C] mb-1.5">Image URL</label>
-                <Input
-                  value={form.imageUrl}
-                  onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-                  className="bg-white border-[#E8E0D5] rounded-none font-sans text-sm"
-                  placeholder="/images/collections/..."
+                <label className="block font-sans text-[10px] tracking-wider uppercase text-[#8C8C8C] mb-1.5">Image de Collection</label>
+                <ImageUpload 
+                  value={form.imageUrl} 
+                  onUpload={(url) => setForm({ ...form, imageUrl: url })} 
                 />
               </div>
               <div>
@@ -1822,13 +1849,28 @@ function OrdersTab({ orders, searchQuery, setSearchQuery, onRefresh, showToast }
   const [payReference, setPayReference] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  const displayedOrders = useMemo(() => {
+    return orders.filter(o => {
+      if (startDate && new Date(o.createdAt) < new Date(startDate)) return false;
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        if (new Date(o.createdAt) > end) return false;
+      }
+      return true;
+    });
+  }, [orders, startDate, endDate]);
+
   // Bulk selection
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [bulkProcessing, setBulkProcessing] = useState(false);
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
-      setSelectedIds(orders.map(o => o.id));
+      setSelectedIds(displayedOrders.map(o => o.id));
     } else {
       setSelectedIds([]);
     }
@@ -1840,7 +1882,7 @@ function OrdersTab({ orders, searchQuery, setSearchQuery, onRefresh, showToast }
 
   const handleExportCSV = () => {
     const headers = ['ID', 'Email', 'Téléphone', 'Total', 'Statut', 'Date'];
-    const rows = orders.map(o => [
+    const rows = displayedOrders.map(o => [
       o.id, 
       o.guestEmail || '', 
       o.guestPhone || '', 
@@ -1936,13 +1978,29 @@ function OrdersTab({ orders, searchQuery, setSearchQuery, onRefresh, showToast }
     >
       {/* Toolbar */}
       <div className="mb-6 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-        <div className="relative w-full max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8C8C8C]" />
-          <Input
-            placeholder="Rechercher par ID, email ou téléphone..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-white border-[#E8E0D5] rounded-none font-sans text-sm h-10"
+        <div className="flex-1 flex gap-2 w-full max-w-2xl">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8C8C8C]" />
+            <Input
+              placeholder="Rechercher par ID, email ou téléphone..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-white border-[#E8E0D5] rounded-none font-sans text-sm h-10"
+            />
+          </div>
+          <Input 
+            type="date" 
+            value={startDate} 
+            onChange={(e) => setStartDate(e.target.value)} 
+            className="w-auto bg-white border-[#E8E0D5] rounded-none h-10 text-xs"
+            title="Date de début"
+          />
+          <Input 
+            type="date" 
+            value={endDate} 
+            onChange={(e) => setEndDate(e.target.value)} 
+            className="w-auto bg-white border-[#E8E0D5] rounded-none h-10 text-xs"
+            title="Date de fin"
           />
         </div>
         
@@ -1969,7 +2027,7 @@ function OrdersTab({ orders, searchQuery, setSearchQuery, onRefresh, showToast }
       </div>
 
       {/* Orders List */}
-      {orders.length === 0 ? (
+      {displayedOrders.length === 0 ? (
         <div className="bg-white rounded-sm border border-[#E8E0D5] p-12 text-center">
           <ClipboardList className="w-12 h-12 text-[#E8E0D5] mx-auto mb-4" />
           <p className="font-sans text-sm text-[#8C8C8C]">Aucune commande</p>
@@ -1979,13 +2037,13 @@ function OrdersTab({ orders, searchQuery, setSearchQuery, onRefresh, showToast }
           <div className="flex items-center gap-3 px-4 py-2">
             <input 
               type="checkbox" 
-              checked={selectedIds.length === orders.length && orders.length > 0}
+              checked={selectedIds.length === displayedOrders.length && displayedOrders.length > 0}
               onChange={handleSelectAll}
               className="w-4 h-4 rounded-sm border-[#E8E0D5] text-[#1A1A1A] focus:ring-black"
             />
             <span className="text-xs text-[#8C8C8C] font-sans uppercase tracking-wider">Tout sélectionner</span>
           </div>
-          {orders.map((order) => (
+          {displayedOrders.map((order) => (
             <motion.div
               key={order.id}
               initial={{ opacity: 0, y: 5 }}
@@ -2159,6 +2217,17 @@ function OrdersTab({ orders, searchQuery, setSearchQuery, onRefresh, showToast }
 
           <SheetFooter className="px-4 sm:px-6 py-4 border-t border-[#E8E0D5] flex flex-col sm:flex-row gap-3">
             <div className="flex gap-3 w-full sm:w-auto sm:flex-1">
+              <Button
+                onClick={() => {
+                  const locale = window.location.pathname.split('/')[1] || 'fr';
+                  window.open(`/${locale}/admin/orders/${selectedOrder!.id}/label`, '_blank');
+                }}
+                variant="outline"
+                className="flex-1 rounded-none font-sans text-xs tracking-wider uppercase border-[#E8E0D5] h-10"
+              >
+                <Printer className="w-3.5 h-3.5 mr-1.5" />
+                Étiquette
+              </Button>
               <Button
                 onClick={() => {
                   const locale = window.location.pathname.split('/')[1] || 'fr';
@@ -2517,13 +2586,26 @@ function PromoCodesTab({ promos, searchQuery, setSearchQuery, onRefresh, showToa
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Code</label>
-                <Input
-                  required
-                  value={newPromo.code}
-                  onChange={(e) => setNewPromo(prev => ({ ...prev, code: e.target.value.toUpperCase() }))}
-                  placeholder="EX: WELCOME10"
-                  className="rounded-none border-[#E8E0D5]"
-                />
+                <div className="flex gap-2">
+                  <Input
+                    required
+                    value={newPromo.code}
+                    onChange={(e) => setNewPromo(prev => ({ ...prev, code: e.target.value.toUpperCase() }))}
+                    placeholder="EX: WELCOME10"
+                    className="rounded-none border-[#E8E0D5] flex-1"
+                  />
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => {
+                      const randomCode = 'HBS-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+                      setNewPromo(prev => ({ ...prev, code: randomCode }));
+                    }}
+                    className="rounded-none border-[#E8E0D5] text-xs uppercase tracking-widest px-4"
+                  >
+                    Générer
+                  </Button>
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
@@ -2685,6 +2767,48 @@ function UsersTab({ users, searchQuery, setSearchQuery, onRefresh, showToast }: 
     }
   };
 
+  const handleToggleBlock = async (userId: string, currentStatus: boolean) => {
+    setProcessing(userId);
+    try {
+      const res = await fetch(`/api/users/block`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, isBlocked: !currentStatus }),
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Erreur inconnue');
+      }
+      showToast(currentStatus ? 'Utilisateur débloqué' : 'Utilisateur bloqué');
+      onRefresh();
+    } catch (error: any) {
+      showToast(error.message || 'Erreur lors de la mise à jour', 'destructive');
+    } finally {
+      setProcessing(null);
+    }
+  };
+
+  const handleResetPassword = async (userId: string) => {
+    if (!confirm('Voulez-vous vraiment envoyer un email de réinitialisation de mot de passe à cet utilisateur ?')) return;
+    setProcessing(userId);
+    try {
+      const res = await fetch(`/api/users/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Erreur inconnue');
+      }
+      showToast('Email de réinitialisation envoyé');
+    } catch (error: any) {
+      showToast(error.message || 'Erreur lors de l\'envoi', 'destructive');
+    } finally {
+      setProcessing(null);
+    }
+  };
+
   return (
     <motion.div
       key="users"
@@ -2731,13 +2855,38 @@ function UsersTab({ users, searchQuery, setSearchQuery, onRefresh, showToast }: 
                     <td className="px-4 py-3">{user.phone || '-'}</td>
                     <td className="px-4 py-3">{new Date(user.createdAt).toLocaleDateString('fr-FR')}</td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-xs tracking-wider uppercase ${
-                        user.role === 'ADMIN' ? 'bg-[#D4AF37]/15 text-[#D4AF37]' : 'bg-[#E8E0D5] text-[#8C8C8C]'
-                      }`}>
-                        {user.role}
-                      </span>
+                      <div className="flex gap-1.5 flex-wrap">
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-xs tracking-wider uppercase ${
+                          user.role === 'ADMIN' ? 'bg-[#D4AF37]/15 text-[#D4AF37]' : 'bg-[#E8E0D5] text-[#8C8C8C]'
+                        }`}>
+                          {user.role}
+                        </span>
+                        {user.isBlocked && (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-xs tracking-wider uppercase bg-[#C44536]/15 text-[#C44536]">
+                            Bloqué
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-right space-x-2 whitespace-nowrap">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={processing === user.id}
+                        onClick={() => handleToggleBlock(user.id, !!user.isBlocked)}
+                        className={`h-8 px-2 text-xs uppercase tracking-widest ${user.isBlocked ? 'text-[#4A7C59] hover:bg-[#4A7C59]/10' : 'text-[#C44536] hover:bg-[#C44536]/10'}`}
+                      >
+                        {user.isBlocked ? 'Débloquer' : 'Bloquer'}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={processing === user.id}
+                        onClick={() => handleResetPassword(user.id)}
+                        className="h-8 px-2 text-xs uppercase tracking-widest text-[#8C8C8C] hover:bg-[#F5F0E8] hover:text-[#1A1A1A]"
+                      >
+                        MDP
+                      </Button>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -2995,12 +3144,10 @@ function PostsTab({ posts, searchQuery, setSearchQuery, onRefresh, showToast }: 
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-[#8C8C8C] uppercase tracking-wider mb-2">Image de couverture (URL)</label>
-                <Input
-                  value={formData.coverImage || ''}
-                  onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
-                  className="rounded-none border-[#E8E0D5] focus:border-[#1A1A1A]"
-                  placeholder="https://..."
+                <label className="block text-xs font-medium text-[#8C8C8C] uppercase tracking-wider mb-2">Image de couverture</label>
+                <ImageUpload 
+                  value={formData.coverImage} 
+                  onUpload={(url) => setFormData({ ...formData, coverImage: url })} 
                 />
               </div>
 
