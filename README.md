@@ -32,6 +32,7 @@
 - **Paramètres du site 100% dynamiques** : Modifiez à la volée le logo, les titres, sous-titres, coordonnées (téléphone, e-mail, adresse), réseaux sociaux, les sections Storytelling et Réassurance, ainsi que les métadonnées SEO depuis le panneau admin.
 - **Le Journal (Blog SEO)** : Section articles de blog dynamique avec éditeur de rédaction intégré pour booster le référencement naturel.
 - **Académie HB_Service (Formations)** : Page dédiée aux formations professionnelles (Parfumerie, Cosmétique) avec formulaire d'inscription redirigeant directement vers WhatsApp avec les données pré-remplies.
+- **Upload d'Images Natif** : Intégration directe avec Supabase Storage (bucket `medias`) permettant d'uploader des photos depuis son ordinateur pour les produits, collections, et articles de blog sans avoir besoin de manipuler des URL externes.
 
 ### 🎨 Design & Expérience
 - **Mode sombre/clair** avec persistance (`localStorage`)
@@ -46,9 +47,12 @@
 - Dashboard analytics (ventes, CA, panier moyen)
 - Authentification admin et client sécurisée
 - **Double Authentification (MFA)** : Sécurisation par QR Code (Google Authenticator/Authy) configurable dans le profil utilisateur.
-- Gestion complète des produits, collections et commandes (CRUD)
+- **Gestion Complète** : Produits, collections, commandes, utilisateurs, codes promo et articles de blog (CRUD).
+- **Étiquettes d'Expédition** : Génération instantanée d'une étiquette de livraison au format 10x15cm prête à être imprimée sur une imprimante thermique, avec code-barres simulé et infos d'expédition.
+- **Gestion des Utilisateurs Avancée** : Promouvoir/Rétrograder les administrateurs, **Bloquer/Débloquer** un compte client, et **Réinitialisation de mot de passe** par e-mail en un clic.
+- **Codes Promo Intelligents** : Bouton de génération de codes aléatoires sécurisés (ex: `HBS-XXXX`) pour créer des réductions rapidement.
+- **Tableau de Bord & Statistiques** : Visualisation du chiffre d'affaires, panier moyen, avec **Filtres de dates** (7j, 30j, Année, Historique) et **Export CSV** pour la comptabilité.
 - **Actions de masse (Bulk)** : Activation/désactivation de produits et mise à jour des commandes groupées en un clic.
-- **Export CSV** : Export de la liste des commandes pour gestion comptable externe.
 - **Protection du Droit d'Auteur** : Le crédit d'identité visuelle (Graphiste de la Hadara) est verrouillé dans le code source et ne peut pas être modifié depuis le tableau de bord, garantissant ainsi la pérennité de la signature de l'auteur.
 
 ### ⚡ Optimisations & Performance
