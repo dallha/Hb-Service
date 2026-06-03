@@ -15,7 +15,7 @@ export const DEFAULT_SETTINGS: SiteSettingsMap = {
   // Brand
   logo_url: "/logo-gold.jpg",
   brand_tagline: "Parfums & Soins Naturels Premium. Des créations olfactives d'exception, nées du savoir-faire africain.",
-  copyright_text: "HB_Service. Tous droits réservés.",
+  copyright_text: "Graphiste de la Hadara. Tous droits réservés.",
 
   // Contact
   whatsapp_number: "221778757474",

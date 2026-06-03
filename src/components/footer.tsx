@@ -21,7 +21,7 @@ export default function Footer({ settings = {} }: { settings?: SiteSettingsMap }
   const address = settings.address || 'Dakar, Sénégal';
   const instagramUrl = settings.instagram_url || '#';
   const facebookUrl = settings.facebook_url || '#';
-  const copyright = settings.copyright_text || 'HB_Service. Tous droits réservés.';
+  const copyright = 'Graphiste de la Hadara. Tous droits réservés.';
   const catalogueLabel = settings.collections_section_title || 'Sélections du catalogue';
   const locale = pathname?.split('/')[1] || 'fr';
 
