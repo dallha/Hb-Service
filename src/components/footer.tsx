@@ -81,6 +81,7 @@ export default function Footer({ settings = {} }: { settings?: SiteSettingsMap }
                 { label: 'Accueil', view: 'home' as const },
                 { label: 'Boutique', view: 'shop' as const },
                 { label: 'Sélection Parfum', view: 'catalogue' as const },
+                { label: 'Formations', view: 'formations' as const },
                 { label: 'Notre Histoire', view: 'storytelling' as const },
               ].map((item) => (
                 <li key={item.label}>

@@ -13,6 +13,7 @@ const navLinks = [
   { label: 'Boutique', view: 'shop' as const },
   { label: 'Sélection Parfum', view: 'catalogue' as const },
   { label: 'Catalogue Maison', view: 'catalogue-maison' as const },
+  { label: 'Formations', view: 'formations' as const },
   { label: 'Collections', view: 'shop' as const, params: {} },
   { label: 'Notre Histoire', view: 'storytelling' as const },
   { label: 'Journal', view: 'journal' as const },

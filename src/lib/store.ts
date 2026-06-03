@@ -101,7 +101,8 @@ export type AppView =
   | 'product' 
   | 'checkout' 
   | 'dashboard'
-  | 'storytelling';
+  | 'storytelling'
+  | 'formations';
 
 export type CataloguePreset = 'all' | 'new' | 'men' | 'women' | 'unisex';
 

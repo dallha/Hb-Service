@@ -14,6 +14,7 @@ import ProductView from '@/components/product-view';
 import CartDrawer from '@/components/cart-drawer';
 import CheckoutView from '@/components/checkout-view';
 import StorytellingView from '@/components/storytelling-view';
+import FormationsView from '@/components/formations-view';
 import type { SiteSettingsMap } from '@/lib/settings';
 
 import { useEffect, useLayoutEffect } from 'react';
@@ -96,6 +97,11 @@ export default function HomeClient({ settings }: { settings: SiteSettingsMap }) 
           {currentView === 'storytelling' && (
             <motion.div key="storytelling" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
               <StorytellingView settings={settings} />
+            </motion.div>
+          )}
+          {currentView === 'formations' && (
+            <motion.div key="formations" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
+              <FormationsView settings={settings} />
             </motion.div>
           )}
         </AnimatePresence>
