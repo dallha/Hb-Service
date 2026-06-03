@@ -47,6 +47,12 @@
 - **Actions de masse (Bulk)** : Activation/désactivation de produits et mise à jour des commandes groupées en un clic.
 - **Export CSV** : Export de la liste des commandes pour gestion comptable externe.
 
+### ⚡ Optimisations & Performance
+- **Régénération Statique Incrémentale (ISR)** : La page d'accueil se rafraîchit automatiquement toutes les 60 secondes en arrière-plan. Si vous modifiez une image ou un texte depuis l'admin (Supabase), la mise à jour est en ligne en moins d'une minute sans avoir à re-déployer le site.
+- **URLs Propres (Clean URLs)** : Les URLs des produits utilisent désormais des slugs lisibles pour un meilleur SEO et une meilleure expérience de partage (ex: `?view=product&product=oud-home-spray`).
+- **Prévention du Flash SPA** : L'utilisation optimisée de `useLayoutEffect` garantit que l'utilisateur arrive directement sur la page ciblée lors d'un rafraîchissement, sans voir la page d'accueil clignoter.
+- **Mise en valeur "Maison"** : L'algorithme de la page d'accueil trie et propulse systématiquement les créations estampillées "HB_Service" en haut de la grille des nouveautés.
+
 ### 📚 Catalogue Maison
 - **Surface publique** : `/[locale]/catalogue-maison` affiche dynamiquement tous les produits de la collection Maison (Bougies Parfumées, Home Sprays, Parfums d'intérieur, etc.). La page interroge directement la base de données en temps réel pour être toujours à jour.
 - **Ajout rapide par script** : Des scripts spécifiques sont disponibles dans le dossier `scripts/` pour ajouter rapidement des produits avec leurs descriptions et prix convertis (ex: `add-bougie-760g.ts`, `add-home-spray.ts`). Pour les exécuter : `npx tsx scripts/<nom-du-script>.ts`.
