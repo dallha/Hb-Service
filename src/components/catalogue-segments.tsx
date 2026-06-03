@@ -44,7 +44,7 @@ const segments: Array<{
   {
     key: 'maison',
     title: 'Catalogue Maison',
-    description: 'Découvrez nos bougies et parfums d\\'intérieur pour une ambiance unique.',
+    description: "Découvrez nos bougies et parfums d'intérieur pour une ambiance unique.",
     preset: 'maison' as any,
     accent: 'Maison',
   },

@@ -14,7 +14,7 @@ export default async function CatalogueMaisonPublicPage({
   const { locale } = await params;
   const settings = await getSettings();
   const title = 'Catalogue Maison';
-  const subtitle = 'Découvrez nos bougies et parfums d\\'intérieur pour une ambiance unique.';
+  const subtitle = "Découvrez nos bougies et parfums d'intérieur pour une ambiance unique.";
 
   const products = await db.product.findMany({
     where: {
