@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { db } from '@/lib/db';
 import ProductCard from '@/components/product-card';
 
+export const dynamic = 'force-dynamic';
+
 export default async function CatalogueMaisonPublicPage({
   params,
 }: {
