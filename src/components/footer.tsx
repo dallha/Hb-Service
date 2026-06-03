@@ -142,9 +142,22 @@ export default function Footer({ settings = {} }: { settings?: SiteSettingsMap }
 
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-muted-foreground/20 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} {copyright}
-          </p>
+          <div className="flex flex-col gap-2 items-center sm:items-start text-xs text-muted-foreground text-center sm:text-left">
+            <p>
+              &copy; {new Date().getFullYear()} {copyright}
+            </p>
+            <p className="opacity-80">
+              Identité visuelle par{' '}
+              <a 
+                href="https://www.behance.net/mrniasse" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:text-accent transition-colors font-medium"
+              >
+                El Hadji Abdoulaye Niass (Graphiste de la Hadara)
+              </a>
+            </p>
+          </div>
           <button
             onClick={() => router.push(`/${locale}/catalogue-maison`)}
             className="text-xs uppercase tracking-widest text-accent hover:text-accent/80 transition-colors"
