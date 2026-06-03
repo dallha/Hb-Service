@@ -31,13 +31,18 @@ export default function FeaturedProducts() {
         setProducts(
           [...data]
             .filter((p) => p.isNew)
-            .sort(
-              (a, b) =>
+            .sort((a, b) => {
+              const aIsHB = a.name.includes('HB_Service');
+              const bIsHB = b.name.includes('HB_Service');
+              if (aIsHB && !bIsHB) return -1;
+              if (!aIsHB && bIsHB) return 1;
+              return (
                 (a.sourcePage ?? 0) - (b.sourcePage ?? 0) ||
                 (a.brand || '').localeCompare(b.brand || '') ||
                 a.name.localeCompare(b.name)
-            )
-            .slice(0, 4)
+              );
+            })
+            .slice(0, 8)
         )
       )
       .catch(console.error);
@@ -57,11 +62,11 @@ export default function FeaturedProducts() {
           className="text-center mb-12 lg:mb-16"
         >
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-foreground mb-4">
-            Nouveautés de la sélection
+            Créations de la Maison & Nouveautés
           </h2>
           <div className="w-16 h-[1px] bg-[#D4AF37] mx-auto mb-4" />
           <p className="font-sans text-sm text-muted-foreground max-w-lg mx-auto">
-            Les nouveautés mises en avant, présentées avec leurs vraies marques et leurs genres.
+            Découvrez en exclusivité nos propres créations artisanales HB_Service, accompagnées de notre sélection des dernières nouveautés.
           </p>
         </motion.div>
 
