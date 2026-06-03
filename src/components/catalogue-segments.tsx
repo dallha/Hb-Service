@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
 import { useNavigationStore } from '@/lib/store';
 
-type SegmentKey = 'new' | 'men' | 'women' | 'unisex';
+type SegmentKey = 'new' | 'men' | 'women' | 'unisex' | 'maison';
 
 const segments: Array<{
   key: SegmentKey;
