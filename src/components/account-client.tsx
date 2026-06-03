@@ -64,7 +64,10 @@ export default function AccountClient({ user, initialOrders, initialAddresses }:
       }
     }
 
-    const { data, error } = await supabase.auth.mfa.enroll({ factorType: 'totp' });
+    const { data, error } = await supabase.auth.mfa.enroll({ 
+      factorType: 'totp',
+      issuer: 'HB_Service'
+    });
     if (error) { toast.error(error.message); return; }
     setQrCode(data.totp.qr_code);
     setFactorId(data.id);
