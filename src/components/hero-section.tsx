@@ -29,12 +29,12 @@ export default function HeroSection({ settings = {} }: { settings?: SiteSettings
       <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
 
       {/* Content */}
-      <div className="relative z-10 text-center px-5 sm:px-6 max-w-4xl mx-auto">
+      <div className="relative z-10 text-center px-5 sm:px-6 max-w-5xl mx-auto mt-16 sm:mt-24">
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-          className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl text-white leading-tight mb-4 sm:mb-6"
+          className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white leading-tight mb-4 sm:mb-6"
         >
           {title}
           <br />
@@ -45,7 +45,7 @@ export default function HeroSection({ settings = {} }: { settings?: SiteSettings
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.4 }}
-          className="font-sans text-sm sm:text-base md:text-lg text-white/80 max-w-2xl mx-auto mb-6 sm:mb-10 leading-relaxed"
+          className="font-sans text-sm sm:text-base md:text-lg text-white/80 max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed"
         >
           {subtitle}
         </motion.p>
@@ -54,7 +54,7 @@ export default function HeroSection({ settings = {} }: { settings?: SiteSettings
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.6 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4"
+          className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-16"
         >
           <Button
             onClick={() => navigate('shop')}
@@ -69,6 +69,27 @@ export default function HeroSection({ settings = {} }: { settings?: SiteSettings
           >
             {ctaSecondary}
           </Button>
+        </motion.div>
+
+        {/* Modern Data/Story Highlights */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.8 }}
+          className="grid grid-cols-3 gap-2 sm:gap-8 max-w-3xl mx-auto bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 sm:p-6"
+        >
+          <div className="flex flex-col items-center justify-center">
+            <span className="font-serif text-xl sm:text-3xl text-[#D4AF37] mb-1">100%</span>
+            <span className="font-sans text-[9px] sm:text-xs tracking-widest uppercase text-white/70 text-center">Artisanal</span>
+          </div>
+          <div className="flex flex-col items-center justify-center border-l border-white/10 pl-2 sm:pl-8">
+            <span className="font-serif text-xl sm:text-3xl text-[#D4AF37] mb-1">Créateur</span>
+            <span className="font-sans text-[9px] sm:text-xs tracking-widest uppercase text-white/70 text-center">Africain</span>
+          </div>
+          <div className="flex flex-col items-center justify-center border-l border-white/10 pl-2 sm:pl-8">
+            <span className="font-serif text-xl sm:text-3xl text-[#D4AF37] mb-1">Maison</span>
+            <span className="font-sans text-[9px] sm:text-xs tracking-widest uppercase text-white/70 text-center">HB_Service</span>
+          </div>
         </motion.div>
       </div>
 
