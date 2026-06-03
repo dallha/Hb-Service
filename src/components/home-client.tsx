@@ -16,13 +16,15 @@ import CheckoutView from '@/components/checkout-view';
 import StorytellingView from '@/components/storytelling-view';
 import type { SiteSettingsMap } from '@/lib/settings';
 
-import { useEffect } from 'react';
+import { useEffect, useLayoutEffect } from 'react';
+
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 export default function HomeClient({ settings }: { settings: SiteSettingsMap }) {
   const { currentView, selectedCataloguePreset, selectedProductSlug, navigate } = useNavigationStore();
 
-  // On mount: Restore view from URL
-  useEffect(() => {
+  // On mount: Restore view from URL BEFORE painting to prevent flash
+  useIsomorphicLayoutEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const view = params.get('view') as any;
     const productSlug = params.get('product');
