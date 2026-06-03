@@ -16,8 +16,45 @@ import CheckoutView from '@/components/checkout-view';
 import StorytellingView from '@/components/storytelling-view';
 import type { SiteSettingsMap } from '@/lib/settings';
 
+import { useEffect } from 'react';
+
 export default function HomeClient({ settings }: { settings: SiteSettingsMap }) {
-  const { currentView, selectedCataloguePreset } = useNavigationStore();
+  const { currentView, selectedCataloguePreset, selectedProductId, navigate } = useNavigationStore();
+
+  // On mount: Restore view from URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const view = params.get('view') as any;
+    const productId = params.get('productId');
+    const preset = params.get('preset') as any;
+    
+    if (view && view !== 'home') {
+      navigate(view, {
+        productId: productId || undefined,
+        cataloguePreset: preset || undefined,
+      });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // On state change: Update URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (currentView === 'home') {
+      params.delete('view');
+      params.delete('productId');
+      params.delete('preset');
+    } else {
+      params.set('view', currentView);
+      if (selectedProductId) params.set('productId', selectedProductId);
+      else params.delete('productId');
+      
+      if (selectedCataloguePreset && selectedCataloguePreset !== 'all') params.set('preset', selectedCataloguePreset);
+      else params.delete('preset');
+    }
+    
+    const newUrl = params.toString() ? `?${params.toString()}` : window.location.pathname;
+    window.history.replaceState(null, '', newUrl);
+  }, [currentView, selectedProductId, selectedCataloguePreset]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
