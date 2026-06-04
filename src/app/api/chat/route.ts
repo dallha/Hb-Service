@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 
     const productList = products.map(p => {
       const price = p.variants[0]?.price || 'N/A';
-      return `- **${p.name}** (Collection: ${p.collection?.name || 'Aucune'}). Prix: ${price} FCFA. Description: ${p.description.substring(0, 150).replace(/\n/g, ' ')}...`;
+      return `- **${p.name}** (Collection: ${p.collection?.name || 'Aucune'}). Prix: ${price} FCFA. Description: ${(p.description || '').substring(0, 150).replace(/\n/g, ' ')}...`;
     }).join('\n');
 
     const systemPrompt = `Tu es l'assistant et conseiller virtuel de "HB Service", une boutique premium de parfums et soins naturels basée à Dakar, au Sénégal.
