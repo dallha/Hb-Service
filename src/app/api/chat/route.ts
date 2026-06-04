@@ -46,7 +46,7 @@ N'oublie pas d'insérer quelques emojis (✨, 🌿, 🧴) pour rendre le tout pl
 
     // Utilisation du modèle Google Gemini
     const result = await streamText({
-      model: google('gemini-1.5-flash'),
+      model: google('models/gemini-2.5-flash'),
       system: systemPrompt,
       messages,
     });
