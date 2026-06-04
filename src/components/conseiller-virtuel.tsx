@@ -19,7 +19,7 @@ export default function ConseillerVirtuel({ settings = {} }: { settings?: SiteSe
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { messages, input, handleInputChange, handleSubmit, append, isLoading } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, append, isLoading, error } = useChat({
     api: '/api/chat',
     initialMessages: [
       {
@@ -122,8 +122,16 @@ export default function ConseillerVirtuel({ settings = {} }: { settings?: SiteSe
                 </div>
               ))}
 
+              {error && (
+                <div className="flex justify-center mt-2 mb-2">
+                  <div className="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs px-3 py-2 rounded-lg border border-red-200 dark:border-red-800/50 max-w-[80%] text-center">
+                    Oups, une erreur de connexion est survenue. Vérifiez la clé API ou réessayez.
+                  </div>
+                </div>
+              )}
+
               {isLoading && (
-                <div className="flex justify-start">
+                <div className="flex justify-start mb-4">
                   <div className="max-w-[85%] rounded-2xl rounded-bl-md bg-amber-50 dark:bg-slate-800 px-4 py-3 text-sm text-slate-500 dark:text-slate-400 border border-amber-200/20 dark:border-amber-800/20">
                     <span className="inline-flex gap-1">
                       <span className="h-2 w-2 animate-bounce rounded-full bg-amber-500" style={{ animationDelay: '0ms' }} />
