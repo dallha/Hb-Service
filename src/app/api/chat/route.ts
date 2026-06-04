@@ -52,7 +52,7 @@ N'oublie pas d'insérer quelques emojis (✨, 🌿, 🧴) pour rendre le tout pl
       messages,
     });
 
-    return result.toDataStreamResponse();
+    return result.toTextStreamResponse();
   } catch (error) {
     console.error('Chat API Error:', error);
     return NextResponse.json({ error: 'Erreur lors du traitement de la requête' }, { status: 500 });
