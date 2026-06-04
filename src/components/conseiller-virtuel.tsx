@@ -4,63 +4,31 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import type { SiteSettingsMap } from '@/lib/settings';
-
-type Message = {
-  role: 'user' | 'assistant';
-  content: string;
-};
+import { useChat } from 'ai/react';
+import ReactMarkdown from 'react-markdown';
 
 const SUGGESTIONS = [
   'Quels sont vos parfums les plus populaires ?',
-  'Avez-vous des soins pour le visage ?',
+  'Avez-vous des parfums boisés pour homme ?',
   'Quelle est votre collection Signature ?',
-  'Comment entretenir un parfum naturel ?',
-  'Quels sont les bienfaits du beurre de karité ?',
+  'Comment sont fabriqués vos soins naturels ?',
 ];
-
-const FAQ: Record<string, string> = {
-  livraison: "🚚 Nous livrons partout au Sénégal et à l'international. **Dakar** : livraison gratuite sous 24-48h. **Régions** : 2 500 FCFA, livraison sous 3-5 jours. **International** : frais selon la destination.",
-  paiement: "💳 Nous acceptons : **Wave**, **Orange Money**, **Carte bancaire** (via PayTech) et **espèces à la livraison** (Dakar uniquement).",
-  retour: "🔄 Vous disposez de **14 jours** pour retourner un produit non ouvert. Remboursement sous 72h après réception.",
-  signature: "✨ La collection **Signature** est notre gamme emblématique : des parfums d'exception aux notes boisées et orientales, inspirés du savoir-faire africain.",
-  botanique: "🌿 La collection **Botanique** célèbre la nature : soins visage et corps à base d'ingrédients naturels (karité, baobab, moringa).",
-  heritage: "👑 La collection **Héritage** rend hommage aux traditions : parfums ancestraux, huiles précieuses et rituels de beauté transmis de génération en génération.",
-  contact: "📞 Vous pouvez nous joindre au **+221 77 875 74 74** ou nous écrire via WhatsApp. Notre équipe vous répond sous 24h.",
-  commande: "📋 Pour commander, ajoutez vos articles au panier, remplissez vos coordonnées et choisissez votre mode de paiement. Vous recevrez une confirmation immédiate.",
-  délai: "⏱️ Les commandes sont préparées sous **24-48h**. Livraison Dakar : 24-48h. Régions : 3-5 jours. International : 7-14 jours.",
-};
-
-function getBotResponse(userMessage: string): string {
-  const msg = userMessage.toLowerCase();
-
-  for (const [key, response] of Object.entries(FAQ)) {
-    if (msg.includes(key)) return response;
-  }
-
-  if (msg.includes('bonjour') || msg.includes('salut') || msg.includes('bonsoir')) {
-    return "👋 Bienvenue chez **HB Service** ! Je suis votre conseiller virtuel. Découvrez nos collections Signature, Botanique et Héritage. Comment puis-je vous aider ?";
-  }
-
-  if (msg.includes('merci')) {
-    return "🌟 Avec plaisir ! N'hésitez pas si vous avez d'autres questions. Belle journée parfumée !";
-  }
-
-  return "🤗 Merci pour votre message ! Je peux vous renseigner sur :\n\n• **Nos collections** : Signature, Botanique, Héritage\n• **Livraison et délais**\n• **Moyens de paiement**\n• **Contact direct**\n\nQue souhaitez-vous savoir ?";
-}
 
 export default function ConseillerVirtuel({ settings = {} }: { settings?: SiteSettingsMap }) {
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: 'assistant',
-      content:
-        '👋 Bienvenue chez **HB Service** ! Je suis votre conseiller virtuel. Posez-moi toutes vos questions sur nos parfums, soins naturels, ou les collections.',
-    },
-  ]);
-  const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const { messages, input, handleInputChange, handleSubmit, append, isLoading } = useChat({
+    api: '/api/chat',
+    initialMessages: [
+      {
+        id: '1',
+        role: 'assistant',
+        content: '👋 Bienvenue chez **HB Service** ! Je suis votre conseiller virtuel. Posez-moi toutes vos questions sur nos parfums, soins naturels, ou les collections.',
+      }
+    ]
+  });
 
   const pathname = usePathname();
   if (pathname?.includes('/admin')) return null;
@@ -77,25 +45,8 @@ export default function ConseillerVirtuel({ settings = {} }: { settings?: SiteSe
     if (open) setTimeout(() => inputRef.current?.focus(), 100);
   }, [open]);
 
-  const sendMessage = async (text: string) => {
-    if (!text.trim() || loading) return;
-
-    const userMsg: Message = { role: 'user', content: text.trim() };
-    setMessages((prev) => [...prev, userMsg]);
-    setInput('');
-    setLoading(true);
-
-    // Simulate AI response with FAQ
-    setTimeout(() => {
-      const botMsg: Message = { role: 'assistant', content: getBotResponse(text) };
-      setMessages((prev) => [...prev, botMsg]);
-      setLoading(false);
-    }, 600 + Math.random() * 400);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    sendMessage(input);
+  const handleSuggestionClick = (text: string) => {
+    append({ role: 'user', content: text });
   };
 
   return (
@@ -153,25 +104,25 @@ export default function ConseillerVirtuel({ settings = {} }: { settings?: SiteSe
             </div>
 
             {/* Messages */}
-            <div className="flex h-[400px] flex-col overflow-y-auto p-4 space-y-3">
+            <div className="flex h-[400px] flex-col overflow-y-auto p-4 space-y-4">
               {messages.map((msg, i) => (
                 <div
                   key={i}
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                    className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed prose prose-sm dark:prose-invert prose-p:my-1 prose-ul:my-1 ${
                       msg.role === 'user'
-                        ? 'bg-amber-700 text-white rounded-br-md'
+                        ? 'bg-amber-700 text-white rounded-br-md prose-p:text-white prose-strong:text-white'
                         : 'bg-amber-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-bl-md border border-amber-200/20 dark:border-amber-800/20'
                     }`}
                   >
-                    {msg.content}
+                    <ReactMarkdown>{msg.content}</ReactMarkdown>
                   </div>
                 </div>
               ))}
 
-              {loading && (
+              {isLoading && (
                 <div className="flex justify-start">
                   <div className="max-w-[85%] rounded-2xl rounded-bl-md bg-amber-50 dark:bg-slate-800 px-4 py-3 text-sm text-slate-500 dark:text-slate-400 border border-amber-200/20 dark:border-amber-800/20">
                     <span className="inline-flex gap-1">
@@ -193,7 +144,7 @@ export default function ConseillerVirtuel({ settings = {} }: { settings?: SiteSe
                   <button
                     key={i}
                     type="button"
-                    onClick={() => sendMessage(suggestion)}
+                    onClick={() => handleSuggestionClick(suggestion)}
                     className="rounded-full border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-slate-800 px-3 py-1.5 text-xs text-amber-800 dark:text-amber-300 transition hover:border-amber-500 hover:bg-amber-100 dark:hover:bg-amber-900/30"
                   >
                     {suggestion}
@@ -224,14 +175,14 @@ export default function ConseillerVirtuel({ settings = {} }: { settings?: SiteSe
                   ref={inputRef}
                   type="text"
                   value={input}
-                  onChange={(e) => setInput(e.target.value)}
+                  onChange={handleInputChange}
                   placeholder="Posez votre question..."
-                  disabled={loading}
+                  disabled={isLoading}
                   className="flex-1 rounded-xl border border-amber-200/30 dark:border-amber-800/30 bg-amber-50/50 dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 disabled:opacity-50"
                 />
                 <button
                   type="submit"
-                  disabled={loading || !input.trim()}
+                  disabled={isLoading || !input.trim()}
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-700 text-white transition hover:bg-amber-800 disabled:opacity-50 disabled:cursor-not-allowed"
                   aria-label="Envoyer"
                 >
