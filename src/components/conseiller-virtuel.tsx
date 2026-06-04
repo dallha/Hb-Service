@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import type { SiteSettingsMap } from '@/lib/settings';
-import { useChat } from '@ai-sdk/react';
+import { useChat } from 'ai/react';
 import ReactMarkdown from 'react-markdown';
 
 const SUGGESTIONS = [

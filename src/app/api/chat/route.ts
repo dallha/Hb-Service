@@ -46,13 +46,13 @@ Règles de comportement :
 N'oublie pas d'insérer quelques emojis (✨, 🌿, 🧴) pour rendre le tout plus vivant, mais avec modération.`;
 
     // Utilisation du modèle deepseek-chat
-    const result = streamText({
+    const result = await streamText({
       model: deepseek('deepseek-chat'),
       system: systemPrompt,
       messages,
     });
 
-    return result.toTextStreamResponse();
+    return result.toAIStreamResponse();
   } catch (error) {
     console.error('Chat API Error:', error);
     return NextResponse.json({ error: 'Erreur lors du traitement de la requête' }, { status: 500 });
