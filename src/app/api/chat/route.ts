@@ -18,7 +18,7 @@ export async function POST(req: Request) {
 
     // Récupérer le catalogue pour l'injecter dans le contexte
     const products = await db.product.findMany({
-      where: { active: true },
+      where: { isActive: true },
       include: { collection: true, variants: true },
     });
 
