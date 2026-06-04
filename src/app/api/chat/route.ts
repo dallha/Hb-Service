@@ -1,12 +1,11 @@
-import { createOpenAI } from '@ai-sdk/openai';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { streamText } from 'ai';
 import { db } from '@/lib/db';
 import { NextResponse } from 'next/server';
 
-// Initialiser le client DeepSeek via le provider OpenAI
-const deepseek = createOpenAI({
-  baseURL: 'https://api.deepseek.com/v1',
-  apiKey: process.env.DEEPSEEK_API_KEY,
+// Initialiser le client Google Gemini
+const google = createGoogleGenerativeAI({
+  apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY,
 });
 
 export const runtime = 'nodejs'; // ou edge selon la base de données
@@ -45,9 +44,9 @@ Règles de comportement :
 
 N'oublie pas d'insérer quelques emojis (✨, 🌿, 🧴) pour rendre le tout plus vivant, mais avec modération.`;
 
-    // Utilisation du modèle deepseek-chat
+    // Utilisation du modèle Google Gemini
     const result = await streamText({
-      model: deepseek('deepseek-chat'),
+      model: google('gemini-1.5-flash'),
       system: systemPrompt,
       messages,
     });
