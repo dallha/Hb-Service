@@ -3,10 +3,10 @@ import { db } from '@/lib/db';
 import { Resend } from 'resend';
 import { AbandonedCartEmail } from '@/emails/AbandonedCartEmail';
 
-// Assurez-vous d'avoir configuré RESEND_API_KEY dans votre fichier .env
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function GET(req: Request) {
+  // Initialiser Resend à l'intérieur pour éviter les crashs de build si la variable d'environnement manque
+  const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key_for_build');
+  
   try {
     // Vérification du secret (utile si appelé par Vercel Cron ou un service tiers)
     const authHeader = req.headers.get('authorization');
