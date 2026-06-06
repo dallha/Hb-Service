@@ -7,7 +7,7 @@ import {
   Plus, Pencil, Trash2, X, Save, Search, Eye, ChevronDown,
   LayoutGrid, FolderOpen, ClipboardList, BarChart3, Upload,
   AlertTriangle, Users, Shield, ShieldCheck, Star, CheckCircle,
-  Ticket, Menu, LogOut, Download, Copy, Printer, FileText, BookOpen, Settings,
+  Ticket, Menu, LogOut, Download, Copy, Printer, FileText, BookOpen, Settings, ShoppingBag
 } from 'lucide-react';
 import { useNavigationStore } from '@/lib/store';
 import { formatPrice } from '@/lib/format';
@@ -113,6 +113,10 @@ interface Analytics {
   dailyRevenue: Record<string, number>;
   ordersByStatus?: { status: string; _count: { id: number } }[];
   topProducts?: { name: string; quantity: number; revenue: number }[];
+  salesByCollection?: { name: string; revenue: number }[];
+  totalUsers?: number;
+  cartSessions?: { status: string; _count: { id: number } }[];
+  lowStockVariants?: { id: string; size: string; stock: number; product: { name: string } }[];
 }
 
 interface AdminUser {
@@ -668,6 +672,29 @@ function AnalyticsTab({ analytics, chartData, loading, onPeriodChange }: {
     fill: statusColors[s.status] || '#1A1A1A'
   })) || [];
 
+  const cartColors: Record<string, string> = {
+    'active': '#D4AF37',
+    'abandoned': '#e11d48',
+    'recovered': '#4A7C59',
+    'completed': '#1A1A1A'
+  };
+
+  const cartData = analytics?.cartSessions?.map(c => ({
+    name: c.status === 'active' ? 'Actifs'
+        : c.status === 'abandoned' ? 'Abandonnés'
+        : c.status === 'recovered' ? 'Récupérés'
+        : c.status === 'completed' ? 'Convertis' : c.status,
+    value: c._count.id,
+    fill: cartColors[c.status] || '#8C8C8C'
+  })) || [];
+
+  const collectionColors = ['#1A1A1A', '#D4AF37', '#4A7C59', '#8C8C8C', '#E8E0D5'];
+  const collectionData = analytics?.salesByCollection?.map((c, idx) => ({
+    name: c.name,
+    value: c.revenue,
+    fill: collectionColors[idx % collectionColors.length]
+  })) || [];
+
   const formatAdminPrice = (price: number) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' FCFA';
   };
@@ -693,12 +720,13 @@ function AnalyticsTab({ analytics, chartData, loading, onPeriodChange }: {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6 mb-8">
         {[
-          { label: 'CA Total', value: analytics ? formatAdminPrice(analytics.totalRevenue) : '—', icon: DollarSign, trend: '+12%' },
-          { label: 'Panier Moyen', value: analytics ? formatAdminPrice(Math.round(analytics.aov)) : '—', icon: TrendingUp, trend: '+5%' },
-          { label: 'Commandes', value: analytics?.orderCount.toString() || '—', icon: ShoppingCart, trend: '+8%' },
-          { label: 'Produits Actifs', value: analytics?.productCount.toString() || '—', icon: Package },
+          { label: 'CA Total', value: analytics ? formatAdminPrice(analytics.totalRevenue) : '—', icon: DollarSign, trend: null },
+          { label: 'Panier Moyen', value: analytics ? formatAdminPrice(Math.round(analytics.aov)) : '—', icon: TrendingUp, trend: null },
+          { label: 'Commandes', value: analytics?.orderCount.toString() || '—', icon: ShoppingBag, trend: null },
+          { label: 'Clients', value: analytics?.totalUsers?.toString() || '—', icon: Users, trend: null },
+          { label: 'Produits', value: analytics?.productCount.toString() || '—', icon: Package, trend: null },
         ].map((card, index) => (
           <motion.div
             key={card.label}
@@ -714,7 +742,7 @@ function AnalyticsTab({ analytics, chartData, loading, onPeriodChange }: {
               <div className="w-10 h-10 rounded-none bg-gradient-to-br from-[#F5F0E8] to-[#E8E0D5] flex items-center justify-center border border-[#D4AF37]/20">
                 <card.icon className="w-5 h-5 text-[#D4AF37]" />
               </div>
-              <span className="font-sans text-[11px] font-semibold tracking-[0.2em] uppercase text-[#8C8C8C]">
+              <span className="font-sans text-[10px] font-semibold tracking-[0.2em] uppercase text-[#8C8C8C]">
                 {card.label}
               </span>
             </div>
@@ -763,10 +791,75 @@ function AnalyticsTab({ analytics, chartData, loading, onPeriodChange }: {
           </div>
         </div>
 
+        {/* Sales by Collection Donut */}
+        <div className="bg-white p-5 sm:p-6 shadow-sm border border-[#E8E0D5]/50">
+          <h2 className="font-sans text-[11px] font-semibold tracking-[0.2em] uppercase text-[#1A1A1A] mb-6">
+            Ventes par Famille
+          </h2>
+          <div className="h-64 sm:h-80 flex flex-col items-center justify-center">
+            {collectionData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={collectionData}
+                    cx="50%"
+                    cy="45%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {collectionData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value: number) => formatAdminPrice(value)}
+                    contentStyle={{ fontFamily: 'Inter, sans-serif', fontSize: 12, border: '1px solid #E8E0D5', borderRadius: 0 }}
+                  />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', fontFamily: 'Inter, sans-serif' }} />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="font-sans text-sm text-[#8C8C8C]">Aucune vente</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mb-8">
+        {/* Top Products Bar Chart */}
+        <div className="lg:col-span-2 bg-white p-5 sm:p-6 shadow-sm border border-[#E8E0D5]/50">
+          <h2 className="font-sans text-[11px] font-semibold tracking-[0.2em] uppercase text-[#1A1A1A] mb-6">
+            Top 5 Produits (Quantités)
+          </h2>
+          <div className="h-64 sm:h-80">
+            {analytics?.topProducts && analytics.topProducts.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={analytics.topProducts} layout="vertical" margin={{ top: 0, right: 20, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E8E0D5" horizontal={true} vertical={false} />
+                  <XAxis type="number" hide />
+                  <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 11, fill: '#1A1A1A' }} axisLine={false} tickLine={false} />
+                  <Tooltip
+                    cursor={{ fill: '#F5F0E8' }}
+                    contentStyle={{ fontFamily: 'Inter, sans-serif', fontSize: 12, border: '1px solid #E8E0D5', borderRadius: 0 }}
+                    formatter={(value: number, name: string) => [value, name === 'revenue' ? 'CA' : 'Quantité']}
+                  />
+                  <Bar dataKey="quantity" fill="#1A1A1A" radius={[0, 4, 4, 0]} barSize={24} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <p className="font-sans text-sm text-[#8C8C8C]">Aucune vente</p>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Orders by Status Donut */}
         <div className="bg-white p-5 sm:p-6 shadow-sm border border-[#E8E0D5]/50">
           <h2 className="font-sans text-[11px] font-semibold tracking-[0.2em] uppercase text-[#1A1A1A] mb-6">
-            Répartition des Commandes
+            États des Commandes
           </h2>
           <div className="h-64 sm:h-80 flex flex-col items-center justify-center">
             {statusData.length > 0 ? (
@@ -798,29 +891,113 @@ function AnalyticsTab({ analytics, chartData, loading, onPeriodChange }: {
         </div>
       </div>
 
-      {/* Top Products Bar Chart */}
-      {analytics?.topProducts && analytics.topProducts.length > 0 && (
-        <div className="bg-white p-5 sm:p-6 shadow-sm border border-[#E8E0D5]/50 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mb-8">
+        {/* Recent Orders List */}
+        <div className="lg:col-span-1 bg-white p-5 sm:p-6 shadow-sm border border-[#E8E0D5]/50">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="font-sans text-[11px] font-semibold tracking-[0.2em] uppercase text-[#1A1A1A]">
+              Dernières Commandes
+            </h2>
+            <ShoppingCart className="w-4 h-4 text-[#8C8C8C]" />
+          </div>
+          {analytics?.recentOrderList && analytics.recentOrderList.length > 0 ? (
+            <div className="space-y-4 overflow-y-auto max-h-[300px] pr-2">
+              {analytics.recentOrderList.slice(0, 5).map(order => (
+                <div key={order.id} className="flex justify-between items-center p-3 sm:p-4 bg-[#F5F0E8]/50 border border-[#E8E0D5]/50">
+                  <div>
+                    <p className="font-sans text-sm font-medium text-[#1A1A1A] truncate w-24 sm:w-32">{order.guestEmail || order.guestPhone || 'Client Anonyme'}</p>
+                    <p className="font-sans text-[10px] text-[#8C8C8C] uppercase tracking-wider mt-1">{new Date(order.createdAt).toLocaleDateString('fr-FR')}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-serif text-sm font-medium text-[#D4AF37]">{formatAdminPrice(order.totalAmount)}</p>
+                    <span className={`inline-block mt-1 font-sans text-[9px] uppercase tracking-wider px-2 py-0.5
+                      ${order.status === 'completed' ? 'text-[#4A7C59] bg-[#4A7C59]/10' : 
+                        order.status === 'pending' ? 'text-[#8C8C8C] bg-[#8C8C8C]/10' : 
+                        order.status === 'cancelled' ? 'text-[#e11d48] bg-[#e11d48]/10' :
+                        'text-[#D4AF37] bg-[#D4AF37]/10'}`}
+                    >
+                      {order.status}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="h-64 sm:h-80 flex flex-col items-center justify-center">
+              <p className="font-sans text-sm text-[#8C8C8C] text-center">Aucune commande récente</p>
+            </div>
+          )}
+        </div>
+
+        {/* Cart Sessions Status */}
+        <div className="lg:col-span-1 bg-white p-5 sm:p-6 shadow-sm border border-[#E8E0D5]/50">
           <h2 className="font-sans text-[11px] font-semibold tracking-[0.2em] uppercase text-[#1A1A1A] mb-6">
-            Top 5 Produits (Quantités Vendues)
+            Suivi des Paniers
           </h2>
-          <div className="h-64 sm:h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={analytics.topProducts} layout="vertical" margin={{ top: 0, right: 20, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E8E0D5" horizontal={true} vertical={false} />
-                <XAxis type="number" hide />
-                <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 11, fill: '#1A1A1A' }} axisLine={false} tickLine={false} />
-                <Tooltip
-                  cursor={{ fill: '#F5F0E8' }}
-                  contentStyle={{ fontFamily: 'Inter, sans-serif', fontSize: 12, border: '1px solid #E8E0D5', borderRadius: 0 }}
-                  formatter={(value: number, name: string) => [value, name === 'revenue' ? 'CA' : 'Quantité']}
-                />
-                <Bar dataKey="quantity" fill="#1A1A1A" radius={[0, 4, 4, 0]} barSize={24} />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="h-64 sm:h-[300px] flex flex-col items-center justify-center">
+            {cartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={cartData}
+                    cx="50%"
+                    cy="45%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {cartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ fontFamily: 'Inter, sans-serif', fontSize: 12, border: '1px solid #E8E0D5', borderRadius: 0 }}
+                  />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', fontFamily: 'Inter, sans-serif' }} />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="font-sans text-sm text-[#8C8C8C]">Aucun panier</p>
+            )}
           </div>
         </div>
-      )}
+
+        {/* Low Stock Alerts */}
+        <div className="lg:col-span-1 bg-white p-5 sm:p-6 shadow-sm border border-[#E8E0D5]/50">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="font-sans text-[11px] font-semibold tracking-[0.2em] uppercase text-[#1A1A1A]">
+              Alertes Stocks
+            </h2>
+            <AlertTriangle className="w-4 h-4 text-[#e11d48]" />
+          </div>
+          {analytics?.lowStockVariants && analytics.lowStockVariants.length > 0 ? (
+            <div className="space-y-4 overflow-y-auto max-h-[300px] pr-2">
+              {analytics.lowStockVariants.map(variant => (
+                <div key={variant.id} className="flex justify-between items-center p-3 sm:p-4 bg-[#F5F0E8]/50 border border-[#E8E0D5]/50">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-2 h-2 rounded-full flex-shrink-0 ${variant.stock === 0 ? 'bg-[#e11d48]' : 'bg-[#D4AF37]'}`} />
+                    <div className="overflow-hidden">
+                      <p className="font-sans text-sm font-medium text-[#1A1A1A] truncate w-24 sm:w-32">{variant.product.name}</p>
+                      <p className="font-sans text-[10px] text-[#8C8C8C] uppercase tracking-wider mt-1">Format: {variant.size}</p>
+                    </div>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <p className={`font-serif text-lg ${variant.stock === 0 ? 'text-[#e11d48]' : 'text-[#D4AF37]'}`}>
+                      {variant.stock}
+                    </p>
+                    <p className="font-sans text-[9px] text-[#8C8C8C] uppercase tracking-wider">en stock</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="h-64 sm:h-[300px] flex flex-col items-center justify-center">
+              <p className="font-sans text-sm text-[#8C8C8C] text-center">Tous les stocks sont au vert</p>
+            </div>
+          )}
+        </div>
+      </div>
 
     </motion.div>
   );

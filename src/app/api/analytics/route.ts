@@ -28,6 +28,9 @@ export async function GET(request: Request) {
       ordersByStatus,
       allOrdersInPeriod,
       allOrderItems,
+      totalUsers,
+      cartSessions,
+      lowStockVariants,
     ] = await Promise.all([
       db.order.count({ where: { createdAt: dateFilter } }),
       db.order.aggregate({
@@ -64,12 +67,15 @@ export async function GET(request: Request) {
           variant: {
             include: {
               product: {
-                select: { name: true }
+                include: { collection: { select: { name: true } } }
               }
             }
           }
         }
       }),
+      db.user.count(),
+      db.cartSession.groupBy({ by: ['status'], _count: { id: true } }),
+      db.productVariant.findMany({ where: { stock: { lt: 5 } }, include: { product: { select: { name: true } } }, orderBy: { stock: 'asc' }, take: 10 }),
     ]);
 
     // Build dailyRevenue from allOrdersInPeriod
@@ -79,15 +85,24 @@ export async function GET(request: Request) {
       dailyRevenue[dateKey] = (dailyRevenue[dateKey] || 0) + (d.totalAmount || 0);
     }
 
-    // Top Products Calculation
+    // Top Products and Collections Calculation
     const productStats: Record<string, { name: string; quantity: number; revenue: number }> = {};
+    const collectionStats: Record<string, { name: string; revenue: number }> = {};
+    
     for (const item of allOrderItems) {
       const pName = item.variant?.product?.name || 'Produit inconnu';
+      const cName = item.variant?.product?.collection?.name || 'Sans collection';
+      const itemRev = item.quantity * item.unitPrice;
+      
       if (!productStats[pName]) productStats[pName] = { name: pName, quantity: 0, revenue: 0 };
       productStats[pName].quantity += item.quantity;
-      productStats[pName].revenue += (item.quantity * item.unitPrice);
+      productStats[pName].revenue += itemRev;
+      
+      if (!collectionStats[cName]) collectionStats[cName] = { name: cName, revenue: 0 };
+      collectionStats[cName].revenue += itemRev;
     }
     const topProducts = Object.values(productStats).sort((a, b) => b.quantity - a.quantity).slice(0, 5);
+    const salesByCollection = Object.values(collectionStats);
 
     // Calculate AOV (Average Order Value)
     const aov = totalOrders > 0 ? Math.round((totalRevenue._sum.totalAmount || 0) / totalOrders) : 0;
@@ -101,6 +116,10 @@ export async function GET(request: Request) {
       dailyRevenue,
       ordersByStatus,
       topProducts,
+      salesByCollection,
+      totalUsers,
+      cartSessions,
+      lowStockVariants,
     });
   } catch (error) {
     console.error('Analytics API error:', error);
