@@ -280,8 +280,8 @@ export default function ProductView() {
               {product.name}
             </h1>
             <div className="flex items-center gap-2 flex-wrap mb-4">
-              {product.gender && (
-                <span className="inline-flex items-center rounded-none border border-border px-2 py-1 text-[10px] uppercase tracking-widest text-muted-foreground">
+              {product.gender && product.gender !== 'none' && (
+                <span className="inline-flex items-center rounded-none border border-border px-1.5 py-0.5 text-[10px] uppercase tracking-widest text-muted-foreground">
                   {product.gender}
                 </span>
               )}

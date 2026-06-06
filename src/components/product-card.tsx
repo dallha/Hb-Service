@@ -138,7 +138,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               Sélection
             </span>
           )}
-          {product.gender && (
+          {product.gender && product.gender !== 'none' && (
             <span className="inline-flex items-center rounded-none border border-border px-1.5 py-0.5 text-[9px] uppercase tracking-widest text-muted-foreground">
               {product.gender}
             </span>

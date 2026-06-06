@@ -1220,14 +1220,18 @@ function ProductsTab({ products, collections, searchQuery, setSearchQuery, onRef
                 </div>
                 <div>
                   <label className="block font-sans text-[10px] tracking-wider uppercase text-[#8C8C8C] mb-1.5">Genre</label>
-                  <Select value={form.gender} onValueChange={(v) => setForm({ ...form, gender: v })}>
+                  <Select value={form.gender || "none"} onValueChange={(v) => setForm({ ...form, gender: v === 'none' ? null : v })}>
                     <SelectTrigger className="bg-white border-[#E8E0D5] rounded-none font-sans text-sm h-10">
                       <SelectValue placeholder="Sélectionner" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="none">Aucun</SelectItem>
                       <SelectItem value="U">Unisexe (U)</SelectItem>
                       <SelectItem value="F">Femme (F)</SelectItem>
                       <SelectItem value="H">Homme (H)</SelectItem>
+                      <SelectItem value="SOIN">Soin</SelectItem>
+                      <SelectItem value="CORPS">Corps</SelectItem>
+                      <SelectItem value="MAISON">Maison</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

@@ -571,9 +571,13 @@ export default function OwnerCataloguePage({ settings = {} }: { settings?: SiteS
                     onChange={(event) => setDefaultGender(event.target.value)}
                     className="block w-full border border-border bg-background p-3 text-sm text-foreground"
                   >
-                    <option value="U">U</option>
-                    <option value="H">H</option>
-                    <option value="F">F</option>
+                    <option value="none">Aucun</option>
+                    <option value="U">Unisexe (U)</option>
+                    <option value="H">Homme (H)</option>
+                    <option value="F">Femme (F)</option>
+                    <option value="SOIN">Soin</option>
+                    <option value="CORPS">Corps</option>
+                    <option value="MAISON">Maison</option>
                   </select>
                 </label>
                 <label className="space-y-2">
