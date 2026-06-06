@@ -29,7 +29,7 @@ export async function GET(req: Request) {
       },
     });
 
-    const results = [];
+    const results: any[] = [];
 
     for (const cart of abandonedCarts) {
       if (!cart.email) continue;
