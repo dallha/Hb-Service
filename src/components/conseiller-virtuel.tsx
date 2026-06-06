@@ -26,8 +26,8 @@ export default function ConseillerVirtuel({ settings = {} }: { settings?: SiteSe
     api: '/api/chat',
     body: {
       cartItems: items.map(item => ({
-        name: item.name || (item as any).productName,
-        size: item.size || (item as any).variantSize,
+        name: item.productName || (item as any).name,
+        size: item.variantSize || (item as any).size,
         quantity: item.quantity,
         price: item.price
       }))
