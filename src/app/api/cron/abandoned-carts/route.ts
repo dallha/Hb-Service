@@ -71,7 +71,7 @@ export async function GET(req: Request) {
           },
         });
 
-        results.push({ email: cart.email, status: 'sent', id: data?.id });
+        results.push({ email: cart.email, status: 'sent', id: data.data?.id });
       } catch (emailError) {
         console.error(`Erreur d'envoi d'email à ${cart.email}:`, emailError);
         results.push({ email: cart.email, status: 'error' });
