@@ -668,6 +668,10 @@ function AnalyticsTab({ analytics, chartData, loading, onPeriodChange }: {
     fill: statusColors[s.status] || '#1A1A1A'
   })) || [];
 
+  const formatAdminPrice = (price: number) => {
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' FCFA';
+  };
+
   return (
     <motion.div
       key="analytics"
@@ -691,8 +695,8 @@ function AnalyticsTab({ analytics, chartData, loading, onPeriodChange }: {
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
         {[
-          { label: 'CA Total', value: analytics ? formatPrice(analytics.totalRevenue) : '—', icon: DollarSign, trend: '+12%' },
-          { label: 'Panier Moyen', value: analytics ? formatPrice(Math.round(analytics.aov)) : '—', icon: TrendingUp, trend: '+5%' },
+          { label: 'CA Total', value: analytics ? formatAdminPrice(analytics.totalRevenue) : '—', icon: DollarSign, trend: '+12%' },
+          { label: 'Panier Moyen', value: analytics ? formatAdminPrice(Math.round(analytics.aov)) : '—', icon: TrendingUp, trend: '+5%' },
           { label: 'Commandes', value: analytics?.orderCount.toString() || '—', icon: ShoppingCart, trend: '+8%' },
           { label: 'Produits Actifs', value: analytics?.productCount.toString() || '—', icon: Package },
         ].map((card, index) => (
@@ -745,7 +749,7 @@ function AnalyticsTab({ analytics, chartData, loading, onPeriodChange }: {
                   <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#8C8C8C' }} axisLine={{ stroke: '#E8E0D5' }} tickLine={false} dy={10} />
                   <YAxis tick={{ fontSize: 10, fill: '#8C8C8C' }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}k`} />
                   <Tooltip
-                    formatter={(value: number) => [formatPrice(value), 'CA']}
+                    formatter={(value: number) => [formatAdminPrice(value), 'CA']}
                     contentStyle={{ fontFamily: 'Inter, sans-serif', fontSize: 12, border: '1px solid #E8E0D5', borderRadius: 0, boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)' }}
                   />
                   <Area type="monotone" dataKey="revenue" stroke="#D4AF37" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" />
