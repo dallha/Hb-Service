@@ -27,6 +27,7 @@ export async function GET(request: Request) {
       recentOrders,
       ordersByStatus,
       allOrdersInPeriod,
+      allOrderItems,
     ] = await Promise.all([
       db.order.count({ where: { createdAt: dateFilter } }),
       db.order.aggregate({
@@ -52,6 +53,23 @@ export async function GET(request: Request) {
         select: { createdAt: true, totalAmount: true },
         orderBy: { createdAt: 'desc' },
       }),
+      db.orderItem.findMany({
+        where: {
+          order: {
+            createdAt: dateFilter,
+            status: { not: 'cancelled' }
+          }
+        },
+        include: {
+          variant: {
+            include: {
+              product: {
+                select: { name: true }
+              }
+            }
+          }
+        }
+      }),
     ]);
 
     // Build dailyRevenue from allOrdersInPeriod
@@ -60,6 +78,16 @@ export async function GET(request: Request) {
       const dateKey = d.createdAt.toISOString().split('T')[0];
       dailyRevenue[dateKey] = (dailyRevenue[dateKey] || 0) + (d.totalAmount || 0);
     }
+
+    // Top Products Calculation
+    const productStats: Record<string, { name: string; quantity: number; revenue: number }> = {};
+    for (const item of allOrderItems) {
+      const pName = item.variant?.product?.name || 'Produit inconnu';
+      if (!productStats[pName]) productStats[pName] = { name: pName, quantity: 0, revenue: 0 };
+      productStats[pName].quantity += item.quantity;
+      productStats[pName].revenue += (item.quantity * item.unitPrice);
+    }
+    const topProducts = Object.values(productStats).sort((a, b) => b.quantity - a.quantity).slice(0, 5);
 
     // Calculate AOV (Average Order Value)
     const aov = totalOrders > 0 ? Math.round((totalRevenue._sum.totalAmount || 0) / totalOrders) : 0;
@@ -71,6 +99,8 @@ export async function GET(request: Request) {
       productCount: totalProducts,
       recentOrderList: recentOrders,
       dailyRevenue,
+      ordersByStatus,
+      topProducts,
     });
   } catch (error) {
     console.error('Analytics API error:', error);

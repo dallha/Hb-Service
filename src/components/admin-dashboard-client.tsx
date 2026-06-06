@@ -12,7 +12,8 @@ import {
 import { useNavigationStore } from '@/lib/store';
 import { formatPrice } from '@/lib/format';
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -110,6 +111,8 @@ interface Analytics {
   productCount: number;
   recentOrderList: Order[];
   dailyRevenue: Record<string, number>;
+  ordersByStatus?: { status: string; _count: { id: number } }[];
+  topProducts?: { name: string; quantity: number; revenue: number }[];
 }
 
 interface AdminUser {
@@ -647,6 +650,24 @@ function AnalyticsTab({ analytics, chartData, loading, onPeriodChange }: {
     document.body.removeChild(link);
   };
 
+  const statusColors: Record<string, string> = {
+    'completed': '#4A7C59',
+    'delivered': '#4A7C59',
+    'processing': '#D4AF37',
+    'pending': '#8C8C8C',
+    'cancelled': '#e11d48'
+  };
+
+  const statusData = analytics?.ordersByStatus?.map(s => ({
+    name: s.status === 'pending' ? 'En attente' 
+        : s.status === 'completed' ? 'Complétée' 
+        : s.status === 'processing' ? 'En cours' 
+        : s.status === 'delivered' ? 'Livrée' 
+        : s.status === 'cancelled' ? 'Annulée' : s.status,
+    value: s._count.id,
+    fill: statusColors[s.status] || '#1A1A1A'
+  })) || [];
+
   return (
     <motion.div
       key="analytics"
@@ -662,13 +683,13 @@ function AnalyticsTab({ analytics, chartData, loading, onPeriodChange }: {
           <option value="1y">Cette année</option>
           <option value="all">Historique complet</option>
         </select>
-        <Button variant="outline" onClick={handleExportCSV} className="rounded-none border-[#E8E0D5] text-xs uppercase">
-          Exporter CSV
+        <Button variant="outline" onClick={handleExportCSV} className="rounded-none border-[#E8E0D5] text-xs uppercase hover:bg-[#F5F0E8]">
+          <Download className="w-4 h-4 mr-2" /> Exporter CSV
         </Button>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
         {[
           { label: 'CA Total', value: analytics ? formatPrice(analytics.totalRevenue) : '—', icon: DollarSign, trend: '+12%' },
           { label: 'Panier Moyen', value: analytics ? formatPrice(Math.round(analytics.aov)) : '—', icon: TrendingUp, trend: '+5%' },
@@ -680,59 +701,123 @@ function AnalyticsTab({ analytics, chartData, loading, onPeriodChange }: {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.08 }}
-            className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-[#E8E0D5]/50 hover:shadow-md transition-shadow relative overflow-hidden group"
+            className="bg-white p-5 sm:p-6 shadow-sm border border-[#E8E0D5]/50 relative overflow-hidden group hover:border-[#D4AF37]/30 transition-colors"
           >
-            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-               <card.icon className="w-16 h-16 text-[#D4AF37]" />
+            <div className="absolute -right-4 -top-4 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110">
+               <card.icon className="w-24 h-24 text-[#D4AF37]" />
             </div>
-            <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 relative z-10">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#F5F0E8] flex items-center justify-center shadow-inner">
-                <card.icon className="w-4 h-4 sm:w-5 sm:h-5 text-[#D4AF37]" />
+            <div className="flex items-center gap-3 mb-4 relative z-10">
+              <div className="w-10 h-10 rounded-none bg-gradient-to-br from-[#F5F0E8] to-[#E8E0D5] flex items-center justify-center border border-[#D4AF37]/20">
+                <card.icon className="w-5 h-5 text-[#D4AF37]" />
               </div>
-              <span className="font-sans text-[10px] sm:text-xs font-semibold tracking-wider uppercase text-[#8C8C8C]">
+              <span className="font-sans text-[11px] font-semibold tracking-[0.2em] uppercase text-[#8C8C8C]">
                 {card.label}
               </span>
             </div>
             <div className="flex items-baseline gap-3 relative z-10">
-              <p className="font-serif text-xl sm:text-3xl text-[#1A1A1A] font-medium">
+              <p className="font-serif text-2xl sm:text-3xl text-[#1A1A1A] font-medium tracking-tight">
                 {card.value}
               </p>
-              {card.trend && (
-                <span className="font-sans text-xs font-medium text-[#4A7C59] bg-[#4A7C59]/10 px-2 py-0.5 rounded-full">
-                  {card.trend}
-                </span>
-              )}
             </div>
           </motion.div>
         ))}
       </div>
 
-      {/* Revenue Chart */}
-      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-[#E8E0D5]/50">
-        <h2 className="font-serif text-sm sm:text-lg text-[#1A1A1A] mb-4 sm:mb-6">
-          Chiffre d&apos;Affaires (30 jours)
-        </h2>
-        <div className="h-48 sm:h-80">
-          {chartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E8E0D5" />
-                <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#8C8C8C' }} axisLine={{ stroke: '#E8E0D5' }} />
-                <YAxis tick={{ fontSize: 11, fill: '#8C8C8C' }} axisLine={{ stroke: '#E8E0D5' }} tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}k`} />
-                <Tooltip
-                  formatter={(value: number) => [formatPrice(value), 'CA']}
-                  contentStyle={{ fontFamily: 'Inter, sans-serif', fontSize: 12, border: '1px solid #E8E0D5', borderRadius: 0 }}
-                />
-                <Line type="monotone" dataKey="revenue" stroke="#D4AF37" strokeWidth={2} dot={{ fill: '#D4AF37', r: 3 }} activeDot={{ r: 5 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="flex items-center justify-center h-full">
-              <p className="font-sans text-sm text-[#8C8C8C]">Aucune donnée de revenu disponible</p>
-            </div>
-          )}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mb-8">
+        {/* Revenue Area Chart */}
+        <div className="lg:col-span-2 bg-white p-5 sm:p-6 shadow-sm border border-[#E8E0D5]/50">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="font-sans text-[11px] font-semibold tracking-[0.2em] uppercase text-[#1A1A1A]">
+              Évolution du CA
+            </h2>
+          </div>
+          <div className="h-64 sm:h-80">
+            {chartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#D4AF37" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#D4AF37" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E8E0D5" vertical={false} />
+                  <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#8C8C8C' }} axisLine={{ stroke: '#E8E0D5' }} tickLine={false} dy={10} />
+                  <YAxis tick={{ fontSize: 10, fill: '#8C8C8C' }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}k`} />
+                  <Tooltip
+                    formatter={(value: number) => [formatPrice(value), 'CA']}
+                    contentStyle={{ fontFamily: 'Inter, sans-serif', fontSize: 12, border: '1px solid #E8E0D5', borderRadius: 0, boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)' }}
+                  />
+                  <Area type="monotone" dataKey="revenue" stroke="#D4AF37" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <p className="font-sans text-sm text-[#8C8C8C]">Aucune donnée disponible</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Orders by Status Donut */}
+        <div className="bg-white p-5 sm:p-6 shadow-sm border border-[#E8E0D5]/50">
+          <h2 className="font-sans text-[11px] font-semibold tracking-[0.2em] uppercase text-[#1A1A1A] mb-6">
+            Répartition des Commandes
+          </h2>
+          <div className="h-64 sm:h-80 flex flex-col items-center justify-center">
+            {statusData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={statusData}
+                    cx="50%"
+                    cy="45%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {statusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ fontFamily: 'Inter, sans-serif', fontSize: 12, border: '1px solid #E8E0D5', borderRadius: 0 }}
+                  />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', fontFamily: 'Inter, sans-serif' }} />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="font-sans text-sm text-[#8C8C8C]">Aucune commande</p>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Top Products Bar Chart */}
+      {analytics?.topProducts && analytics.topProducts.length > 0 && (
+        <div className="bg-white p-5 sm:p-6 shadow-sm border border-[#E8E0D5]/50 mb-8">
+          <h2 className="font-sans text-[11px] font-semibold tracking-[0.2em] uppercase text-[#1A1A1A] mb-6">
+            Top 5 Produits (Quantités Vendues)
+          </h2>
+          <div className="h-64 sm:h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={analytics.topProducts} layout="vertical" margin={{ top: 0, right: 20, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E8E0D5" horizontal={true} vertical={false} />
+                <XAxis type="number" hide />
+                <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 11, fill: '#1A1A1A' }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  cursor={{ fill: '#F5F0E8' }}
+                  contentStyle={{ fontFamily: 'Inter, sans-serif', fontSize: 12, border: '1px solid #E8E0D5', borderRadius: 0 }}
+                  formatter={(value: number, name: string) => [value, name === 'revenue' ? 'CA' : 'Quantité']}
+                />
+                <Bar dataKey="quantity" fill="#1A1A1A" radius={[0, 4, 4, 0]} barSize={24} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
     </motion.div>
   );
 }
