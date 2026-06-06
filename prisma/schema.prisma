@@ -229,3 +229,19 @@ model Transaction {
   @@index([date])
   @@index([type])
 }
+
+model CartSession {
+  id          String    @id @default(cuid())
+  token       String    @unique // Token stocké côté client (localStorage)
+  email       String?   // Capturé lors du checkout
+  items       Json      // Contenu du panier
+  status      String    @default("active") // active, abandoned, recovered, completed
+  notifiedAt  DateTime? // Date du dernier email de relance envoyé
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([token])
+  @@index([email])
+  @@index([status])
+  @@index([updatedAt])
+}

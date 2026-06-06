@@ -13,7 +13,14 @@ export const maxDuration = 30;
 
 export async function POST(req: Request) {
   try {
-    const { messages } = await req.json();
+    const { messages, cartItems } = await req.json();
+
+    let cartContextText = "Le client a actuellement un panier vide.";
+    if (cartItems && cartItems.length > 0) {
+      cartContextText = "Le client a les articles suivants dans son panier :\n" + 
+        cartItems.map((item: any) => `- ${item.quantity}x ${item.name} (${item.size}) - ${item.price} FCFA`).join('\n') +
+        "\n\nN'hésite pas à t'en servir pour personnaliser tes recommandations (Cross-selling) ou le rassurer sur son choix (sans être insistant).";
+    }
 
     // Récupérer le catalogue pour l'injecter dans le contexte
     const products = await db.product.findMany({
@@ -28,6 +35,11 @@ export async function POST(req: Request) {
 
     const systemPrompt = `Tu es l'assistant et conseiller virtuel de "HB Service", une boutique premium de parfums et soins naturels basée à Dakar, au Sénégal.
 Ton rôle est d'accueillir les visiteurs, de les conseiller sur leurs choix de parfums et soins, et de les assister.
+
+---
+**ÉTAT DU PANIER DU CLIENT** :
+${cartContextText}
+---
 
 Voici le catalogue actuel de nos produits :
 ${productList}

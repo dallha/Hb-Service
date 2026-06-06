@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import type { SiteSettingsMap } from '@/lib/settings';
 import { useChat } from 'ai/react';
 import ReactMarkdown from 'react-markdown';
+import { useCartStore } from '@/lib/store';
 
 const SUGGESTIONS = [
   'Quels sont vos parfums les plus populaires ?',
@@ -19,8 +20,18 @@ export default function ConseillerVirtuel({ settings = {} }: { settings?: SiteSe
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const { items } = useCartStore();
+
   const { messages, input, handleInputChange, handleSubmit, append, isLoading, error } = useChat({
     api: '/api/chat',
+    body: {
+      cartItems: items.map(item => ({
+        name: item.name || (item as any).productName,
+        size: item.size || (item as any).variantSize,
+        quantity: item.quantity,
+        price: item.price
+      }))
+    },
     initialMessages: [
       {
         id: '1',

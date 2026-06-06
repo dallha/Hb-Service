@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface CartItem {
   id: string; // variantId
@@ -13,6 +14,7 @@ export interface CartItem {
 }
 
 interface CartState {
+  cartToken: string;
   items: CartItem[];
   isOpen: boolean;
   addItem: (item: CartItem) => void;
@@ -28,6 +30,7 @@ interface CartState {
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
+      cartToken: uuidv4(),
       items: [],
       isOpen: false,
 
@@ -100,7 +103,7 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: 'hb-cart-storage', // name of item in the storage (must be unique)
-      partialize: (state) => ({ items: state.items }), // Only persist items
+      partialize: (state) => ({ items: state.items, cartToken: state.cartToken }), // Persist items & token
     }
   )
 );

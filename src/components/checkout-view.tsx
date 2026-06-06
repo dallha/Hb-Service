@@ -14,7 +14,7 @@ import { SoundEngine } from '@/components/SoundEngine';
 type PaymentMethod = 'card' | 'wave' | 'orange_money' | 'cash' | 'paypal';
 
 export default function CheckoutView() {
-  const { items, getTotalPrice, clearCart } = useCartStore();
+  const { items, getTotalPrice, clearCart, cartToken } = useCartStore();
   const { navigate } = useNavigationStore();
   const [submitting, setSubmitting] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
@@ -67,6 +67,24 @@ export default function CheckoutView() {
   });
 
   const total = getTotalPrice();
+
+  useEffect(() => {
+    if (!cartToken) return;
+    
+    const timer = setTimeout(() => {
+      fetch('/api/cart/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token: cartToken,
+          email: form.email,
+          items: items,
+        }),
+      }).catch(console.error);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [cartToken, form.email, items]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -164,6 +182,19 @@ export default function CheckoutView() {
       setOrderId(order.id);
       setOrderSuccess(true);
       clearCart();
+      
+      // Mettre à jour le statut du panier à "completed"
+      fetch('/api/cart/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token: cartToken,
+          email: form.email,
+          items: items,
+          status: 'completed'
+        }),
+      }).catch(console.error);
+
       SoundEngine.playSuccess();
       toast.success('Commande confirmée !');
     } catch (error) {
