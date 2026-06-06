@@ -21,6 +21,7 @@ export interface CartItem {
 interface CartState {
   items: CartItem[];
   isOpen: boolean;
+  cartToken: string | null;
   
   // Actions
   addItem: (item: CartItem) => void;
@@ -41,12 +42,15 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       items: [],
       isOpen: false,
+      cartToken: null,
 
       addItem: (item) => {
         set((state) => {
+          const newToken = state.cartToken || Math.random().toString(36).substring(2) + Date.now().toString(36);
           const existing = state.items.find((i) => i.variantId === item.variantId);
           if (existing) {
             return {
+              cartToken: newToken,
               items: state.items.map((i) =>
                 i.variantId === item.variantId
                   ? { ...i, quantity: i.quantity + item.quantity }
@@ -54,7 +58,7 @@ export const useCartStore = create<CartState>()(
               ),
             };
           }
-          return { items: [...state.items, item] };
+          return { cartToken: newToken, items: [...state.items, item] };
         });
       },
 
@@ -86,7 +90,7 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: 'hb-service-cart',
-      partialize: (state) => ({ items: state.items }),
+      partialize: (state) => ({ items: state.items, cartToken: state.cartToken }),
     }
   )
 );
