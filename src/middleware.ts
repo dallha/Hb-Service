@@ -40,6 +40,31 @@ export async function middleware(request: NextRequest) {
   // --- Pages / Frontend ---
   let response = intlMiddleware(request);
 
+  // Securiser le cookie NEXT_LOCALE
+  const nextLocaleCookie = response.cookies.get('NEXT_LOCALE');
+  if (nextLocaleCookie) {
+    response.cookies.set({
+      name: 'NEXT_LOCALE',
+      value: nextLocaleCookie.value,
+      path: '/',
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 60 * 60 * 24 * 365,
+    });
+  }
+
+  // Convertir 307 en 308 pour le SEO
+  if (response.status === 307) {
+    const location = response.headers.get('location');
+    if (location) {
+      const newResponse = NextResponse.redirect(location, 308);
+      response.cookies.getAll().forEach((cookie) => {
+        newResponse.cookies.set(cookie);
+      });
+      response = newResponse;
+    }
+  }
+
   // Apply Supabase session cookies
   const { user } = await updateSession(request, response);
 

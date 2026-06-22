@@ -17,7 +17,11 @@ import AmbientStars from '@/components/AmbientStars';
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings();
   return {
-    title: settings.seo_title || "HB_Service — Parfums & Soins Naturels Premium",
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://hbservice.store'),
+    title: {
+      default: settings.seo_title || "HB_Service — Parfums & Soins Naturels Premium",
+      template: "%s | HB_Service",
+    },
     description: settings.seo_description || "Découvrez des créations olfactives d'exception, nées du savoir-faire africain et de la pureté des ingrédients naturels.",
     keywords: ["HB_Service", "parfum", "soins naturels", "premium", "Afrique", "parfumerie", "skincare"],
     icons: { icon: settings.logo_url || "/logo-gold.jpg" },
@@ -25,6 +29,18 @@ export async function generateMetadata(): Promise<Metadata> {
       title: settings.seo_title || "HB_Service — Parfums & Soins Naturels Premium",
       description: settings.seo_description || "Découvrez des créations olfactives d'exception, nées du savoir-faire africain et de la pureté des ingrédients naturels.",
       type: "website",
+      siteName: "HB_Service",
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: settings.seo_title || "HB_Service — Parfums & Soins Naturels Premium",
+    },
+    alternates: {
+      canonical: '/',
+      languages: {
+        'fr': '/fr',
+        'en': '/en',
+      },
     },
   };
 }
