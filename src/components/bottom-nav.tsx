@@ -2,14 +2,25 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { 
+  LayoutDashboard, 
+  ShoppingCart, 
+  Package, 
+  Users, 
+  BarChart3, 
+  Settings, 
+  User, 
+  Bell, 
+  LogOut 
+} from "lucide-react";
 
 const navigation = [
-  { name: "TABLEAU DE BORD", href: "#", icon: "dashboard" },
-  { name: "COMMANDES", href: "#", icon: "shopping_cart" },
-  { name: "CATALOGUE", href: "#", icon: "inventory_2" },
-  { name: "CLIENTS", href: "#", icon: "group" },
-  { name: "STATISTIQUES", href: "#", icon: "bar_chart" },
-  { name: "PARAMÈTRES", href: "#", icon: "settings" },
+  { name: "TABLEAU DE BORD", href: "#", icon: LayoutDashboard },
+  { name: "COMMANDES", href: "#", icon: ShoppingCart },
+  { name: "CATALOGUE", href: "#", icon: Package },
+  { name: "CLIENTS", href: "#", icon: Users },
+  { name: "STATISTIQUES", href: "#", icon: BarChart3 },
+  { name: "PARAMÈTRES", href: "#", icon: Settings },
 ];
 
 export function BottomNav() {
@@ -27,6 +38,7 @@ export function BottomNav() {
       <div className="flex-1 flex items-center justify-start md:justify-center gap-1 overflow-x-auto no-scrollbar">
         {navigation.map((item) => {
           const isActive = item.name === "TABLEAU DE BORD";
+          const IconComponent = item.icon;
           return (
             <Link
               key={item.name}
@@ -35,7 +47,7 @@ export function BottomNav() {
                 isActive ? "bg-white/20" : "hover:bg-white/10"
               }`}
             >
-              <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
+              <IconComponent size={20} className="mb-0.5" />
               <span className={`text-[10px] ${isActive ? "font-bold" : "font-medium"}`}>
                 {item.name}
               </span>
@@ -48,17 +60,17 @@ export function BottomNav() {
       <div className="flex items-center gap-2 md:gap-4 ml-4 md:ml-8">
         <div className="hidden md:flex items-center gap-2 border-r border-white/20 pr-4">
           <div className="w-8 h-8 rounded-full border border-white/30 bg-primary-container flex items-center justify-center">
-            <span className="material-symbols-outlined text-sm">person</span>
+            <User size={16} />
           </div>
           <span className="text-xs font-bold">Admin</span>
         </div>
         <div className="flex items-center gap-2">
           {/* Action Button (Hidden on mobile to save space, or keep small) */}
           <button className="hidden sm:flex bg-[#D0A21C] hover:bg-[#b88c14] text-white px-3 py-1.5 rounded-lg text-[11px] font-bold transition-colors items-center gap-1">
-            <span className="material-symbols-outlined text-[16px]">notifications</span>
+            <Bell size={16} />
           </button>
           <button className="bg-error-container/20 hover:bg-error text-white px-3 py-1.5 rounded-lg text-[11px] font-bold transition-colors flex items-center gap-1">
-            <span className="material-symbols-outlined text-[16px]">logout</span>
+            <LogOut size={16} />
           </button>
         </div>
       </div>
