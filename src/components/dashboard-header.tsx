@@ -9,7 +9,7 @@ export function DashboardHeader({ title }: { title?: string }) {
           <span className="material-symbols-outlined">menu</span>
         </button>
         <h1 className="font-headline-lg-mobile text-headline-lg-mobile text-primary font-bold">
-          {title || "Al Mouyassar"}
+          {title || "HB Service"}
         </h1>
       </div>
       <div className="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center overflow-hidden text-white">
