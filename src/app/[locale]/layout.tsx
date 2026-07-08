@@ -12,7 +12,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { locales } from "@/i18n";
-import { Sidebar } from '@/components/sidebar';
+import { BottomNav } from '@/components/bottom-nav';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { Providers } from './providers';
 import SupabaseAuthListener from "@/components/SupabaseAuthListener";
@@ -71,11 +71,11 @@ export default async function RootLayout(props: {
       <head>
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
-      <body className="antialiased bg-surface-main text-on-background font-sans overflow-hidden h-screen w-full flex">
+      <body className="antialiased bg-surface-main text-on-background font-sans overflow-hidden h-screen w-full flex flex-col">
         <AmbientStars />
         <NextIntlClientProvider messages={messages}>
           <Providers>
-            <div className="flex-1 flex flex-col h-screen overflow-hidden md:pr-[280px]">
+            <div className="flex-1 flex flex-col h-screen overflow-hidden pb-16">
                <div className="flex-1 overflow-y-auto p-4 md:p-8">
                   <DashboardHeader />
                   <main className="max-w-7xl mx-auto w-full relative z-10">
@@ -84,9 +84,7 @@ export default async function RootLayout(props: {
                   </main>
                </div>
             </div>
-            <div className="hidden md:flex relative z-50">
-               <Sidebar />
-            </div>
+            <BottomNav />
             <Toaster position="top-right" richColors />
             <MarketingPixels settings={settings} />
           </Providers>

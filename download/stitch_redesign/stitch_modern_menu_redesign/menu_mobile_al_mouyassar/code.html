@@ -1,0 +1,312 @@
+<!DOCTYPE html><html class="light" lang="fr"><head><style class="noir noir-inline" media="screen">[data-noir-inline-background-color] { background-color: var(--noir-inline-background-color) !important; } [data-noir-inline-border-color] { border-color: var(--noir-inline-border-color) !important; } [data-noir-inline-border-top-color] { border-top-color: var(--noir-inline-border-top-color) !important; } [data-noir-inline-border-right-color] { border-right-color: var(--noir-inline-border-right-color) !important; } [data-noir-inline-border-bottom-color] { border-bottom-color: var(--noir-inline-border-bottom-color) !important; } [data-noir-inline-border-left-color] { border-left-color: var(--noir-inline-border-left-color) !important; } [data-noir-inline-box-shadow] { box-shadow: var(--noir-inline-box-shadow) !important; } [data-noir-inline-color] { color: var(--noir-inline-color) !important; } [data-noir-inline-fill] { fill: var(--noir-inline-fill) !important; } [data-noir-inline-stroke] { stroke: var(--noir-inline-stroke) !important; } [data-noir-inline-outline-color] { outline-color: var(--noir-inline-outline-color) !important; } [data-noir-inline-stop-color] { stop-color: var(--noir-inline-stop-color) !important; } [data-noir-inline-background-image] { background-image: var(--noir-inline-background-image) !important; } [data-noir-inline-caret-color] { caret-color: var(--noir-inline-caret-color) !important; } [data-noir-inline-accent-color] { accent-color: var(--noir-inline-accent-color) !important; } [data-noir-inline-mix-blend-mode] { mix-blend-mode: var(--noir-inline-mix-blend-mode) !important; } [data-noir-inline--webkit-text-fill-color] { -webkit-text-fill-color: var(--noir-inline--webkit-text-fill-color) !important; } [data-noir-inline-color-scheme] { color-scheme: var(--noir-inline-color-scheme) !important; } </style><style class="noir noir-root" media="screen">@layer noir.noir-root { 
+			:root {
+				color-scheme: dark;
+				--noir-base-background: #111517;
+				--noir-base-text: #e8e6e3;
+				--noir-base-border: #2b363b;
+				--noir-base-selection-background: #004daa;
+				--noir-base-selection-text: #e8e6e3;
+			}
+			 input, textarea, select, button { background-color: #111517; }
+			html, body, input, textarea, select, button {
+				border-color: #736b5f;
+				color: #e8e6e3;
+			}
+			svg text { fill: rgb(232, 230, 227); }
+			a { color: #3391ff; }
+			table { border-color: #4c5e66; }
+			::placeholder { color: #b2aba1; }
+			input:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill {
+				background-color: #4e5200 !important;
+				color: #e8e6e3 !important;
+			}
+			input::-webkit-credentials-auto-fill-button, input::-webkit-contacts-auto-fill-button, input::-webkit-caps-lock-indicator { 
+				background-color: #e8e6e3 !important;
+			}
+			mark {
+				background-color: #cccc00;
+				color: #FFF;
+			}
+			
+			
+			
+		 }</style><style class="noir noir-init" media="screen">
+			html, body, body :not(iframe) {
+				background-color: #111517 !important;
+				border-color: rgba(140, 130, 115, 0.2) !important;
+				color: #e8e6e3 !important;
+			}
+		</style><script id="noir-helper" class="noir noir-helper" src="webkit-masked-url://hidden/"></script>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Institut Coranique Al Mouyassar - Mobile Navigation</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#dce9ff",
+                        "on-surface": "#0b1c30",
+                        "accent-success": "#00855b",
+                        "surface-bright": "#f8f9ff",
+                        "on-background": "#0b1c30",
+                        "secondary-container": "#dbe4ea",
+                        "on-secondary-fixed": "#141d21",
+                        "outline-soft": "#c2c6d6",
+                        "on-tertiary-container": "#92e7bc",
+                        "on-surface-variant": "#424754",
+                        "error-container": "#ffdad6",
+                        "primary-container": "#004D40", /* Adjusted to Brand Green */
+                        "inverse-primary": "#adc6ff",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed": "#001a42",
+                        "secondary-fixed": "#dbe4ea",
+                        "error": "#ba1a1a",
+                        "surface-main": "#f8f9ff",
+                        "tertiary-fixed": "#9ff4c8",
+                        "on-secondary-fixed-variant": "#3f484d",
+                        "on-secondary-container": "#5d666b",
+                        "tertiary": "#005035",
+                        "surface": "#f8f9ff",
+                        "on-primary-fixed-variant": "#004395",
+                        "surface-container-low": "#eff4ff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "outline": "#727784",
+                        "background": "#f8f9ff",
+                        "surface-tint": "#085ac0",
+                        "tertiary-fixed-dim": "#83d7ad",
+                        "surface-sidebar": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed-dim": "#bfc8cd",
+                        "primary-fixed-dim": "#adc6ff",
+                        "accent-error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "primary": "#004D40", /* Brand Green */
+                        "secondary": "#D0A21C", /* Brand Yellow */
+                        "surface-dim": "#cbdbf5",
+                        "surface-container": "#e5eeff",
+                        "surface-card": "#ffffff",
+                        "surface-variant": "#d3e4fe",
+                        "outline-variant": "#c2c6d5",
+                        "on-primary-container": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed": "#d8e2ff",
+                        "tertiary-container": "#026a48",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "on-tertiary-fixed": "#002113",
+                        "inverse-surface": "#213145",
+                        "surface-container-highest": "#d3e4fe"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "sidebar-width": "280px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "32px",
+                        "container-max": "1440px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "title-md": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "body-sm": ["Hanken Grotesk"],
+                        "label-caps": ["Hanken Grotesk"]
+                    }
+                }
+            }
+        }
+    </script><meta name="theme-color" content="#111517" class="noir noir-fallback">
+<style>
+        body { font-family: 'Hanken Grotesk', sans-serif; -webkit-font-smoothing: antialiased; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .drawer-overlay { backdrop-filter: blur(4px); background-color: rgba(11, 28, 48, 0.4); }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c2c6d6; border-radius: 10px; }
+    </style><style class="noir noir-dynamic" media="screen"></style>
+<style class="noir noir-dynamic" media="screen"></style><style class="noir noir-dynamic" media="screen"></style><style class="noir noir-dynamic" media="screen"></style><style class="noir noir-dynamic" media="screen"></style><style class="noir noir-dynamic" media="screen"></style><style class="noir noir-dynamic" media="screen"></style></head>
+<body class="bg-surface-main text-on-background overflow-hidden h-screen w-full">
+<!-- Mock Dashboard Background (Visible behind Drawer) -->
+<div class="absolute inset-0 z-0 p-margin-mobile flex flex-col gap-6">
+<!-- Top App Bar Mock -->
+<header class="flex justify-between items-center h-16 w-full">
+<div class="flex items-center gap-4">
+<button class="w-12 h-12 flex items-center justify-center rounded-full bg-surface-container-low text-primary">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary font-bold">Al Mouyassar</h1>
+</div>
+<div class="w-10 h-10 rounded-full bg-primary-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional profile portrait of a modern educator or administrator, wearing traditional yet contemporary West African professional attire. The lighting is soft and corporate, with a clean architectural background in the colors of a prestigious university. The image is crisp, high-resolution, and projects an aura of authority and wisdom." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNbetPnvtZZycQAP_s5cVSuQWf2n5CFefVbk7Bq00DNwUKucX4L8pVb07gfMx1qlnyJq9sPQU_kGhszeToTQgZv4n_95X34SS5Yszlh1MvMjhs6_uvJYMd-SBwSvHhmXS-_-abQb9p53iTYh13hFuUCWLwPALRjmwHU1p8OiP-Kh7BTRwVzAJ_WDVIzHZXT-NzdAbvD6ZG7x2NJMGuqf4OOyqvJdicj5VZPvPUWsyxoZhsEap8GKE">
+</div>
+</header>
+<!-- Bento Grid Mock Content -->
+<div class="grid grid-cols-1 gap-4">
+<div class="h-40 bg-surface-card rounded-xl shadow-sm border border-outline-soft p-6 flex flex-col justify-between">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">school</span>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase">Effectif Total</p>
+<p class="font-headline-lg-mobile text-headline-lg-mobile font-extrabold text-primary">1,248 Élèves</p>
+</div>
+</div>
+<div class="h-40 bg-surface-card rounded-xl shadow-sm border border-outline-soft p-6 flex flex-col justify-between">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">account_balance</span>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase">Trésorerie</p>
+<p class="font-headline-lg-mobile text-headline-lg-mobile font-extrabold text-primary">45,200,000 FCFA</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Navigation Drawer Overlay -->
+<div class="fixed inset-0 z-50 drawer-overlay flex overflow-hidden">
+<!-- Drawer Menu -->
+<nav class="fixed inset-y-0 left-0 z-50 flex flex-col w-[280px] bg-surface-sidebar shadow-md rounded-r-xl h-full overflow-hidden border-r border-outline-soft">
+<!-- Header Profile Section -->
+<div class="p-6 bg-surface-sidebar border-b border-outline-soft flex flex-col items-start gap-4">
+<div class="w-16 h-16 rounded-full ring-2 ring-primary/20 ring-offset-2 overflow-hidden bg-primary-container">
+<img class="w-full h-full object-cover" data-alt="Close up profile picture of a tech-savvy administrator named mrniass. The image is styled as a professional LinkedIn-style avatar, with high-quality soft focus on the background. The aesthetic is modern corporate with deep teal and warm golden tones highlighting the subject's professional demeanor." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6UhNl0T00PZBFy1PYqYFWm1mXTtgohUjBV3cMPauFba8RLBfmdzqDKTl5A4pfe2RSvCo0G-Jbai3BoFViOu_iTzcyR6s86OND2peDW0e3FgI2PIrhjKMkjIgVwodsQGTaUb0Ljil9ZcufcaJHLl-POUjD5L6-ee8U0hilS4kDqEQKbHiMlJzrd9dPnrf2w0ozo-Lgr-OM6uzvkL_jPW9XsfZPbrps3rMr3GwRuRCoBKRJZX3D9lM">
+</div>
+<div>
+<h2 class="font-title-md text-title-md text-primary font-extrabold">mrniass</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Super Admin</p>
+<p class="mt-1 font-label-caps text-[10px] text-primary bg-surface-container px-2 py-0.5 rounded-full inline-block">Institut Al Mouyassar</p>
+</div>
+</div>
+<!-- Scrollable Navigation Items -->
+<div class="flex-1 overflow-y-auto py-4">
+<ul class="flex flex-col">
+<!-- Pilotage (Active) -->
+<li class="">
+<a class="flex items-center gap-4 bg-primary text-on-primary rounded-lg px-4 py-3 mx-4 my-1 transition-all duration-200 shadow-lg shadow-primary/20 scale-[0.98]" href="#">
+<span class="material-symbols-outlined" style="font-size: 28px; font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;">dashboard</span>
+<span class="font-body-lg text-body-lg font-semibold">Pilotage</span>
+</a>
+</li>
+<!-- Other items (Inactive) -->
+<li class="">
+<a class="flex items-center gap-4 text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 rounded-lg px-4 py-3 mx-4 my-1" href="#">
+<span class="material-symbols-outlined" style="font-size: 28px; font-variation-settings: &quot;FILL&quot; 0, &quot;wght&quot; 400, &quot;GRAD&quot; 0, &quot;opsz&quot; 24;">forum</span>
+<span class="font-body-lg text-body-lg">Espace Échanges</span>
+</a>
+</li>
+<li class="">
+<a class="flex items-center gap-4 text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 rounded-lg px-4 py-3 mx-4 my-1" href="#">
+<span class="material-symbols-outlined" style="font-size: 28px; font-variation-settings: &quot;FILL&quot; 0, &quot;wght&quot; 400, &quot;GRAD&quot; 0, &quot;opsz&quot; 24;">menu_book</span>
+<span class="font-body-lg text-body-lg">Daara / Halaqāt</span>
+</a>
+</li>
+<li class="">
+<a class="flex items-center gap-4 text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 rounded-lg px-4 py-3 mx-4 my-1" href="#">
+<span class="material-symbols-outlined" style="font-size: 28px; font-variation-settings: &quot;FILL&quot; 0, &quot;wght&quot; 400, &quot;GRAD&quot; 0, &quot;opsz&quot; 24;">school</span>
+<span class="font-body-lg text-body-lg">Pôle Scolarité</span>
+</a>
+</li>
+<li class="">
+<a class="flex items-center gap-4 text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 rounded-lg px-4 py-3 mx-4 my-1" href="#">
+<span class="material-symbols-outlined" style="font-size: 28px; font-variation-settings: &quot;FILL&quot; 0, &quot;wght&quot; 400, &quot;GRAD&quot; 0, &quot;opsz&quot; 24;">history_edu</span>
+<span class="font-body-lg text-body-lg">Groupe Scolaire Français</span>
+</a>
+</li>
+<li class="">
+<a class="flex items-center gap-4 text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 rounded-lg px-4 py-3 mx-4 my-1" href="#">
+<span class="material-symbols-outlined" style="font-size: 28px; font-variation-settings: &quot;FILL&quot; 0, &quot;wght&quot; 400, &quot;GRAD&quot; 0, &quot;opsz&quot; 24;">group</span>
+<span class="font-body-lg text-body-lg">Vie Scolaire</span>
+</a>
+</li>
+<li class="">
+<a class="flex items-center gap-4 text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 rounded-lg px-4 py-3 mx-4 my-1" href="#">
+<span class="material-symbols-outlined" style="font-size: 28px; font-variation-settings: &quot;FILL&quot; 0, &quot;wght&quot; 400, &quot;GRAD&quot; 0, &quot;opsz&quot; 24;">payments</span>
+<span class="font-body-lg text-body-lg">Comptabilité</span>
+</a>
+</li>
+<li class="">
+<a class="flex items-center gap-4 text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 rounded-lg px-4 py-3 mx-4 my-1" href="#">
+<span class="material-symbols-outlined" style="font-size: 28px; font-variation-settings: &quot;FILL&quot; 0, &quot;wght&quot; 400, &quot;GRAD&quot; 0, &quot;opsz&quot; 24;">account_balance</span>
+<span class="font-body-lg text-body-lg">RAF</span>
+</a>
+</li>
+<li class="">
+<a class="flex items-center gap-4 text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 rounded-lg px-4 py-3 mx-4 my-1" href="#">
+<span class="material-symbols-outlined" style="font-size: 28px; font-variation-settings: &quot;FILL&quot; 0, &quot;wght&quot; 400, &quot;GRAD&quot; 0, &quot;opsz&quot; 24;">badge</span>
+<span class="font-body-lg text-body-lg">Ressources Humaines</span>
+</a>
+</li>
+<li class="">
+<a class="flex items-center gap-4 text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 rounded-lg px-4 py-3 mx-4 my-1" href="#">
+<span class="material-symbols-outlined" style="font-size: 28px; font-variation-settings: &quot;FILL&quot; 0, &quot;wght&quot; 400, &quot;GRAD&quot; 0, &quot;opsz&quot; 24;">settings</span>
+<span class="font-body-lg text-body-lg">Admin</span>
+</a>
+</li>
+<li class="">
+<a class="flex items-center gap-4 text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 rounded-lg px-4 py-3 mx-4 my-1" href="#">
+<span class="material-symbols-outlined" style="font-size: 28px; font-variation-settings: &quot;FILL&quot; 0, &quot;wght&quot; 400, &quot;GRAD&quot; 0, &quot;opsz&quot; 24;">lock_person</span>
+<span class="font-body-lg text-body-lg">Gestion des Accès</span>
+</a>
+</li>
+</ul>
+</div>
+<!-- Footer Section -->
+<div class="p-4 border-t border-outline-soft flex flex-col gap-2 bg-surface-sidebar">
+<button class="w-full flex items-center justify-center gap-3 bg-[#D0A21C] text-white py-3 px-4 rounded-lg font-title-md text-title-md hover:brightness-110 active:scale-95 transition-all shadow-md">
+<span class="material-symbols-outlined" style="font-size: 28px;">event_available</span>
+                    Configurer l'Année Active
+                </button>
+<button class="w-full flex items-center justify-center gap-3 bg-surface-container text-error py-3 px-4 rounded-lg font-title-md text-title-md hover:bg-error-container active:scale-95 transition-all">
+<span class="material-symbols-outlined" style="font-size: 28px;">logout</span>
+                    Déconnexion
+                </button>
+</div>
+</nav>
+<!-- Tap to close area -->
+<div class="flex-1 cursor-pointer"></div>
+</div>
+<!-- Subtle Page Decor -->
+<div class="fixed bottom-0 right-0 p-8 pointer-events-none opacity-5">
+<span class="material-symbols-outlined text-[320px]">mosque</span>
+</div>
+<script>
+        // Micro-interactions for drawer items
+        document.querySelectorAll('nav a').forEach(item => {
+            item.addEventListener('click', (e) => {
+                // If not Pilotage (which is already active)
+                if (!item.classList.contains('bg-primary')) {
+                    // Reset all
+                    document.querySelectorAll('nav a').forEach(i => {
+                        i.classList.remove('bg-primary', 'text-on-primary', 'shadow-lg', 'shadow-primary/20', 'scale-[0.98]', 'font-semibold');
+                        i.classList.add('text-on-surface-variant');
+                        const icon = i.querySelector('.material-symbols-outlined');
+                        if (icon) icon.style.fontVariationSettings = "'FILL' 0";
+                    });
+                    
+                    // Set active
+                    item.classList.add('bg-primary', 'text-on-primary', 'shadow-lg', 'shadow-primary/20', 'scale-[0.98]', 'font-semibold');
+                    item.classList.remove('text-on-surface-variant');
+                    const icon = item.querySelector('.material-symbols-outlined');
+                    if (icon) icon.style.fontVariationSettings = "'FILL' 1";
+                }
+            });
+        });
+    </script>
+
+
+</body></html>
