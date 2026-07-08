@@ -1,5 +1,7 @@
 import { requireAdmin } from '@/lib/auth-admin';
 import { redirect } from 'next/navigation';
+import BottomNav from '@/components/bottom-nav';
+import { DashboardHeader } from '@/components/dashboard-header';
 
 export default async function AdminLayout({
   children,
@@ -16,5 +18,13 @@ export default async function AdminLayout({
     redirect(`/${locale}/login`);
   }
 
-  return <>{children}</>;
+  return (
+    <div className="flex-1 flex flex-col h-screen overflow-hidden pb-16 md:pb-0 md:pr-[280px]">
+      <div className="flex-1 overflow-y-auto p-4 md:p-8">
+        <DashboardHeader />
+        {children}
+      </div>
+      <BottomNav />
+    </div>
+  );
 }

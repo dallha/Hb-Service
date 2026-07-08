@@ -22,12 +22,12 @@ import {
  * - icon : Le composant icône provenant de lucide-react
  */
 const navigation = [
-  { name: "TABLEAU DE BORD", href: "#", icon: LayoutDashboard },
-  { name: "COMMANDES", href: "#", icon: ShoppingCart },
-  { name: "CATALOGUE", href: "#", icon: Package },
-  { name: "CLIENTS", href: "#", icon: Users },
-  { name: "STATISTIQUES", href: "#", icon: BarChart3 },
-  { name: "PARAMÈTRES", href: "#", icon: Settings },
+  { name: "TABLEAU DE BORD", href: "/admin", icon: LayoutDashboard },
+  { name: "COMMANDES", href: "/admin/orders", icon: ShoppingCart },
+  { name: "CATALOGUE", href: "/admin/products", icon: Package },
+  { name: "CLIENTS", href: "/admin/users", icon: Users },
+  { name: "STATISTIQUES", href: "/admin/stats", icon: BarChart3 },
+  { name: "PARAMÈTRES", href: "/admin/settings", icon: Settings },
 ];
 
 /**
@@ -37,21 +37,24 @@ const navigation = [
  * suivant une approche "Mobile First". Sur les petits écrans, les éléments de navigation
  * défilent horizontalement si l'espace est insuffisant.
  */
-export function BottomNav() {
+export default function BottomNav() {
   const pathname = usePathname();
+  // Suppression du [locale] pour la vérification du chemin
+  const cleanPathname = pathname.replace(/^\/[a-z]{2}\//, '/');
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-primary text-white h-16 z-40 flex items-center px-4 md:px-6 shadow-lg border-t border-white/10">
       
       {/* Brand (Hidden on very small screens, visible on md) */}
       <div className="hidden md:flex items-center gap-2 mr-8">
-        <span className="font-bold text-lg tracking-tight">HB SERVICE</span>
+        <Link href="/admin" className="font-bold text-lg tracking-tight">HB SERVICE</Link>
       </div>
 
       {/* Nav Items (Scrollable horizontally on mobile) */}
       <div className="flex-1 flex items-center justify-start md:justify-center gap-1 overflow-x-auto no-scrollbar">
         {navigation.map((item) => {
-          const isActive = item.name === "TABLEAU DE BORD";
+          // Gestion des urls d'administration pour la surbrillance (actif)
+          const isActive = cleanPathname === item.href || cleanPathname.startsWith(item.href + '/');
           const IconComponent = item.icon;
           return (
             <Link
