@@ -1,13 +1,19 @@
 import type { Metadata } from "next";
+import { Hanken_Grotesk } from "next/font/google";
 import "../globals.css";
+
+const hankenGrotesk = Hanken_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-hanken-grotesk",
+  weight: ["300", "400", "500", "600", "700", "800"],
+});
 import { Toaster } from "@/components/ui/sonner";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { locales } from "@/i18n";
-import Header from '@/components/header';
-import Footer from '@/components/footer';
-import ConseillerVirtuel from '@/components/conseiller-virtuel';
+import { Sidebar } from '@/components/sidebar';
+import { DashboardHeader } from '@/components/dashboard-header';
 import { Providers } from './providers';
 import SupabaseAuthListener from "@/components/SupabaseAuthListener";
 import { getSettings } from "@/lib/settings";
@@ -61,18 +67,26 @@ export default async function RootLayout(props: {
   const settings = await getSettings();
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <body className="antialiased bg-background text-foreground font-sans">
+    <html lang={locale} suppressHydrationWarning className={`${hankenGrotesk.variable}`}>
+      <head>
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+      </head>
+      <body className="antialiased bg-surface-main text-on-background font-sans overflow-hidden h-screen w-full flex">
         <AmbientStars />
         <NextIntlClientProvider messages={messages}>
           <Providers>
-            <Header settings={settings} />
-            <main className="flex-1 min-h-screen">
-              <SupabaseAuthListener />
-              {children}
-            </main>
-            <ConseillerVirtuel settings={settings} />
-            <Footer settings={settings} />
+            <div className="hidden md:flex relative z-50">
+               <Sidebar />
+            </div>
+            <div className="flex-1 flex flex-col h-screen overflow-hidden">
+               <div className="flex-1 overflow-y-auto p-4 md:p-8">
+                  <DashboardHeader />
+                  <main className="max-w-7xl mx-auto w-full relative z-10">
+                    <SupabaseAuthListener />
+                    {children}
+                  </main>
+               </div>
+            </div>
             <Toaster position="top-right" richColors />
             <MarketingPixels settings={settings} />
           </Providers>

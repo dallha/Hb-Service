@@ -128,19 +128,16 @@
   }
 }
 
-/* ─── Luxury Scrollbar ────────────────────────────────────── */
+/* ─── Modern Scrollbar (Redesign) ────────────────────────── */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 ::-webkit-scrollbar-track {
-  background: #F8F7F5;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #D4AF37;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #B8962E;
+  background: #c2c6d6;
+  border-radius: 10px;
 }
 
 /* ─── Luxury Selection ────────────────────────────────────── */
