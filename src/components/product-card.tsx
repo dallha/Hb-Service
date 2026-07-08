@@ -49,8 +49,9 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         : product.gender === 'H'
         ? '/images/products/perfume-oud.png'
         : '/images/products/perfume-amber.png'
-      : null;
-  const displayImageUrl = product.imageUrl || fallbackImageUrl;
+      : '/images/products/home-spray-500ml.jpg'; // Un placeholder générique existant
+
+  const [imgSrc, setImgSrc] = useState(product.imageUrl || fallbackImageUrl);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -93,11 +94,17 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         onClick={() => navigate('product', { productSlug: product.slug })}
       >
       <div className="relative aspect-[3/4] overflow-hidden rounded-sm bg-muted mb-3 sm:mb-4">
-        {displayImageUrl && (
+        {imgSrc && (
           <Image
-            src={displayImageUrl}
+            src={imgSrc}
             alt={product.name}
             fill
+            onError={() => {
+              // Évite une boucle infinie si le fallback échoue aussi
+              if (imgSrc !== fallbackImageUrl) {
+                setImgSrc(fallbackImageUrl);
+              }
+            }}
             className="object-cover transition-transform duration-700 group-hover:scale-105"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
