@@ -51,6 +51,14 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+/**
+ * RootLayout - Layout principal de l'application HB Service
+ * 
+ * Cette architecture implémente le design "NexusFlow Mobile-First".
+ * - Utilise `flex-col` et `h-screen` pour forcer l'application à prendre toute la hauteur sans défilement de la page entière.
+ * - Le contenu principal défile dans une zone dédiée (`overflow-y-auto`).
+ * - Une `BottomNav` (Navigation basse) est fixée en bas, particulièrement adaptée au mobile, remplaçant la Sidebar classique.
+ */
 export default async function RootLayout(props: {
   children: React.ReactNode;
   params: Promise<{ locale: string }>;

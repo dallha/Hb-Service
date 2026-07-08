@@ -14,6 +14,13 @@ import {
   LogOut 
 } from "lucide-react";
 
+/**
+ * Configuration de la navigation principale.
+ * Chaque objet représente un lien dans la barre de navigation basse.
+ * - name : Le texte affiché sous l'icône
+ * - href : L'URL cible
+ * - icon : Le composant icône provenant de lucide-react
+ */
 const navigation = [
   { name: "TABLEAU DE BORD", href: "#", icon: LayoutDashboard },
   { name: "COMMANDES", href: "#", icon: ShoppingCart },
@@ -23,6 +30,13 @@ const navigation = [
   { name: "PARAMÈTRES", href: "#", icon: Settings },
 ];
 
+/**
+ * Composant BottomNav (Navigation Basse Compacte)
+ * 
+ * Il remplace la sidebar traditionnelle par une barre de navigation fixée en bas de l'écran,
+ * suivant une approche "Mobile First". Sur les petits écrans, les éléments de navigation
+ * défilent horizontalement si l'espace est insuffisant.
+ */
 export function BottomNav() {
   const pathname = usePathname();
 

@@ -2,6 +2,15 @@
 
 import { Menu, User } from "lucide-react";
 
+/**
+ * Composant DashboardHeader
+ * 
+ * Cet en-tête s'affiche en haut de la zone de contenu du Dashboard.
+ * Il contient le titre de la page actuelle (passé en prop) ainsi que l'avatar de l'utilisateur.
+ * Sur mobile, il inclut un bouton menu (actuellement caché si on utilise la navigation basse, mais utile si on repasse sur une sidebar).
+ * 
+ * @param title - Le titre de la page affichée
+ */
 export function DashboardHeader({ title }: { title?: string }) {
   return (
     <header className="flex justify-between items-center h-16 w-full mb-6">

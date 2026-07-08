@@ -42,11 +42,12 @@
 - **Gestion d'Erreurs UI** : Le composant gère les déconnexions ou les erreurs de clé API avec des retours visuels immédiats pour l'utilisateur.
 
 ### 🎨 Design & Expérience
+- **Refonte UI NexusFlow (Phase 9)** : Migration vers une architecture Dashboard "Mobile-First" avec une navigation basse compacte (BottomNav) qui remplace la barre latérale traditionnelle. Utilisation d'icônes `lucide-react` garanties sans problèmes de chargement. Intégration complète de la palette de couleurs institutionnelle.
 - **Mode sombre/clair** avec persistance (`localStorage`)
-- Typographie élégante (Inter + Playfair Display)
+- Typographie élégante (Inter + Playfair Display + Hanken Grotesk)
 - Animations fluides (Framer Motion)
 - **Design 100% Mobile Responsive** : Optimisation des grilles de produits, gestion anti-débordement des typographies géantes (`break-words`), et espacement adaptatif du menu pour une navigation fluide sur smartphone.
-- Thème luxe (doré, blanc cassé, noir profond)
+- Thème luxe (doré, blanc cassé, noir profond) avec accents institutionnels.
 - **Impression de Factures optimisée** : Modèle de facture A4 épuré sans fioritures d'interface, prêt à l'impression papier ou PDF en un clic.
 - **Crédits Interactifs** : Le crédit d'identité visuelle (Graphiste de la Hadara) dans le pied de page ouvre une modale détaillée présentant les services, packages et contacts du designer.
 
