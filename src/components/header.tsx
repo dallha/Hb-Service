@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, Menu, X, MessageCircle, Search } from 'lucide-react';
+import { ShoppingBag, Menu, X, MessageCircle, Search, Home, Store } from 'lucide-react';
 import { useCartStore, useNavigationStore } from '@/lib/store';
 import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -122,63 +122,48 @@ export default function Header({ settings = {} }: { settings?: SiteSettingsMap }
 
             {/* Right Actions */}
             <div className="flex items-center gap-1.5 sm:gap-3">
-              {/* WhatsApp - visible on mobile too */}
+              {/* WhatsApp - Hidden on mobile because bottom nav is cleaner */}
               <a
                 href="https://wa.me/212601134545?text=Bonjour%20HB_Service%2C%20j%27aimerais%20en%20savoir%20plus%20sur%20vos%20produits."
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-none text-[#4A7C59] hover:bg-[#4A7C59]/10 transition-colors"
+                className="hidden md:flex items-center justify-center w-10 h-10 rounded-none text-[#4A7C59] hover:bg-[#4A7C59]/10 transition-colors"
                 aria-label="Contacter via WhatsApp"
               >
-                <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+                <MessageCircle className="w-5 h-5" />
               </a>
 
-              {/* Dark/Light Mode Toggle — Premium */}
+              {/* Dark/Light Mode Toggle — Premium (Visible on mobile top) */}
               <ThemeToggle />
 
-              {/* Search Toggle */}
+              {/* Search Toggle (Hidden on mobile) */}
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setSearchOpen(true)}
-                className="relative rounded-none hover:bg-accent/10 w-9 h-9 sm:w-10 sm:h-10"
+                className="hidden md:flex relative rounded-none hover:bg-accent/10 w-10 h-10"
                 aria-label="Recherche"
               >
-                <Search className="w-4 h-4 sm:w-5 sm:h-5" />
+                <Search className="w-5 h-5" />
               </Button>
 
-              {/* Cart */}
+              {/* Cart (Hidden on mobile) */}
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={openCart}
-                className="relative rounded-none hover:bg-accent/10 w-9 h-9 sm:w-10 sm:h-10"
+                className="hidden md:flex relative rounded-none hover:bg-accent/10 w-10 h-10"
                 aria-label="Ouvrir le panier"
               >
-                <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
+                <ShoppingBag className="w-5 h-5" />
                 {totalItems > 0 && (
                   <motion.span
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-4 h-4 sm:w-5 sm:h-5 bg-accent text-accent-foreground text-[10px] sm:text-xs font-bold flex items-center justify-center rounded-full"
+                    className="absolute -top-1 -right-1 w-5 h-5 bg-accent text-accent-foreground text-xs font-bold flex items-center justify-center rounded-full"
                   >
                     {totalItems}
                   </motion.span>
-                )}
-              </Button>
-
-              {/* Mobile Menu Toggle */}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden rounded-none w-9 h-9"
-                aria-label="Menu"
-              >
-                {mobileMenuOpen ? (
-                  <X className="w-5 h-5" />
-                ) : (
-                  <Menu className="w-5 h-5" />
                 )}
               </Button>
             </div>
@@ -202,7 +187,7 @@ export default function Header({ settings = {} }: { settings?: SiteSettingsMap }
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="fixed top-0 right-0 bottom-0 w-[280px] sm:w-72 bg-background z-50 md:hidden flex flex-col pt-16 sm:pt-20 px-5 sm:px-6"
+              className="fixed top-0 right-0 bottom-16 w-[280px] sm:w-72 bg-background z-50 md:hidden flex flex-col pt-16 sm:pt-20 px-5 sm:px-6"
             >
               {navLinks.map((link, i) => (
                 <motion.button
@@ -229,6 +214,56 @@ export default function Header({ settings = {} }: { settings?: SiteSettingsMap }
           </>
         )}
       </AnimatePresence>
+
+      {/* Public Bottom Navigation (Mobile Only) */}
+      <nav className="fixed bottom-0 left-0 right-0 h-16 bg-background/95 backdrop-blur-md border-t border-border z-50 md:hidden flex items-center justify-around px-2 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.2)]">
+        <button
+          onClick={() => { handleLogoClick(); setMobileMenuOpen(false); }}
+          className="flex flex-col items-center justify-center w-16 h-full gap-1 text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <Home className="w-5 h-5" />
+          <span className="text-[10px] font-sans tracking-widest uppercase">Accueil</span>
+        </button>
+
+        <button
+          onClick={() => { handleNav('shop'); setMobileMenuOpen(false); }}
+          className="flex flex-col items-center justify-center w-16 h-full gap-1 text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <Store className="w-5 h-5" />
+          <span className="text-[10px] font-sans tracking-widest uppercase">Boutique</span>
+        </button>
+
+        <button
+          onClick={() => { setSearchOpen(true); setMobileMenuOpen(false); }}
+          className="flex flex-col items-center justify-center w-16 h-full gap-1 text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <Search className="w-5 h-5" />
+          <span className="text-[10px] font-sans tracking-widest uppercase">Recherche</span>
+        </button>
+
+        <button
+          onClick={() => { openCart(); setMobileMenuOpen(false); }}
+          className="flex flex-col items-center justify-center w-16 h-full gap-1 text-muted-foreground hover:text-foreground transition-colors relative"
+        >
+          <div className="relative">
+            <ShoppingBag className="w-5 h-5" />
+            {totalItems > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-accent text-accent-foreground text-[9px] font-bold flex items-center justify-center rounded-full">
+                {totalItems}
+              </span>
+            )}
+          </div>
+          <span className="text-[10px] font-sans tracking-widest uppercase">Panier</span>
+        </button>
+
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="flex flex-col items-center justify-center w-16 h-full gap-1 text-muted-foreground hover:text-foreground transition-colors"
+        >
+          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          <span className="text-[10px] font-sans tracking-widest uppercase">Menu</span>
+        </button>
+      </nav>
 
       {/* Search Overlay */}
       <AnimatePresence>

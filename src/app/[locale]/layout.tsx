@@ -67,7 +67,7 @@ export default async function RootLayout(props: {
         <NextIntlClientProvider messages={messages}>
           <Providers>
             <Header settings={settings} />
-            <main className="flex-1 min-h-screen">
+            <main className="flex-1 min-h-screen pb-16 md:pb-0">
               <SupabaseAuthListener />
               {children}
             </main>
