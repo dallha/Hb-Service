@@ -68,9 +68,6 @@ export default async function RootLayout(props: {
 
   return (
     <html lang={locale} suppressHydrationWarning className={`${hankenGrotesk.variable}`}>
-      <head>
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-      </head>
       <body className="antialiased bg-surface-main text-on-background font-sans overflow-hidden h-screen w-full flex flex-col">
         <AmbientStars />
         <NextIntlClientProvider messages={messages}>
